@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" data-t=""><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mastersheet 2026 – HR Operations Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f5f6fa;--cd:#ffffff;--tx:#0f172a;--mu:#64748b;--bd:#e5e8f0;--pr:#6366f1;--ok:#10b981;--wa:#d97706;--da:#e11d48;--wb:#fff4e0;--db:#ffe8ec;--tip:#0f172a;--glow:rgba(99,102,241,.08);--hd:rgba(255,255,255,.8);--hb:#e5e8f0;--ht:#0f172a;--hm:#64748b;--ctl:#f1f3f9;--ctb:#e1e5ee;--sh:0 1px 2px rgba(15,23,42,.04),0 8px 24px -12px rgba(15,23,42,.10)}
+:root[data-t=dark]{--bg:#0b0d14;--cd:#131723;--tx:#eef1f8;--mu:#8a94a8;--bd:#222839;--pr:#818cf8;--ok:#34d399;--wa:#fbbf24;--da:#fb7185;--wb:rgba(251,191,36,.12);--db:rgba(251,113,133,.13);--tip:#05070c;--glow:rgba(129,140,248,.12);--hd:rgba(11,13,20,.8);--hb:#222839;--ht:#eef1f8;--hm:#8a94a8;--ctl:#171c2b;--ctb:#2a3147;--sh:0 1px 2px rgba(0,0,0,.3),0 12px 32px -16px rgba(0,0,0,.6)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:14px/1.55 Inter,system-ui,"Segoe UI",Arial,sans-serif;color:var(--tx);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;background:var(--bg)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(800px 380px at 8% -10%,rgba(99,102,241,.13),transparent 70%),radial-gradient(700px 340px at 100% 0,rgba(16,185,129,.08),transparent 70%)}
+h1,.k b,.hkc b,.dc,.tl b,.pl b{font-family:Inter,system-ui,sans-serif}
+:focus-visible{outline:2px solid var(--pr);outline-offset:2px}
+header{position:relative;background:var(--hd);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);color:var(--ht);padding:16px 32px 0;border-bottom:1px solid var(--hb)}
+header::after{display:none}
+.top{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center}
+.brand{display:flex;gap:12px;align-items:center}
+.brand svg{padding:7px;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 6px 16px -6px rgba(99,102,241,.6)}
+.brand svg rect{fill:#fff!important}.brand svg rect:nth-child(2){opacity:.7}.brand svg rect:nth-child(3){opacity:.45}
+h1{margin:0;font-size:18px;font-weight:700;letter-spacing:-.02em}
+.sub{color:var(--hm);font-size:12px;margin-top:1px}
+.act{display:flex;gap:8px;flex-wrap:wrap}
+button,select,input{font:inherit}
+.btn{background:var(--ctl);color:var(--tx);border:1px solid var(--ctb);border-radius:10px;padding:7px 13px;cursor:pointer;font-weight:600;font-size:13px;transition:all .15s}
+.btn:hover{border-color:var(--pr);color:var(--pr)}
+.btn:active{transform:scale(.97)}
+#rf{background:var(--pr);border-color:var(--pr);color:#fff}
+#rf:hover{filter:brightness(1.1);color:#fff}
+.tabs{display:flex;gap:2px;background:var(--ctl);padding:3px;border-radius:12px;border:1px solid var(--ctb)}
+.tabs button{background:none;border:0;color:var(--hm);padding:7px 20px;border-radius:9px;cursor:pointer;font-weight:600;transition:all .2s}
+.tabs button.on{background:var(--cd);color:var(--tx);box-shadow:0 1px 3px rgba(15,23,42,.15)}
+.flt{display:flex;flex-wrap:wrap;gap:10px;padding:16px 0 14px;align-items:end}
+.flt label{display:flex;flex-direction:column;font-size:11px;color:var(--hm);gap:4px;font-weight:600;letter-spacing:.02em}
+.flt select,.flt input[type=search]{background:var(--ctl);color:var(--tx);border:1px solid var(--ctb);border-radius:10px;padding:8px 11px;min-width:140px;transition:border-color .15s}
+.flt select:hover,.flt input[type=search]:hover{border-color:var(--pr)}
+.flt select option{color:#0f172a}
+.chk{flex-direction:row!important;align-items:center;gap:7px!important;padding-bottom:9px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;padding:0 0 16px}
+.chip{background:transparent;color:var(--hm);border:1px solid var(--ctb);border-radius:999px;padding:5px 15px;cursor:pointer;font-weight:600;font-size:12px;transition:all .15s}
+.chip:hover{border-color:var(--pr);color:var(--pr)}
+.chip.on{background:var(--pr);border-color:var(--pr);color:#fff}
+main{padding:24px 32px 48px;max-width:1560px;margin:0 auto}
+#vt,#va{animation:in .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+#msg{display:none;margin-bottom:16px;padding:12px 16px;border-radius:12px;background:var(--wb);color:var(--wa);font-weight:600;border:1px solid var(--bd)}
+.c,.k{position:relative;overflow:hidden;background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:18px 20px;box-shadow:var(--sh);transition:border-color .2s,transform .2s,box-shadow .2s}
+.c::before,.k::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(260px circle at var(--mx,-200px) var(--my,-200px),var(--glow),transparent 70%)}
+.c:hover::before,.k:hover::before{opacity:1}
+.k:hover{transform:translateY(-2px);border-color:var(--pr)}
+.c:hover{border-color:color-mix(in srgb,var(--pr) 35%,var(--bd))}
+.c>*,.k>*{position:relative}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.k::after{content:"";position:absolute;left:20px;top:0;width:28px;height:3px;border-radius:0 0 4px 4px;background:var(--pr)}
+.k.w::after{background:var(--wa)}.k.g::after{background:var(--ok)}.k.r::after{background:var(--da)}
+.k small{color:var(--mu);font-weight:600;font-size:12px;display:block;margin-top:4px}
+.k b{display:block;font-size:28px;font-weight:700;letter-spacing:-.03em;margin:6px 0 2px}
+.k span{font-size:12px;color:var(--mu)}
+.k .dl{display:inline-block;font-weight:600;margin-top:6px;padding:2px 8px;border-radius:999px;font-size:11px}
+.k .up{color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}.k .dn{color:var(--da);background:color-mix(in srgb,var(--da) 14%,transparent)}
+#hero{display:grid;grid-template-columns:minmax(320px,1.15fr) 3fr;gap:14px;margin-bottom:14px}
+#hk{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.hkc{display:flex;flex-direction:column;gap:4px;padding:18px 20px 12px}
+.hkc small{color:var(--mu);font-weight:600;font-size:12px}
+.hkc b{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.15}
+.pill{align-self:flex-start;font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--ctl);color:var(--mu)}
+.pill.up{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}.pill.dn{background:var(--db);color:var(--da)}
+.sp{margin-top:auto;padding-top:8px}.sp svg{width:100%;height:auto;display:block}
+.ph{margin:0 0 8px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mu)}
+.pw{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pl{flex:1;min-width:150px;display:grid;gap:11px}
+.pl div{display:flex;align-items:center;gap:8px;font-size:13px}.pl i{width:9px;height:9px;border-radius:50%}.pl b{margin-left:auto}
+.rg{transition:stroke-dashoffset 1.3s cubic-bezier(.2,.8,.2,1)}
+#tg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.hc{grid-column:span 2}
+.tcd h2,.hc h2{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mu);display:flex;align-items:center;margin:0 0 10px}
+.tcd h2 i,.hc h2 i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px}
+.tcd h2 b{margin-left:auto;color:var(--tx);font-size:15px;letter-spacing:0}
+.cs{height:150px;position:relative}
+.hcw{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.dnu{position:relative;height:160px;width:160px;flex:none}
+.dc{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}
+.ht{flex:1;min-width:220px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tl{background:var(--ctl);border-radius:12px;padding:9px 12px}
+.tl small{display:block;color:var(--mu);font-size:11px;font-weight:600}.tl b{font-size:17px}
+.lgd{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--mu)}
+.lgd i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,430px),1fr));gap:14px;margin-top:16px}
+.c h2{margin:0 0 2px;font-size:15px;font-weight:650;letter-spacing:-.01em}
+.c p{margin:0 0 12px;color:var(--mu);font-size:12px}
+.cv{height:290px;position:relative}
+.ins{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px;margin-top:16px}
+.ins ul{list-style:none;margin:0;padding:0}
+.ins li{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.ins li:last-child{border:0}
+.ins em{font-style:normal;font-weight:600;white-space:nowrap}
+.tw{margin-top:16px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:1000px}
+th,td{padding:11px 12px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap}
+th:nth-child(-n+3),td:nth-child(-n+3){text-align:left}
+th{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mu);cursor:pointer;position:sticky;top:0;user-select:none;background:var(--cd)}
+th:hover{color:var(--pr)}
+tbody tr{transition:background .12s}tbody tr:hover{background:var(--ctl)}
+.w2{background:var(--wb);color:var(--wa);border-radius:6px;padding:2px 7px;font-weight:600}
+.d2{background:var(--db);color:var(--da);border-radius:6px;padding:2px 7px;font-weight:600}
+.top2{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.btn2{background:var(--ctl);color:var(--tx);border:1px solid var(--ctb);border-radius:10px;padding:6px 12px;cursor:pointer;font-weight:600;transition:border-color .15s}
+.btn2:hover{border-color:var(--pr)}
+h3.sh{margin:34px 0 -4px;font-size:17px;font-weight:700;letter-spacing:-.02em}
+#hmt{min-width:0}#hmt th,#hmt td{text-align:center;font-size:12px;padding:8px}#hmt th:first-child,#hmt td:first-child{text-align:left}
+#hmt td{border-radius:6px}
+#tk li{margin:7px 0}
+footer{color:var(--mu);font-size:12px;margin-top:20px}
+@media(max-width:1100px){#tg{grid-template-columns:repeat(2,1fr)}#hero{grid-template-columns:1fr}}
+@media(max-width:640px){header,main{padding-left:14px;padding-right:14px}#tg{grid-template-columns:1fr}.hc{grid-column:span 1}}
+@media(prefers-reduced-motion:reduce){*,*::after{animation:none!important;transition:none!important}}
+</style></head>
+<body>
+<header>
+ <div class="top">
+  <div class="brand"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="3" y="4" width="5" height="22" rx="2" fill="#cdd7e6"/><rect x="12" y="4" width="5" height="22" rx="2" fill="#8392a8"/><rect x="21" y="10" width="5" height="16" rx="2" fill="#f2a33a"/></svg><div><h1>HR Corporate Dashboard</h1><div class="sub" id="src">Connecting to Mastersheet 2026…</div></div></div>
+  <div class="tabs"><button class="on" data-v="vt">Trends</button><button data-v="va">Analytics</button></div>
+  <div class="act">
+   <button class="btn" id="rf">Refresh</button>
+   <button class="btn" id="up">Upload CSV</button>
+   <button class="btn" id="th">Dark / Light</button>
+   <button class="btn" id="ch">Clear saved history</button>
+   <input type="file" id="fi" accept=".csv,text/csv" multiple hidden>
+  </div>
+ </div>
+ <div class="flt">
+  <label>Company<select id="fc"></select></label>
+  <label>Department<select id="fd"></select></label>
+  <label>Section<select id="fs"></select></label>
+  <label>Year<select id="fy"></select></label>
+  <label>Month (Analytics)<select id="fm"></select></label>
+  <label>Section search<input type="search" id="fq" placeholder="e.g. Filmline"></label>
+  <label class="chk"><input type="checkbox" id="fh" checked>Hide empty sections</label>
+  <button class="btn" id="rs" type="button">Reset view</button>
+ </div>
+ <div class="chips" id="chips"></div>
+</header>
+<main>
+ <div id="msg"></div>
+ <div id="vt"><section id="hero"><div class="c pulse" id="pulse"></div><div id="hk"></div></section><section id="tg"></section><p id="tn" style="color:var(--mu);font-size:12px;margin:12px 2px 0"></p></div>
+ <div id="va" style="display:none">
+ <section class="kpis" id="kp"></section>
+ <section class="grid">
+  <div class="c"><h2>Overtime cost by company</h2><p>Own OT and TP OT, in Rs</p><div class="cv"><canvas id="c1"></canvas></div></div>
+  <div class="c"><h2>Overtime hours by department</h2><p>Top 10 departments, own OT and TP OT</p><div class="cv"><canvas id="c2"></canvas></div></div>
+  <div class="c"><h2>Headcount: approved vs current</h2><p>Gap shows open or over-filled positions</p><div class="cv"><canvas id="c3"></canvas></div></div>
+  <div class="c"><h2>Attendance quality</h2><p>Late arrival, early out and absenteeism %, weighted by scheduled hours</p><div class="cv"><canvas id="c4"></canvas></div></div>
+  <div class="c"><h2>Joiners and leavers</h2><p>Movement by company</p><div class="cv"><canvas id="c5"></canvas></div></div>
+  <div class="c"><h2>Allowances and reimbursements mix</h2><p>Share of total spend in the filtered view</p><div class="cv"><canvas id="c6"></canvas></div></div>
+ </section>
+ <section class="c"><h2>Key takeaways</h2><ul id="tk" style="margin:8px 0 0;padding-left:18px"></ul></section>
+ <h3 class="sh">Deeper analytics</h3>
+ <section class="grid">
+  <div class="c"><h2>Where OT cost concentrates</h2><p>Top 12 sections with cumulative share of total OT cost</p><div class="cv"><canvas id="p1"></canvas></div></div>
+  <div class="c"><h2>Absenteeism vs OT load</h2><p>Each bubble is a section; size shows current headcount</p><div class="cv"><canvas id="b1"></canvas></div></div>
+  <div class="c"><h2>OT cost per OT hour</h2><p>Rs per hour by company</p><div class="cv"><canvas id="c7"></canvas></div></div>
+  <div class="c"><h2>OT hours per head</h2><p>Overtime load per employee</p><div class="cv"><canvas id="c8"></canvas></div></div>
+  <div class="c"><h2>OT hours composition</h2><p>Standard vs gazetted, own vs TP</p><div class="cv"><canvas id="c9"></canvas></div></div>
+  <div class="c"><h2>Benefits per head</h2><p>Allowances and reimbursements per employee, Rs</p><div class="cv"><canvas id="c10"></canvas></div></div>
+ </section>
+ <section class="c" style="margin-top:18px"><div class="top2"><div><h2>Heatmap: company by department</h2><p>Darker cells mean a higher value</p></div><select id="hm" class="btn2"><option value="cost">OT cost (Rs)</option><option value="ot">OT hours</option><option value="abs">Absenteeism %</option><option value="fill">Headcount fill % (current / approved)</option></select></div><div style="overflow-x:auto"><table id="hmt"></table></div></section>
+ <section class="ins">
+  <div class="c"><h2>Highest OT cost</h2><p>Top 5 sections</p><ul id="i1"></ul></div>
+  <div class="c"><h2>Attendance watch</h2><p>Lowest actual vs scheduled hours</p><ul id="i2"></ul></div>
+  <div class="c"><h2>Headcount gaps</h2><p>Current minus approved, largest first</p><ul id="i3"></ul></div>
+ </section>
+ <section class="c tw">
+  <div class="top2"><div><h2>Section detail</h2><p id="cnt"></p></div><button class="btn2" id="ex">Export CSV</button></div>
+  <table><thead id="th0"></thead><tbody id="tb"></tbody></table>
+ </section>
+ </div>
+ <footer>Amounts in Rs. OT hours and cost include TP columns from the sheet. Percentages are weighted by scheduled hours. Click a column header to sort.</footer>
+</main>
+<script>
+const EXTRA_CSV=[]; // paste more published-CSV links here (one per month tab)
+const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSMBPrqkOVprAn_sLjg2NmzGCimRx13XoDClYB7a4HMcX0j6MjqH9x7u9Z-NlWG2vAEzv16nPaMOIUU/pub?output=csv";
+const K=["co","dept","sec","h0","mon","sch","act","std","gaz","otc","oth","otp","tps","tpg","tpc","tph","tpp","cplh","cplp","ros","late","early","avs","apr","cur","actv","join","leave","c61","abs","lv","pfs","lfa","veh","rel","trn","far","mob","tard","adm","med","adv"];
+const BEN=[["lfa","LFA"],["veh","Vehicle"],["rel","Relocation"],["trn","Transport"],["far","Fare"],["mob","Mobile"],["tard","Tardiness reimb."],["adm","Admin reimb."],["med","Medical / OPD"],["adv","Advance salary"],["pfs","Pending settlement"]];
+const PAL=["#6366f1","#10b981","#f59e0b","#a78bfa","#f43f5e","#0ea5e9","#94a3b8","#fb923c","#22c55e","#ec4899","#818cf8"];
+const $=s=>document.querySelector(s);
+const N=v=>{v=String(v==null?"":v).replace(/[\s,%]/g,"");return v===""||v==="-"?0:(parseFloat(v)||0)};
+const f0=n=>Math.round(n).toLocaleString("en-US");
+const fc=n=>new Intl.NumberFormat("en",{notation:"compact",maximumFractionDigits:1}).format(n);
+const pc=n=>n.toFixed(1)+"%";
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let DATA=[],CH={},SK="cost",SD=-1,ROWS=[];
+
+function parseCSV(t){const r=[];let row=[],c="",q=false;
+ for(let i=0;i<t.length;i++){const h=t[i];
+  if(q){if(h=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=h}
+  else if(h=='"')q=true;else if(h==','){row.push(c);c=""}
+  else if(h=='\n'||h=='\r'){if(h=='\r'&&t[i+1]=='\n')i++;row.push(c);r.push(row);row=[];c=""}
+  else c+=h}
+ if(c||row.length){row.push(c);r.push(row)}return r}
+
+function load(txt,label){
+ const rows=parseCSV(txt).slice(1).filter(r=>r[0]&&r[0].trim()&&r.length>20);
+ if(!rows.length)throw new Error("No data rows found in the CSV.");
+ DATA=rows.map(r=>{const o={};K.forEach((k,i)=>o[k]=i<5?(r[i]||"").trim():N(r[i]));
+  o.ot=o.oth+o.tph;o.cost=o.otc+o.tpc;o.ben=BEN.reduce((s,b)=>s+o[b[0]],0);
+  o.on=!!(o.sch||o.ot||o.cost||o.cur||o.apr||o.ben);return o});
+ mergeHist();
+ const u=k=>[...new Set(DATA.map(d=>d[k]))];
+ fill("#fc",u("co"),"All companies");fill("#fd",u("dept"),"All departments");
+ const m=u("mon").sort((a,b)=>mon(a)-mon(b));fill("#fm",m,"All months");$("#fm").value=m[m.length-1];const ys=[...new Set(m.map(yr))].sort();fill("#fy",ys,"All years");$("#fy").value=ys[ys.length-1];
+ $("#src").textContent=label+" · "+DATA.length+" rows · "+new Date().toLocaleString();
+ $("#msg").style.display="none";render()}
+
+function mon(m){const p=String(m).split("-");return (+p[1]||0)*12+Math.max(0,"JanFebMarAprMayJunJulAugSepOctNovDec".indexOf(p[0].slice(0,3))/3)}
+let H=null;
+function mergeHist(){if(!H){try{H=JSON.parse(localStorage.getItem("hrdash_hist")||"{}")}catch(e){H={}}}let h=H;
+ DATA.forEach(d=>h[d.co+"|"+d.dept+"|"+d.sec+"|"+d.mon]=d);
+ try{localStorage.setItem("hrdash_hist",JSON.stringify(h))}catch(e){}
+ DATA=Object.values(h)}
+function fill(id,list,all){$(id).innerHTML='<option value="">'+all+'</option>'+list.map(x=>'<option>'+x+'</option>').join("")}
+
+async function sync(){
+ $("#src").textContent="Syncing with Google Sheet…";
+ try{let n=0;for(const u of [CSV_URL,...EXTRA_CSV]){const r=await fetch(u+(u.includes("?")?"&":"?")+"t="+Date.now());if(!r.ok)throw new Error("HTTP "+r.status);load(await r.text(),"Live Google Sheet ("+(++n)+" source"+(n>1?"s":"")+")")}}
+ catch(e){const m=$("#msg");m.style.display="block";
+  m.textContent="Live sync failed ("+e.message+"). Use Upload CSV to load the exported sheet (you can select several months at once), or open this file from your own hosting.";
+  $("#src").textContent="Not connected"}}
+
+function agg(rows){
+ const a={std:0,gaz:0,tps:0,tpg:0,sch:0,act:0,oth:0,otc:0,tph:0,tpc:0,apr:0,cur:0,join:0,leave:0,lw:0,ew:0,aw:0,lvw:0,ben:0,n:rows.length};
+ BEN.forEach(b=>a[b[0]]=0);
+ for(const r of rows){["std","gaz","tps","tpg","sch","act","oth","otc","tph","tpc","apr","cur","join","leave","ben"].forEach(k=>a[k]+=r[k]);
+  BEN.forEach(b=>a[b[0]]+=r[b[0]]);
+  a.lw+=r.late*r.sch;a.ew+=r.early*r.sch;a.aw+=r.abs*r.sch;a.lvw+=r.lv*r.sch}
+ const s=a.sch||1;a.late=a.lw/s;a.early=a.ew/s;a.abs=a.aw/s;a.lv=a.lvw/s;
+ a.avs=a.sch?a.act/a.sch*100:0;a.ot=a.oth+a.tph;a.cost=a.otc+a.tpc;a.otp=a.sch?a.ot/a.sch*100:0;return a}
+
+function grp(rows,k){const m={};rows.forEach(r=>(m[r[k]]=m[r[k]]||[]).push(r));
+ return Object.entries(m).map(([n,x])=>[n,agg(x)])}
+
+function filtered(){const c=$("#fc").value,d=$("#fd").value,m=$("#fm").value,y=$("#fy").value,se=$("#fs").value,q=$("#fq").value.toLowerCase(),h=$("#fh").checked;
+ return DATA.filter(r=>(!c||r.co===c)&&(!d||r.dept===d)&&(!m||r.mon===m)&&(!se||r.sec===se)&&(!y||yr(r.mon)==y)&&(!q||(r.sec+" "+r.dept).toLowerCase().includes(q))&&(!h||r.on))}
+
+function mk(id,type,labels,sets,o={}){
+ CH[id]&&CH[id].destroy();const dn=type==="doughnut";
+ CH[id]=new Chart($("#"+id),{type,data:{labels,datasets:sets.map((s,i)=>({label:s[0],data:s[1],backgroundColor:dn?PAL:PAL[(o.ci||[0,1,2])[i]],borderRadius:dn?0:4,borderWidth:dn?2:0,borderColor:css("--cd")}))},
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:o.h?"y":"x",
+   plugins:{legend:{position:"bottom",labels:{boxWidth:10,usePointStyle:true,color:css("--mu")}},tooltip:{callbacks:{label:c=>(c.dataset.label||c.label)+": "+(o.p?pc(c.raw):f0(c.raw))}}},
+   scales:dn?{}:{x:{stacked:!!o.st,grid:{display:!!o.h,color:css("--bd")},ticks:{color:css("--mu")}},y:{stacked:!!o.st,grid:{display:!o.h,color:css("--bd")},ticks:{color:css("--mu"),callback:v=>o.h?v:fc(v)}}}}})}
+
+function kpi(l,v,s,c){return '<div class="k '+(c||"")+'"><small>'+l+'</small><b>'+v+'</b><span>'+s+'</span></div>'}
+
+function render(){
+ secs();chips();ROWS=filtered();const A=agg(ROWS),g=A.cur-A.apr;
+ $("#kp").innerHTML=
+  kpi("Current headcount",f0(A.cur),"Approved "+f0(A.apr)+" · "+(g>=0?"+":"")+g+" vs approved",g<0?"w":"g")+
+  kpi("Total OT hours",f0(A.ot),pc(A.otp)+" of scheduled hours · TP "+f0(A.tph)+" h",A.otp>8?"w":"")+
+  kpi("Total OT cost","Rs "+fc(A.cost),"Own Rs "+fc(A.otc)+" · TP Rs "+fc(A.tpc))+
+  kpi("Actual vs scheduled hours",pc(A.avs),f0(A.act)+" of "+f0(A.sch)+" hours",A.avs<90?"w":"g")+
+  kpi("Absenteeism",pc(A.abs),"Leaves "+pc(A.lv),A.abs>10?"w":"")+
+  kpi("Late arrival",pc(A.late),"Early out "+pc(A.early),A.late>10?"w":"")+
+  kpi("Joiners / leavers",A.join+" / "+A.leave,"Net "+(A.join-A.leave>=0?"+":"")+(A.join-A.leave),A.leave>A.join?"r":"g")+
+  kpi("Allowances and reimbursements","Rs "+fc(A.ben),"Medical/OPD Rs "+fc(A.med)+" · Advances Rs "+fc(A.adv));
+ Chart.defaults.font.family="Inter,system-ui,sans-serif";Chart.defaults.animation={duration:900,easing:"easeOutQuart"};Object.assign(Chart.defaults.plugins.tooltip,{backgroundColor:css("--tip"),titleColor:"#fff",bodyColor:"#d6deea",padding:10,cornerRadius:10,boxPadding:4});
+ const co=grp(ROWS,"co").filter(x=>x[1].cur||x[1].cost||x[1].sch);
+ mk("c1","bar",co.map(x=>x[0]),[["Own OT cost",co.map(x=>x[1].otc)],["TP OT cost",co.map(x=>x[1].tpc)]],{st:1});
+ const dp=grp(ROWS,"dept").filter(x=>x[1].ot).sort((a,b)=>b[1].ot-a[1].ot).slice(0,10);
+ mk("c2","bar",dp.map(x=>x[0]),[["Own OT hours",dp.map(x=>x[1].oth)],["TP OT hours",dp.map(x=>x[1].tph)]],{h:1,st:1});
+ mk("c3","bar",co.map(x=>x[0]),[["Approved",co.map(x=>x[1].apr)],["Current",co.map(x=>x[1].cur)]],{ci:[6,0]});
+ mk("c4","bar",co.map(x=>x[0]),[["Late arrival %",co.map(x=>+x[1].late.toFixed(1))],["Early out %",co.map(x=>+x[1].early.toFixed(1))],["Absenteeism %",co.map(x=>+x[1].abs.toFixed(1))]],{p:1,ci:[2,5,4]});
+ mk("c5","bar",co.map(x=>x[0]),[["Joiners",co.map(x=>x[1].join)],["Leavers",co.map(x=>x[1].leave)]],{ci:[1,4]});
+ const bn=BEN.filter(b=>A[b[0]]>0);
+ mk("c6","doughnut",bn.map(b=>b[1]),[["Rs",bn.map(b=>A[b[0]])]]);
+ const nm=r=>r.co+" · "+r.sec;
+ const li=(r,t,v)=>'<li><span>'+nm(r)+'</span><em>'+v+'</em></li>';
+ const emp='<li><span>No data for this filter</span></li>';
+ $("#i1").innerHTML=ROWS.filter(r=>r.cost).sort((a,b)=>b.cost-a.cost).slice(0,5).map(r=>li(r,0,"Rs "+fc(r.cost))).join("")||emp;
+ $("#i2").innerHTML=ROWS.filter(r=>r.sch>0).sort((a,b)=>a.avs-b.avs).slice(0,5).map(r=>li(r,0,r.avs+"%")).join("")||emp;
+ $("#i3").innerHTML=ROWS.filter(r=>r.apr&&r.cur!==r.apr).sort((a,b)=>Math.abs(b.cur-b.apr)-Math.abs(a.cur-a.apr)).slice(0,5).map(r=>li(r,0,r.cur+" / "+r.apr+" ("+(r.cur-r.apr>0?"+":"")+(r.cur-r.apr)+")")).join("")||emp;
+ table();more(A);trends();document.querySelectorAll("#kp .k b,.hkc b").forEach(cup)}
+
+function hm(){const m=$("#hm").value,cs=[...new Set(ROWS.map(r=>r.co))],ds=[...new Set(ROWS.map(r=>r.dept))];
+ const val=x=>{const a=agg(x);return m==="cost"?a.cost:m==="ot"?a.ot:m==="abs"?a.abs:a.apr?a.cur/a.apr*100:0};
+ const g=cs.map(c=>ds.map(d=>{const x=ROWS.filter(r=>r.co===c&&r.dept===d);return x.length?val(x):null})),mx=Math.max(1,...g.flat().filter(v=>v!=null));
+ const fm=v=>v==null?"":m==="cost"?fc(v):m==="ot"?f0(v):v.toFixed(0)+"%";
+ $("#hmt").innerHTML="<tr><th></th>"+ds.map(d=>"<th>"+d+"</th>").join("")+"</tr>"+cs.map((c,i)=>"<tr><td><b>"+c+"</b></td>"+g[i].map(v=>'<td style="background:color-mix(in srgb,var(--pr) '+(v==null?0:Math.round(v/mx*70))+'%,transparent)">'+fm(v)+"</td>").join("")+"</tr>").join("")}
+
+function more(A){
+ const co=grp(ROWS,"co").filter(x=>x[1].cur||x[1].cost||x[1].sch),L=co.map(x=>x[0]);
+ mk("c7","bar",L,[["Rs per OT hour",co.map(x=>x[1].ot?Math.round(x[1].cost/x[1].ot):0)]],{ci:[3]});
+ mk("c8","bar",L,[["OT hours per head",co.map(x=>x[1].cur?+(x[1].ot/x[1].cur).toFixed(1):0)]],{ci:[2]});
+ mk("c9","bar",L,[["Own standard",co.map(x=>x[1].std)],["Own gazetted",co.map(x=>x[1].gaz)],["TP standard",co.map(x=>x[1].tps)],["TP gazetted",co.map(x=>x[1].tpg)]],{st:1,ci:[0,5,2,4]});
+ mk("c10","bar",L,[["Benefits per head (Rs)",co.map(x=>x[1].cur?Math.round(x[1].ben/x[1].cur):0)]],{ci:[1]});
+ const t=[...ROWS].filter(r=>r.cost).sort((a,b)=>b.cost-a.cost),T=t.reduce((s,r)=>s+r.cost,0)||1,p=t.slice(0,12);let cu=0;
+ const lg={position:"bottom",labels:{boxWidth:10,usePointStyle:true,color:css("--mu")}};
+ CH.p1&&CH.p1.destroy();
+ CH.p1=new Chart($("#p1"),{data:{labels:p.map(r=>r.co+" · "+r.sec),datasets:[{type:"bar",label:"OT cost (Rs)",data:p.map(r=>r.cost),backgroundColor:PAL[0],borderRadius:4,yAxisID:"y"},{type:"line",label:"Cumulative %",data:p.map(r=>+((cu+=r.cost)/T*100).toFixed(1)),borderColor:PAL[4],backgroundColor:PAL[4],yAxisID:"y1",tension:.25,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:lg},scales:{x:{ticks:{color:css("--mu"),maxRotation:60,minRotation:45,font:{size:10}},grid:{display:false}},y:{ticks:{color:css("--mu"),callback:fc},grid:{color:css("--bd")}},y1:{position:"right",min:0,max:100,ticks:{color:css("--mu"),callback:v=>v+"%"},grid:{display:false}}}}});
+ const sc=ROWS.filter(r=>r.sch>0);CH.b1&&CH.b1.destroy();
+ const ax=tx=>({title:{display:true,text:tx,color:css("--mu")},ticks:{color:css("--mu")},grid:{color:css("--bd")}});
+ CH.b1=new Chart($("#b1"),{type:"bubble",data:{datasets:co.map((x,i)=>({label:x[0],backgroundColor:PAL[i%PAL.length]+"aa",data:sc.filter(r=>r.co===x[0]).map(r=>({x:r.abs,y:+(r.ot/r.sch*100).toFixed(1),r:Math.max(3,Math.sqrt(r.cur)*2.2),s:r.sec}))}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:lg,tooltip:{callbacks:{label:c=>c.raw.s+": absent "+c.raw.x+"%, OT "+c.raw.y+"% of hours"}}},scales:{x:ax("Absenteeism %"),y:ax("OT % of scheduled hours")}}});
+ const tk=[],t3=t.slice(0,3).reduce((s,r)=>s+r.cost,0);
+ if(t.length)tk.push("The top 3 sections drive "+(t3/T*100).toFixed(0)+"% of OT cost (Rs "+fc(T)+" in total): "+t.slice(0,3).map(r=>r.co+" "+r.sec).join(", ")+".");
+ const cp=co.filter(x=>x[1].ot).sort((a,b)=>b[1].cost/b[1].ot-a[1].cost/a[1].ot)[0];
+ if(cp)tk.push(cp[0]+" pays the most per OT hour (Rs "+f0(cp[1].cost/cp[1].ot)+"), against Rs "+f0(A.ot?A.cost/A.ot:0)+" on average.");
+ if(A.ot)tk.push("TP accounts for "+(A.tph/A.ot*100).toFixed(0)+"% of OT hours and "+(A.cost?A.tpc/A.cost*100:0).toFixed(0)+"% of OT cost.");
+ const gp=ROWS.filter(r=>r.apr&&r.cur<r.apr).sort((a,b)=>(a.cur-a.apr)-(b.cur-b.apr))[0];
+ if(gp)tk.push("Largest vacancy: "+gp.co+" "+gp.sec+" with "+gp.cur+" of "+gp.apr+" approved positions filled.");
+ const ab=ROWS.filter(r=>r.sch>0&&r.cur>=3).sort((a,b)=>b.abs-a.abs)[0];
+ if(ab)tk.push("Highest absenteeism among sections with 3+ staff: "+ab.co+" "+ab.sec+" at "+ab.abs+"%.");
+ $("#tk").innerHTML=tk.map(x=>"<li>"+x+"</li>").join("")||"<li>No data for this filter.</li>";
+ hm()}
+
+const MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const yr=m=>2000+(+String(m).split("-")[1]||0);
+const TC=[["avs","Act vs Std hours %","#5b8def","line",a=>a.avs,1],["hrs","Total hours","#f0616d","bar",a=>a.act],
+["otc","OT cost (Rs)","#f2a33a","bar",a=>a.otc],["otp","OT %","#2dd4bf","line",a=>a.otp,1],["tph","TP total OT hours","#5b8def","bar",a=>a.tph],["tpc","TP OT cost (Rs)","#f0616d","bar",a=>a.tpc],
+["abs","Absenteeism %","#f2a33a","line",a=>a.abs,1],["lv","Leaves %","#2dd4bf","line",a=>a.lv,1],["late","Late arrival %","#5b8def","line",a=>a.late,1],["early","Early out %","#f0616d","line",a=>a.early,1],
+["actv","Active employee %","#f2a33a","line",a=>a.apr?a.cur/a.apr*100:0,1],["join","Joiners","#2dd4bf","bar",a=>a.join],["leave","Leavers","#5b8def","bar",a=>a.leave],["pfs","Pending final settlement (Rs)","#f0616d","bar",a=>a.pfs]];
+$("#tg").innerHTML='<div class="c hc" id="hcard"></div>'+TC.map(t=>'<div class="c tcd"><h2><i style="background:'+t[2]+'"></i>'+t[1]+'<b id="v_'+t[0]+'"></b></h2><div class="cs"><canvas id="t_'+t[0]+'"></canvas></div></div>').join("");
+
+function secs(){const c=$("#fc").value,d=$("#fd").value,cu=$("#fs").value;
+ const l=[...new Set(DATA.filter(r=>(!c||r.co===c)&&(!d||r.dept===d)).map(r=>r.sec))];
+ fill("#fs",l,"All sections");$("#fs").value=l.includes(cu)?cu:""}
+function spark(v,col,id){const W=170,H=46,p=v.map((x,i)=>x==null?null:[6+i/11*(W-12),x]).filter(Boolean);
+ if(!p.length)return"";const ys=p.map(q=>q[1]),mx=Math.max(...ys),mn=Math.min(...ys),rg=mx-mn||1;
+ const pts=p.map(q=>[q[0],H-8-(p.length>1?(q[1]-mn)/rg:.5)*(H-18)]),f=n=>n.toFixed(1);
+ const d=pts.map((q,i)=>(i?"L":"M")+f(q[0])+" "+f(q[1])).join(" "),a=d+" L"+f(pts[pts.length-1][0])+" "+H+" L"+f(pts[0][0])+" "+H+" Z";
+ return '<svg viewBox="0 0 '+W+' '+H+'"><defs><linearGradient id="sg'+id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+col+'" stop-opacity=".35"/><stop offset="1" stop-color="'+col+'" stop-opacity="0"/></linearGradient></defs>'+(pts.length>1?'<path d="'+a+'" fill="url(#sg'+id+')"/><path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>':'<line x1="0" x2="'+W+'" y1="'+(H-8)+'" y2="'+(H-8)+'" stroke="'+col+'" stroke-opacity=".3" stroke-dasharray="3 4"/>')+pts.map(q=>'<circle cx="'+f(q[0])+'" cy="'+f(q[1])+'" r="3" fill="'+col+'"/>').join("")+"</svg>"}
+function hero(M,act,last){
+ const L=last==null?null:M[last],P=act.length>1?M[act[act.length-2]]:null;
+ const R=[["Hours attained",L?L.avs:0,"#f2a33a",70],["Staffing fill",L&&L.apr?L.cur/L.apr*100:0,"#5b8def",54],["Attendance",L?100-L.abs:0,"#2dd4bf",38]];
+ $("#pulse").innerHTML='<h2 class="ph">Operational pulse'+(last==null?"":" · "+MN[last])+'</h2><div class="pw"><svg viewBox="0 0 180 180" width="170" height="170">'+R.map(r=>{const C=2*Math.PI*r[3],q=Math.max(0,Math.min(100,r[1]))/100;return '<circle cx="90" cy="90" r="'+r[3]+'" fill="none" stroke="'+r[2]+'" stroke-opacity=".15" stroke-width="10"/><circle class="rg" cx="90" cy="90" r="'+r[3]+'" fill="none" stroke="'+r[2]+'" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+C+'" style="stroke-dashoffset:'+C+'" data-o="'+C*(1-q)+'" transform="rotate(-90 90 90)"/>'}).join("")+'</svg><div class="pl">'+R.map(r=>'<div><i style="background:'+r[2]+'"></i><span>'+r[0]+'</span><b>'+r[1].toFixed(1)+'%</b></div>').join("")+'</div></div>';
+ requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll(".rg").forEach(e=>e.style.strokeDashoffset=e.dataset.o)));
+ const H=[["Headcount",a=>a.cur,f0,1,"#5b8def"],["OT cost",a=>a.cost,v=>"Rs "+fc(v),0,"#f2a33a"],["Absenteeism",a=>a.abs,pc,0,"#f0616d"],["Actual vs scheduled",a=>a.avs,pc,1,"#2dd4bf"]];
+ $("#hk").innerHTML=H.map((h,i)=>{const s=M.map(a=>a?h[1](a):null),v=L?h[1](L):0,pv=P?h[1](P):0,d=pv?(v-pv)/pv*100:null,g=d==null?"":(h[3]?d>=0:d<=0)?"up":"dn";
+  return '<div class="c hkc"><small>'+h[0]+'</small><b>'+(L?h[2](v):"–")+'</b>'+(d==null?'<span class="pill">first month</span>':'<span class="pill '+g+'">'+(d>=0?"▲ ":"▼ ")+Math.abs(d).toFixed(1)+'% vs '+MN[act[act.length-2]]+'</span>')+'<div class="sp">'+spark(s,h[4],i)+'</div></div>'}).join("")}
+function cup(el){const t=el.textContent,m=t.match(/-?[\d,]*\.?\d+/);if(!m||t.includes("/")||(window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches))return;
+ const n=parseFloat(m[0].replace(/,/g,"")),dec=(m[0].split(".")[1]||"").length,pre=t.slice(0,m.index),suf=t.slice(m.index+m[0].length),t0=performance.now();
+ const st=now=>{const q=Math.min(1,(now-t0)/700),e=1-Math.pow(1-q,3);el.textContent=pre+(n*e).toLocaleString("en-US",{minimumFractionDigits:dec,maximumFractionDigits:dec})+suf;if(q<1)requestAnimationFrame(st)};requestAnimationFrame(st)}
+document.addEventListener("pointermove",e=>{const c=e.target.closest&&e.target.closest(".c,.k");if(c){const r=c.getBoundingClientRect();c.style.setProperty("--mx",e.clientX-r.left+"px");c.style.setProperty("--my",e.clientY-r.top+"px")}});
+function chips(){const cs=[...new Set(DATA.map(d=>d.co))],cu=$("#fc").value;
+ $("#chips").innerHTML=["",...cs].map(c=>'<button class="chip'+(c===cu?" on":"")+'" data-c="'+c+'">'+(c||"All companies")+'</button>').join("");
+ document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{$("#fc").value=b.dataset.c;render()})}
+
+function trends(){
+ const c=$("#fc").value,d=$("#fd").value,y=+$("#fy").value||0,q=$("#fq").value.toLowerCase();
+ const rr=DATA.filter(r=>(!c||r.co===c)&&(!d||r.dept===d)&&(!$("#fs").value||r.sec===$("#fs").value)&&(!q||(r.sec+" "+r.dept).toLowerCase().includes(q))&&(!y||yr(r.mon)===y));
+ const ix=r=>MN.indexOf(String(r.mon).slice(0,3));
+ const M=MN.map((_,i)=>{const x=rr.filter(r=>ix(r)===i);return x.length?agg(x):null});
+ const act=M.map((a,i)=>a?i:-1).filter(i=>i>=0),last=act.length?act[act.length-1]:null;
+ hero(M,act,last);
+ $("#tn").textContent=act.length?"Months with data: "+act.map(i=>MN[i]).join(", ")+(act.length<2?". Load earlier months (EXTRA_CSV links or Upload CSV) to fill the other months.":"."):"No data for this filter.";
+ TC.forEach(t=>{const id="t_"+t[0],data=M.map(a=>a?+t[4](a).toFixed(1):null);
+  CH[id]&&CH[id].destroy();
+  CH[id]=new Chart($("#"+id),{type:t[3],data:{labels:MN,datasets:[{data,borderColor:t[2],backgroundColor:cx=>{const g=cx.chart.ctx.createLinearGradient(0,0,0,150);g.addColorStop(0,t[2]+(t[3]==="bar"?"ff":"66"));g.addColorStop(1,t[2]+(t[3]==="bar"?"55":"00"));return g},fill:t[3]==="line",tension:.35,pointRadius:3,borderWidth:2,borderRadius:4,spanGaps:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:k=>t[5]?k.raw+"%":f0(k.raw)}}},scales:{x:{grid:{display:false},ticks:{color:css("--mu"),font:{size:10}}},y:{beginAtZero:true,grid:{color:css("--bd")},ticks:{color:css("--mu"),font:{size:10},maxTicksLimit:4,callback:v=>t[5]?v+"%":fc(v)}}}}});
+  $("#v_"+t[0]).textContent=last==null?"–":(t[5]?data[last]+"%":fc(data[last]))});
+ const sm=$("#fm").value,li=sm&&(!y||yr(sm)===y)&&M[MN.indexOf(sm.slice(0,3))]?MN.indexOf(sm.slice(0,3)):last;
+ const hr=li==null?[]:rr.filter(r=>ix(r)===li),H1=agg(hr),gc=grp(hr,"co").filter(x=>x[1].cur);
+ $("#hcard").innerHTML='<h2><i style="background:#5b8def"></i>Headcount'+(li==null?"":" · "+MN[li])+'</h2><div class="hcw"><div class="dnu"><canvas id="hd"></canvas><div class="dc">'+f0(H1.cur)+'</div></div><div class="ht"><div class="tl"><small>Current</small><b>'+f0(H1.cur)+'</b></div><div class="tl"><small>Approved</small><b>'+f0(H1.apr)+'</b></div><div class="tl"><small>Fill rate</small><b>'+(H1.apr?(H1.cur/H1.apr*100).toFixed(0):0)+'%</b></div><div class="tl"><small>Joiners / leavers</small><b>'+H1.join+' / '+H1.leave+'</b></div><div class="lgd">'+gc.map((x,i)=>'<span><i style="background:'+PAL[i%PAL.length]+'"></i>'+x[0]+' '+x[1].cur+'</span>').join("")+'</div></div></div>';
+ CH.hd&&CH.hd.destroy();
+ CH.hd=new Chart($("#hd"),{type:"doughnut",data:{labels:gc.map(x=>x[0]),datasets:[{data:gc.map(x=>x[1].cur),backgroundColor:PAL,borderWidth:2,borderColor:css("--cd")}]},options:{cutout:"68%",maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+ const i2=MN.indexOf(sm.slice(0,3));
+ if(sm&&i2>0&&M[i2]&&M[i2-1]&&(!y||yr(sm)===y)){const P=M[i2-1],C=M[i2];
+  [["cur",1],["ot",0],["cost",0],["avs",1],["abs",0],["late",0]].forEach((x,j)=>{const e=document.querySelectorAll("#kp .k")[j];if(!e||!P[x[0]])return;
+   const p2=(C[x[0]]-P[x[0]])/P[x[0]]*100,good=x[1]?p2>=0:p2<=0;
+   e.insertAdjacentHTML("beforeend",'<span class="dl '+(good?"up":"dn")+'">'+(p2>=0?"▲ ":"▼ ")+Math.abs(p2).toFixed(1)+"% vs "+MN[i2-1]+"</span>")})}}
+
+const COLS=[["Company","co"],["Department","dept"],["Section","sec"],["Sched. hrs","sch"],["Actual hrs","act"],["Actual vs sched. %","avs"],["OT hrs","ot"],["OT cost (Rs)","cost"],["Late %","late"],["Absent %","abs"],["Approved HC","apr"],["Current HC","cur"],["Benefits (Rs)","ben"]];
+function badge(v,w,d,inv){const bad=inv?(v<d?"d2":v<w?"w2":""):(v>=d?"d2":v>=w?"w2":"");return bad?'<span class="'+bad+'">'+v+'%</span>':v+"%"}
+function table(){
+ $("#th0").innerHTML="<tr>"+COLS.map(c=>'<th data-k="'+c[1]+'">'+c[0]+(SK===c[1]?(SD>0?" ▲":" ▼"):"")+"</th>").join("")+"</tr>";
+ const s=[...ROWS].sort((a,b)=>typeof a[SK]==="string"?SD*-1*a[SK].localeCompare(b[SK]):SD*(a[SK]-b[SK]));
+ $("#tb").innerHTML=s.map(r=>"<tr><td>"+r.co+"</td><td>"+r.dept+"</td><td>"+r.sec+"</td><td>"+f0(r.sch)+"</td><td>"+f0(r.act)+"</td><td>"+(r.sch?badge(r.avs,90,80,1):"–")+"</td><td>"+f0(r.ot)+"</td><td>"+f0(r.cost)+"</td><td>"+badge(r.late,10,30)+"</td><td>"+badge(r.abs,12,20)+"</td><td>"+f0(r.apr)+"</td><td>"+f0(r.cur)+"</td><td>"+f0(r.ben)+"</td></tr>").join("");
+ $("#cnt").textContent=ROWS.length+" sections in view";
+ document.querySelectorAll("#th0 th").forEach(t=>t.onclick=()=>{const k=t.dataset.k;SD=SK===k?-SD:-1;SK=k;table()})}
+
+function exportCSV(){
+ const h=COLS.map(c=>c[0]).join(",");
+ const b=ROWS.map(r=>COLS.map(c=>{const v=r[c[1]];return typeof v==="string"?'"'+v.replace(/"/g,'""')+'"':v}).join(","));
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([[h,...b].join("\n")],{type:"text/csv"}));a.download="hr-dashboard-view.csv";a.click()}
+
+["#fc","#fd","#fs","#fm","#fy"].forEach(s=>$(s).onchange=render);
+$("#fq").oninput=render;$("#fh").onchange=render;
+$("#hm").onchange=hm;$("#ch").onclick=()=>{H={};try{localStorage.removeItem("hrdash_hist")}catch(e){}sync()};$("#rf").onclick=sync;$("#up").onclick=()=>$("#fi").click();
+$("#ex").onclick=exportCSV;
+$("#th").onclick=()=>{const r=document.documentElement;r.dataset.t=r.dataset.t==="dark"?"":"dark";if(DATA.length)render()};
+$("#fi").onchange=e=>{[...e.target.files].forEach(f=>{const rd=new FileReader();rd.onload=()=>{try{load(rd.result,"Uploaded: "+f.name)}catch(x){$("#msg").style.display="block";$("#msg").textContent=x.message}};rd.readAsText(f)});e.target.value=""};
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));$("#vt").style.display=b.dataset.v==="vt"?"":"none";$("#va").style.display=b.dataset.v==="va"?"":"none";if(DATA.length)render()});
+$("#rs").onclick=()=>{["#fc","#fd","#fs","#fq"].forEach(x=>$(x).value="");const ms=[...$("#fm").options].map(o=>o.value).filter(Boolean),ys=[...$("#fy").options].map(o=>o.value).filter(Boolean);$("#fm").value=ms[ms.length-1]||"";$("#fy").value=ys[ys.length-1]||"";$("#fh").checked=true;if(DATA.length)render()};
+sync();
+</script>
+</body></html>
