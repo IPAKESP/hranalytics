@@ -222,6 +222,7 @@ function fill(id,list,all){$(id).innerHTML='<option value="">'+all+'</option>'+l
 
 async function sync(){
  $("#src").textContent="Syncing with Google Sheet…";
+ if(typeof Chart==="undefined"){const m=$("#msg");m.style.display="block";m.textContent="Chart.js load nahi hua (internet ya CDN block). Charts nahi banenge; page refresh karein ya internet check karein.";}
  try{let n=0;for(const u of [CSV_URL,...EXTRA_CSV]){const r=await fetch(u+(u.includes("?")?"&":"?")+"t="+Date.now());if(!r.ok)throw new Error("HTTP "+r.status);load(await r.text(),"Live Google Sheet ("+(++n)+" source"+(n>1?"s":"")+")")}}
  catch(e){const m=$("#msg");m.style.display="block";
   m.textContent="Live sync failed ("+e.message+"). Use Upload CSV to load the exported sheet (you can select several months at once), or open this file from your own hosting.";
@@ -262,7 +263,7 @@ function render(){
   kpi("Late arrival",pc(A.late),"Early out "+pc(A.early),A.late>10?"w":"")+
   kpi("Joiners / leavers",A.join+" / "+A.leave,"Net "+(A.join-A.leave>=0?"+":"")+(A.join-A.leave),A.leave>A.join?"r":"g")+
   kpi("Allowances and reimbursements","Rs "+fc(A.ben),"Medical/OPD Rs "+fc(A.med)+" · Advances Rs "+fc(A.adv));
- Chart.defaults.font.family="Inter,system-ui,sans-serif";Chart.defaults.animation={duration:900,easing:"easeOutQuart"};Object.assign(Chart.defaults.plugins.tooltip,{backgroundColor:css("--tip"),titleColor:"#fff",bodyColor:"#d6deea",padding:10,cornerRadius:10,boxPadding:4});
+ Chart.defaults.font.family="Inter,system-ui,sans-serif";Chart.defaults.animation=false;Chart.defaults.responsive=true;Object.assign(Chart.defaults.plugins.tooltip,{backgroundColor:css("--tip"),titleColor:"#fff",bodyColor:"#d6deea",padding:10,cornerRadius:10,boxPadding:4});
  const co=grp(ROWS,"co").filter(x=>x[1].cur||x[1].cost||x[1].sch);
  mk("c1","bar",co.map(x=>x[0]),[["Own OT cost",co.map(x=>x[1].otc)],["TP OT cost",co.map(x=>x[1].tpc)]],{st:1});
  const dp=grp(ROWS,"dept").filter(x=>x[1].ot).sort((a,b)=>b[1].ot-a[1].ot).slice(0,10);
@@ -389,5 +390,6 @@ $("#fi").onchange=e=>{[...e.target.files].forEach(f=>{const rd=new FileReader();
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));$("#vt").style.display=b.dataset.v==="vt"?"":"none";$("#va").style.display=b.dataset.v==="va"?"":"none";if(DATA.length)render()});
 $("#rs").onclick=()=>{["#fc","#fd","#fs","#fq"].forEach(x=>$(x).value="");const ms=[...$("#fm").options].map(o=>o.value).filter(Boolean),ys=[...$("#fy").options].map(o=>o.value).filter(Boolean);$("#fm").value=ms[ms.length-1]||"";$("#fy").value=ys[ys.length-1]||"";$("#fh").checked=true;if(DATA.length)render()};
 sync();
+window.addEventListener("load",()=>setTimeout(()=>{if(DATA.length)render()},300));
 </script>
 </body></html>
