@@ -93,7 +93,7 @@ const has=a=>a&&(a.sched>0||a.cur>0||a.otc>0||a.tpc>0);
 const KP=[
 {k:'cur',l:'Current headcount',f:fN,u:1,hero:1,sub:a=>'Approved '+fN(a.appr)},{k:'active',l:'Active employees',f:fP,u:1},{k:'abs',l:'Absenteeism',f:fP,u:-1},{k:'lvp',l:'Leaves',f:fP,u:-1},
 {k:'late',l:'Late arrival',f:fP,u:-1},{k:'early',l:'Early out',f:fP,u:-1},{k:'avs',l:'Actual vs std hours',f:fP,u:1},{k:'sched',l:'Total scheduled hours',f:fN,u:0},
-{k:'ot',l:'Total OT hours',f:fN,u:-1,sub:a=>'OT '+fP(a.otp)},{k:'otc',l:'OT cost (PKR)',f:fC,u:-1,hero:1},{k:'tpot',l:'TP OT hours',f:fN,u:-1,sub:a=>'TP OT '+fP(a.tpp)},{k:'tpc',l:'TP OT cost (PKR)',f:fC,u:-1},
+{k:'ot',l:'Total OT hours',f:fN,u:-1,sub:a=>'OT '+fP(a.otp)},{k:'otp',l:'OT % of hours',f:fP,u:-1},{k:'otc',l:'OT cost (PKR)',f:fC,u:-1,hero:1},{k:'tpot',l:'TP OT hours',f:fN,u:-1,sub:a=>'TP OT '+fP(a.tpp)},{k:'tpc',l:'TP OT cost (PKR)',f:fC,u:-1},
 {k:'join',l:'Joiners',f:fN,u:1},{k:'lv',l:'Leavers',f:fN,u:-1},{k:'pend',l:'Pending final settlement',f:fN,u:-1}];
 const TR=[['cur','Headcount','b','👥'],['active','Active employee %','l','✅'],['abs','Absenteeism %','l','🚫'],['lvp','Leaves %','l','🏖️'],['late','Late arrival %','l','⏰'],['early','Early out %','l','🚪'],['avs','Actual vs std hours %','l','🎯'],['sched','Total hours','b','🕒'],['ot','Total OT hours','b','⚡'],['otp','OT %','l','📈'],['otc','OT cost','b','💰'],['tpot','TP OT hours','b','🧰'],['tpc','TP OT cost','b','💸'],['join','Joiners','b','🎉'],['lv','Leavers','b','👋'],['pend','Pending final settlement','b','📋']];
 const AL=['LFA','Vehicle Allowance','Relocation Allowance','Transportation Allowance','Fare Allowance','Mobile Allowance','Tardiness Reimbursment','Admin Reimbursment','Medical/OPD','Advance Salary'];
@@ -154,7 +154,7 @@ function table(rs){const m={};rs.forEach(r=>(m[r.co+'|'+r.dept+'|'+r.sec]??=[]).
  document.querySelectorAll('th[data-s]').forEach(t=>t.onclick=()=>{const k=t.dataset.s;S.sd=S.sk==k?-S.sd:-1;S.sk=k;table(rs)})}
 const pill=(v,a,b)=>`<span class="pill ${v>=b?'h':v>=a?'m':'l'}">${fP(v)}</span>`;
 async function load(){$('#st').textContent='Loading data…';$('#er').style.display='none';
- try{const r=await fetch(CSV+'&t='+Date.now());if(!r.ok)throw new Error('HTTP '+r.status);ingest(await r.text());$('#st').textContent='Live from Google Sheet · updated '+new Date().toLocaleTimeString();render()}
+ try{const r=await fetch(CSV+'&t='+Date.now());if(!r.ok)throw new Error('HTTP '+r.status);ingest(await r.text());$('#st').textContent='Live from Google Sheet · updated '+new Date().toLocaleTimeString();try{render()}catch(e){console.error(e);$('#er').style.display='block';$('#er').textContent='Dashboard error: '+e.message;return}}
  catch(e){$('#st').textContent='Could not load live data';const x=$('#er');x.style.display='block';x.innerHTML='Could not reach the Google Sheet ('+e.message+'). Open this file from your website or a local server, or use <b>Upload CSV</b> to load a downloaded copy of the sheet.'}}
 $('#rf').onclick=load;
 $('#up').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{ingest(t);$('#er').style.display='none';$('#st').textContent='Loaded from '+f.name;render()}catch(x){$('#er').style.display='block';$('#er').textContent=x.message}})};
