@@ -86,6 +86,10 @@ h2{margin:20px 0 10px}
 .k .v{font-size:16px;margin:1px 0 0}.k .d{font-size:10px}
 .k .ic{top:6px;right:6px;width:18px;height:18px;border-radius:6px}.k .ic svg{width:11px;height:11px}
 .sl{height:9px;margin-top:2px}
+
+#tip{position:fixed;z-index:100;pointer-events:none;display:none;background:#14532d;color:#fff;padding:7px 11px;border-radius:9px;font:600 12px/1.45 Figtree,sans-serif;box-shadow:0 8px 22px rgba(0,0,0,.28);max-width:300px;white-space:pre-line}
+[data-theme=dark] #tip{background:#e3f3e8;color:#0e1a13}
+[data-tip]{cursor:default}.k[data-tip],.bl.ck[data-tip],.mp[data-tip],tr[data-tip]{cursor:pointer}
 </style></head><body>
 <header><div class="logo">HR</div><div><h1>HR Analytics Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
 <button class="btn" id="rf">Refresh data</button><label class="btn">Upload CSV<input type="file" id="up" accept=".csv" hidden></label><button class="btn" id="th">Dark mode</button></header>
@@ -154,8 +158,9 @@ const trend=b=>MN.map((_,i)=>{const a=agg(b.filter(r=>r.m==i));return has(a)?a:n
 const fmtFor=k=>KP.find(x=>x.k==k).f;
 function fill(id,vals,cur,all){const e=$(id);e.innerHTML=(all?`<option>All</option>`:'')+vals.map(v=>`<option ${v==cur?'selected':''}>${v}</option>`).join('')}
 
-const spark=(tr,k)=>{const pts=tr.map((x,i)=>x?[i,x[k]]:null).filter(Boolean);if(!pts.length)return'';const vs=pts.map(p=>p[1]),mn=Math.min(...vs),mx=Math.max(...vs),r=mx-mn||1,xy=p=>[(p[0]/11*96+2).toFixed(1),(20-(p[1]-mn)/r*16).toFixed(1)];
- return pts.length>1?`<svg class="sl" viewBox="0 0 100 24"><polyline pathLength="1" points="${pts.map(p=>xy(p).join(',')).join(' ')}"/></svg>`:`<svg class="sl" viewBox="0 0 100 24"><circle cx="${xy(pts[0])[0]}" cy="12" r="3"/></svg>`};
+const spark=(tr,k,f)=>{const pts=tr.map((x,i)=>x?[i,x[k]]:null).filter(Boolean);if(!pts.length)return'';const vs=pts.map(p=>p[1]),mn=Math.min(...vs),mx=Math.max(...vs),r=mx-mn||1,xy=p=>[(p[0]/11*96+2).toFixed(1),(20-(p[1]-mn)/r*16).toFixed(1)];
+ const tp=pts.map(p=>MN[p[0]]+': '+f(p[1])).join('&#10;');return pts.length>1?`<svg class="sl" data-tip="${tp}" viewBox="0 0 100 24"><polyline pathLength="1" points="${pts.map(p=>xy(p).join(',')).join(' ')}"/></svg>`:`<svg class="sl" data-tip="${tp}" viewBox="0 0 100 24"><circle cx="${xy(pts[0])[0]}" cy="12" r="3"/></svg>`};
+const mtip=(tr,i)=>tr[i]?`${MN[i]} ${S.y}&#10;Headcount: ${fN(tr[i].cur)}&#10;OT cost: ${fN(tr[i].otc)}&#10;Absenteeism: ${fP(tr[i].abs)}`:`${MN[i]} ${S.y}: no data yet`;
 const LV={};
 function countUp(){const rm=matchMedia('(prefers-reduced-motion:reduce)').matches;document.querySelectorAll('.v[data-ck]').forEach(e=>{const k=e.dataset.ck,to=+e.dataset.cv,from=LV[k]??0,f=KP.find(x=>x.k==k).f;LV[k]=to;if(rm||from===to){e.textContent=f(to);return}const t0=performance.now();(function st(t){const p=Math.min(1,(t-t0)/700),z=1-Math.pow(1-p,3);e.textContent=f(from+(to-from)*z);if(p<1)requestAnimationFrame(st)})(t0)})}
 Chart.defaults.animation={duration:800,easing:'easeOutQuart',delay:c=>c.type=='data'&&c.mode=='default'?c.dataIndex*35:0};
@@ -169,9 +174,9 @@ function filters(){
  $('#cc').innerHTML=cos.map(c=>`<button class="chip ${c==S.co?'on':''}" data-co="${c}">${c}</button>`).join('');
 }
 function months(tr){
- $('#mm').innerHTML='<span class="mlab">Month</span>'+MN.map((m,i)=>`<button class="mp ${tr[i]?'':'no'} ${S.m==i||(S.m=='latest'&&i==curM(tr))?'on':''}" data-m="${i}">${m}</button>`).join('')+`<button class="mp ${S.m=='ytd'?'on':''}" data-m="ytd">Full year</button>`}
+ $('#mm').innerHTML='<span class="mlab">Month</span>'+MN.map((m,i)=>`<button class="mp ${tr[i]?'':'no'} ${S.m==i||(S.m=='latest'&&i==curM(tr))?'on':''}" data-m="${i}" data-tip="${mtip(tr,i)}">${m}</button>`).join('')+`<button class="mp ${S.m=='ytd'?'on':''}" data-m="ytd" data-tip="All months of ${S.y} combined">Full year</button>`}
 function curM(tr){if(S.m=='latest'||S.m=='ytd'){for(let i=11;i>=0;i--)if(tr[i])return i;return 0}return S.m}
-function mk(id,cfg){if(CH[id])CH[id].destroy();const e=document.getElementById(id);if(!e)return;CH[id]=new Chart(e,cfg)}
+function mk(id,cfg){if(CH[id])CH[id].destroy();const e=document.getElementById(id);if(!e)return;if(cfg.type!='doughnut'){cfg.options=cfg.options||{};cfg.options.interaction=cfg.options.interaction||{mode:'index',intersect:false}}CH[id]=new Chart(e,cfg)}
 function render(){
  filters();const b=base(),tr=trend(b),cm=curM(tr);months(tr);
  const rs=S.m=='ytd'?b:b.filter(r=>r.m==cm),a=agg(rs);
@@ -180,7 +185,8 @@ function render(){
   $('#app').innerHTML+=`<h2>Jan–Dec trends</h2><div class="tg" id="tg"></div>`;trends(tr,cm);return}
  const prev=S.m=='ytd'?null:tr.slice(0,cm).reverse().find(Boolean);
  const kp=KP.map((x,i)=>{let d='',c='';if(prev&&x.u!==undefined){const df=a[x.k]-prev[x.k];if(Math.abs(df)>1e-9){d=(df>0?'▲ ':'▼ ')+x.f(Math.abs(df))+' vs prev month';c=x.u?((df>0)==(x.u>0)?'g':'b'):''}}
-  return `<div class="k ${x.hero?'hero':''}" data-k="${x.k}" style="--i:${i}"><i class="ic">${I(TR.find(t=>t[0]==x.k)[3])}</i><div class="l">${x.l}</div><div class="v" data-ck="${x.k}" data-cv="${a[x.k]}">${x.f(a[x.k])}</div><div class="d ${c}">${x.sub?x.sub(a):d||'&nbsp;'}</div>${spark(tr,x.k)}</div>`}).join('');
+  const ex=x.f===fC?fN(a[x.k]):x.f===fP?a[x.k].toFixed(2)+'%':fN(a[x.k]),tp=x.l+': '+ex+(x.sub?'&#10;'+x.sub(a):'')+(d?'&#10;'+d:'')+'&#10;Click for full detail';
+  return `<div class="k ${x.hero?'hero':''}" data-k="${x.k}" data-tip="${tp}" style="--i:${i}"><i class="ic">${I(TR.find(t=>t[0]==x.k)[3])}</i><div class="l">${x.l}</div><div class="v" data-ck="${x.k}" data-cv="${a[x.k]}">${x.f(a[x.k])}</div><div class="d ${c}">${x.sub?x.sub(a):d||'&nbsp;'}</div>${spark(tr,x.k,x.f)}</div>`}).join('');
  const grp=(by)=>{const m={};rs.forEach(r=>(m[r[by]]??=[]).push(r));return Object.entries(m).map(([k,v])=>({k,a:agg(v)})).filter(x=>has(x.a))};
  const secs=grp('sec'),top=[...secs].sort((x,y)=>y.a.otc+y.a.tpc-x.a.otc-x.a.tpc)[0],ab=[...secs].filter(x=>x.a.cur>0).sort((x,y)=>y.a.abs-x.a.abs)[0],lt=[...secs].filter(x=>x.a.cur>0).sort((x,y)=>y.a.late-x.a.late)[0];
  $('#app').innerHTML=`<h2>Overview <small>${per} · ${S.co=='All'?'All companies':S.co}${S.dept!='All'?' · '+S.dept:''}${S.sec!='All'?' · '+S.sec:''}</small></h2><div class="kg">${kp}</div>
@@ -192,16 +198,16 @@ function render(){
  trends(tr,cm);countUp();
  const dg=grp('dept').sort((x,y)=>y.a.otc+y.a.tpc-x.a.otc-x.a.tpc).slice(0,12),gc=getComputedStyle(document.body).getPropertyValue('--mu');
  const ax={ticks:{color:gc},grid:{color:'rgba(120,160,135,.15)'}},base_={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:gc,boxWidth:12}}}};
- mk('c1',{type:'bar',data:{labels:dg.map(x=>x.k),datasets:[{label:'Own OT cost',data:dg.map(x=>x.a.otc),backgroundColor:'#2e9e5b',borderRadius:5},{label:'TP OT cost',data:dg.map(x=>x.a.tpc),backgroundColor:'#a7e3bd',borderRadius:5}]},options:{...base_,indexAxis:'y',scales:{x:{...ax,stacked:true},y:{...ax,stacked:true}}}});
+ mk('c1',{type:'bar',data:{labels:dg.map(x=>x.k),datasets:[{label:'Own OT cost',data:dg.map(x=>x.a.otc),backgroundColor:'#2e9e5b',borderRadius:5},{label:'TP OT cost',data:dg.map(x=>x.a.tpc),backgroundColor:'#a7e3bd',borderRadius:5}]},options:{...base_,indexAxis:'y',interaction:{mode:'index',axis:'y',intersect:false},plugins:{...base_.plugins,tooltip:{callbacks:{label:c=>c.dataset.label+': '+fN(c.parsed.x),footer:it=>'Total: '+fN(it.reduce((q,i)=>q+i.parsed.x,0))}}},scales:{x:{...ax,stacked:true},y:{...ax,stacked:true}}}});
  const al=AL.map(k=>[k,rs.reduce((s,r)=>s+(r.d[k]||0),0)]).filter(x=>x[1]>0);
- mk('c2',{type:'doughnut',data:{labels:al.map(x=>x[0]),datasets:[{data:al.map(x=>x[1]),backgroundColor:PAL,borderWidth:0}]},options:{...base_,cutout:'62%',plugins:{legend:{position:'bottom',labels:{color:gc,boxWidth:10,font:{size:11}}}}}});
+ mk('c2',{type:'doughnut',data:{labels:al.map(x=>x[0]),datasets:[{data:al.map(x=>x[1]),backgroundColor:PAL,borderWidth:0}]},options:{...base_,cutout:'62%',plugins:{legend:{position:'bottom',labels:{color:gc,boxWidth:10,font:{size:11}}},tooltip:{callbacks:{label:c=>{const t=c.dataset.data.reduce((q,z)=>q+z,0);return c.label+': '+fN(c.parsed)+' ('+(c.parsed/t*100).toFixed(1)+'%)'}}}}}});
  table(rs);$('#q').oninput=e=>{S.q=e.target.value;table(rs)};
 }
 function trends(tr,cm){const g=$('#tg');if(!g)return;const mu=getComputedStyle(document.body).getPropertyValue('--mu');
  g.innerHTML=TR.map(([k,l,,ic],i)=>{const v=tr[cm]?fmtFor(k)(tr[cm][k]):'–';return `<div class="c tc" data-i="${i}" style="--i:${i}" tabindex="0"><div class="t"><em class="tl"><i class="ic s">${I(ic)}</i>${l}</em><span>${v}</span></div><div class="cv"><canvas id="t${i}"></canvas></div><div class="hint">Full detail ›</div></div>`}).join('');
  TR.forEach(([k,l,t],i)=>{const d=tr.map(x=>x?+x[k].toFixed(2):null),f=fmtFor(k),sel=S.m=='ytd'?-1:cm;
   mk('t'+i,{type:t=='b'?'bar':'line',data:{labels:MN,datasets:[{data:d,spanGaps:false,borderColor:'#2e9e5b',borderWidth:2.5,tension:.35,pointRadius:d.map((_,j)=>j==sel?5:3),pointBackgroundColor:'#2e9e5b',backgroundColor:t=='b'?d.map((_,j)=>j==sel?'#14532d':'#7fd4a0'):'rgba(46,158,91,.12)',fill:t!='b',borderRadius:4}]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>f(c.parsed.y)}}},scales:{x:{ticks:{color:mu,font:{size:10}},grid:{display:false}},y:{ticks:{color:mu,font:{size:10},maxTicksLimit:4},grid:{color:'rgba(120,160,135,.15)'},beginAtZero:true}}}})})}
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>i[0].label+' '+S.y,label:c=>l+': '+f(c.parsed.y)}}},scales:{x:{ticks:{color:mu,font:{size:10}},grid:{display:false}},y:{ticks:{color:mu,font:{size:10},maxTicksLimit:4},grid:{color:'rgba(120,160,135,.15)'},beginAtZero:true}}}})})}
 let SL=[];
 function table(rs){const m={};rs.forEach(r=>(m[r.co+'|'+r.dept+'|'+r.sec]??=[]).push(r));
  const q=S.q.toLowerCase();let L=Object.entries(m).map(([k,v])=>({co:k.split('|')[0],dept:k.split('|')[1],sec:k.split('|')[2],...agg(v)})).filter(x=>has(x)&&(x.sec+x.dept).toLowerCase().includes(q));
@@ -209,7 +215,7 @@ function table(rs){const m={};rs.forEach(r=>(m[r.co+'|'+r.dept+'|'+r.sec]??=[]).
  const sc=$('#sc');if(sc)sc.textContent='· '+L.length+' sections';
  const V=S.all?L:L.slice(0,8);
  const C=[['co','Company'],['dept','Department'],['sec','Section'],['cur','HC',fN],['ot','OT hrs',fN],['otc','OT cost',fN],['tpc','TP OT cost',fN],['abs','Absent',v=>pill(v,10,15)],['late','Late',v=>pill(v,5,15)],['avs','Act/Std',fP]];
- $('#tb').innerHTML=L.length?`<table class="ct"><thead><tr>${C.map(c=>`<th data-s="${c[0]}">${c[1]}${S.sk==c[0]?(S.sd>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead><tbody>${V.map((x,i)=>`<tr data-r="${i}" title="Click to filter on this section">${C.map(c=>`<td>${c[2]?c[2](x[c[0]]):x[c[0]]}</td>`).join('')}</tr>`).join('')}</tbody></table>${L.length>8?`<button class="btn more" id="mo">${S.all?'Show top 8':'Show all '+L.length}</button>`:''}`:'<div class="msg">No matching sections.</div>';
+ $('#tb').innerHTML=L.length?`<table class="ct"><thead><tr>${C.map(c=>`<th data-s="${c[0]}">${c[1]}${S.sk==c[0]?(S.sd>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead><tbody>${V.map((x,i)=>`<tr data-r="${i}" data-tip="${x.sec} · ${x.co}&#10;Headcount: ${fN(x.cur)}&#10;OT cost: ${fN(x.otc)} · TP OT cost: ${fN(x.tpc)}&#10;Absent: ${fP(x.abs)} · Late: ${fP(x.late)}&#10;Click to filter on this section">${C.map(c=>`<td>${c[2]?c[2](x[c[0]]):x[c[0]]}</td>`).join('')}</tr>`).join('')}</tbody></table>${L.length>8?`<button class="btn more" id="mo">${S.all?'Show top 8':'Show all '+L.length}</button>`:''}`:'<div class="msg">No matching sections.</div>';
  document.querySelectorAll('th[data-s]').forEach(t=>t.onclick=()=>{const k=t.dataset.s;S.sd=S.sk==k?-S.sd:-1;S.sk=k;table(rs)});
  document.querySelectorAll('#tb tr[data-r]').forEach(t=>t.onclick=()=>{const x=V[+t.dataset.r];S.co=x.co;S.dept=x.dept;S.sec=x.sec;render()});
  const mo=$('#mo');if(mo)mo.onclick=()=>{S.all=!S.all;table(rs)}}
@@ -239,13 +245,13 @@ function drawDet(){
  const st=[[MN[cm]+' '+S.y,cur!=null?f(cur):'–',''],['Change vs previous month',dt(dl),dc(dl)],['Monthly average',ok.length?f(av):'–',''],['Highest month',mx!=null?f(vals[mx])+' · '+MN[mx]:'–',''],['Lowest month',mn!=null?f(vals[mn])+' · '+MN[mn]:'–',''],['Months with data',ok.length+' of 12','']];
  if(SUMK.includes(k))st.push(['Year total',f(ok.reduce((s,i)=>s+vals[i],0)),'']);
  const gb=by=>{const m={};rs.forEach(r=>(m[r[by]]??=[]).push(r));return Object.entries(m).map(([n,v])=>{const a=agg(v);return{n,a,v:a[k]}}).filter(x=>has(x.a)).sort((x,y)=>y.v-x.v)};
- const bl=(arr,by,lim)=>{const A=arr.slice(0,lim),m=Math.max(...A.map(x=>x.v),1e-9);return A.length?A.map((x,j)=>`<div class="bl ${by!='sec'?'ck':''}" data-by="${by}" data-n="${x.n.replace(/"/g,'&quot;')}"><span class="bn" title="${x.n.replace(/"/g,'&quot;')}">${x.n}</span><div class="bt"><i style="width:${Math.max(2,Math.max(x.v,0)/m*100)}%;${u<0&&j<3&&x.v>0?'background:linear-gradient(90deg,#f0a35e,#d4543a)':''}"></i></div><b>${f(x.v)}</b></div>`).join(''):'<div class="msg">No data for this selection</div>'};
- const mrows=MN.map((m,i)=>{const p=ok.filter(j=>j<i).pop(),d=(vals[i]!=null&&p!=null)?vals[i]-vals[p]:null;return `<tr class="mr ${i==cm&&S.m!='ytd'?'sel':''}" data-mm="${i}"><td>${m}</td><td>${vals[i]!=null?f(vals[i]):'<span class="nd">No data</span>'}</td><td class="${dc(d)}">${dt(d)}</td></tr>`}).join('');
+ const bl=(arr,by,lim)=>{const A=arr.slice(0,lim),m=Math.max(...A.map(x=>x.v),1e-9);return A.length?A.map((x,j)=>`<div class="bl ${by!='sec'?'ck':''}" data-tip="${x.n.replace(/"/g,'&quot;')}&#10;${l}: ${f(x.v)}&#10;Headcount: ${fN(x.a.cur)} · OT cost: ${fN(x.a.otc)}${by!='sec'?'&#10;Click to filter':''}" data-by="${by}" data-n="${x.n.replace(/"/g,'&quot;')}"><span class="bn" title="${x.n.replace(/"/g,'&quot;')}">${x.n}</span><div class="bt"><i style="width:${Math.max(2,Math.max(x.v,0)/m*100)}%;${u<0&&j<3&&x.v>0?'background:linear-gradient(90deg,#f0a35e,#d4543a)':''}"></i></div><b>${f(x.v)}</b></div>`).join(''):'<div class="msg">No data for this selection</div>'};
+ const mrows=MN.map((m,i)=>{const p=ok.filter(j=>j<i).pop(),d=(vals[i]!=null&&p!=null)?vals[i]-vals[p]:null;return `<tr class="mr ${i==cm&&S.m!='ytd'?'sel':''}" data-mm="${i}" data-tip="${m} ${S.y}&#10;${l}: ${vals[i]!=null?f(vals[i]):'no data'}&#10;Change: ${dt(d)}"><td>${m}</td><td>${vals[i]!=null?f(vals[i]):'<span class="nd">No data</span>'}</td><td class="${dc(d)}">${dt(d)}</td></tr>`}).join('');
  const ss=$('.dside')?.scrollTop||0,filt=(S.co!='All'||S.dept!='All'||S.sec!='All');
  if(CH.dc){CH.dc.destroy();delete CH.dc}
  $('#dv').innerHTML=`<div class="dside">${TR.map(([kk,ll,,ii],j)=>`<button class="ds ${j==DI?'on':''}" data-j="${j}"><span><i class="ic s">${I(ii)}</i>${ll}</span><b>${tr[cm]?KP.find(x=>x.k==kk).f(tr[cm][kk]):'–'}</b></button>`).join('')}</div>
  <div class="dmain"><div class="dh"><button class="btn" data-nav="-1" aria-label="Previous trend">◀</button><div><div class="sub">Trend ${DI+1} of ${TR.length} · ${S.co=='All'?'All companies':S.co}${S.dept!='All'?' · '+S.dept:''}${S.sec!='All'?' · '+S.sec:''}</div><h2><i class="ic">${I(ic)}</i> ${l}</h2></div><button class="btn" data-nav="1" aria-label="Next trend">▶</button><span class="sp"></span>${filt?'<button class="btn" data-reset="1">Clear filters</button>':''}<button class="btn ${DT=='bar'?'p':''}" data-ty="bar">Bars</button><button class="btn ${DT=='line'?'p':''}" data-ty="line">Line</button><button class="btn" id="dx">Close ✕</button></div>
- <div class="row">${MN.map((m,i)=>`<button class="mp ${tr[i]?'':'no'} ${S.m!='ytd'&&i==cm?'on':''}" data-mm="${i}">${m}</button>`).join('')}<button class="mp ${S.m=='ytd'?'on':''}" data-mm="ytd">Full year</button></div>
+ <div class="row">${MN.map((m,i)=>`<button class="mp ${tr[i]?'':'no'} ${S.m!='ytd'&&i==cm?'on':''}" data-mm="${i}" data-tip="${mtip(tr,i)}">${m}</button>`).join('')}<button class="mp ${S.m=='ytd'?'on':''}" data-mm="ytd">Full year</button></div>
  <div class="sg">${st.map(x=>`<div><small>${x[0]}</small><b class="${x[2]}">${x[1]}</b></div>`).join('')}</div>
  <div class="c"><div class="cv big"><canvas id="dc"></canvas></div></div>
  <div class="g2b"><div><h3>Month by month</h3><div class="tw" style="max-height:440px"><table class="mt"><thead><tr><th>Month</th><th>${l}</th><th>Change</th></tr></thead><tbody>${mrows}</tbody></table></div></div>
@@ -254,7 +260,7 @@ function drawDet(){
  $('.dside').scrollTop=ss;
  const mu=getComputedStyle(document.body).getPropertyValue('--mu'),sel=S.m=='ytd'?-1:cm,ds=[{type:DT,label:l,data:vals.map(v=>v===null?null:+v.toFixed(2)),borderColor:'#2e9e5b',borderWidth:3,tension:.35,pointRadius:vals.map((_,j)=>j==sel?7:4),pointBackgroundColor:'#2e9e5b',fill:DT=='line',backgroundColor:DT=='bar'?vals.map((_,j)=>j==sel?'#14532d':'#7fd4a0'):'rgba(46,158,91,.14)',borderRadius:8,order:2}];
  if(ok.length>1)ds.push({type:'line',label:'Average',data:vals.map(v=>v===null?null:+av.toFixed(2)),borderColor:'#f0a35e',borderDash:[6,4],borderWidth:2,pointRadius:0,order:1});
- mk('dc',{type:'bar',data:{labels:MN,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:mu,boxWidth:12}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+f(c.parsed.y)}}},scales:{x:{ticks:{color:mu},grid:{display:false}},y:{beginAtZero:true,ticks:{color:mu,callback:v=>f(v)},grid:{color:'rgba(120,160,135,.15)'}}}}});
+ mk('dc',{type:'bar',data:{labels:MN,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:mu,boxWidth:12}},tooltip:{callbacks:{title:i=>i[0].label+' '+S.y,label:c=>c.dataset.label+': '+f(c.parsed.y)}}},scales:{x:{ticks:{color:mu},grid:{display:false}},y:{beginAtZero:true,ticks:{color:mu,callback:v=>f(v)},grid:{color:'rgba(120,160,135,.15)'}}}}});
 }
 $('#dv').onclick=e=>{const T=e.target,q=s=>T.closest(s);let x;
  if(q('#dx'))return closeDet();
@@ -270,5 +276,9 @@ $('#app').onclick=e=>{const c=e.target.closest('[data-i]');if(c)return openDet(+
 document.addEventListener('keydown',e=>{const on=$('#dv').classList.contains('on');
  if(on&&e.key=='Escape')closeDet();else if(on&&e.key=='ArrowRight'){DI=(DI+1)%TR.length;drawDet()}else if(on&&e.key=='ArrowLeft'){DI=(DI-1+TR.length)%TR.length;drawDet()}
  else if(e.key=='Enter'&&e.target.dataset?.i!==undefined)openDet(+e.target.dataset.i)});
+const tip=document.createElement('div');tip.id='tip';document.body.appendChild(tip);
+document.addEventListener('mouseover',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(!t){tip.style.display='none';return}tip.textContent=t.dataset.tip;tip.style.display='block'});
+document.addEventListener('mousemove',e=>{if(tip.style.display!='block')return;tip.style.left=Math.max(6,Math.min(e.clientX+14,innerWidth-tip.offsetWidth-8))+'px';tip.style.top=Math.max(6,Math.min(e.clientY+16,innerHeight-tip.offsetHeight-8))+'px'});
+document.addEventListener('mouseout',e=>{if(!e.relatedTarget)tip.style.display='none'});
 load();
 </script></body></html>
