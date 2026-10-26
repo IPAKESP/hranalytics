@@ -74,6 +74,18 @@ h2{margin:20px 0 10px}
 .ab{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}.acc.open .ab{grid-template-rows:1fr}.ai{overflow:hidden;min-height:0;padding:0 12px}.acc.open .ai{padding:4px 12px 12px}.ai input{margin:6px 0 8px;width:240px;max-width:100%;padding:5px 9px;font-size:12.5px}
 .ai .tw{max-height:260px;border-radius:10px}.ct td{padding:5px 10px;font-size:12px}.ct th{padding:7px 10px;font-size:12px}.ct tr[data-r]{cursor:pointer}.more{margin:8px 0 0}
 @media(prefers-reduced-motion:no-preference){.k,.tc{animation:up .45s backwards;animation-delay:calc(var(--i,0)*35ms)}@keyframes up{from{opacity:0;transform:translateY(12px)}}.sl polyline{animation:dr 1s .25s backwards ease-out}@keyframes dr{from{stroke-dashoffset:1}}}
+
+.kg{grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:8px}
+.k{padding:9px 11px;border-radius:12px}.k .l{font-size:11px;padding-right:26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k .v{font-size:19px;margin:2px 0 1px;letter-spacing:-.01em}.k .d{font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k .ic{top:8px;right:8px;width:22px;height:22px;border-radius:7px}.k .ic svg{width:13px;height:13px}
+.sl{height:12px;margin-top:3px}
+
+.kg{grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}
+.k{padding:6px 9px;border-radius:10px}.k .l{font-size:10.5px;padding-right:20px}
+.k .v{font-size:16px;margin:1px 0 0}.k .d{font-size:10px}
+.k .ic{top:6px;right:6px;width:18px;height:18px;border-radius:6px}.k .ic svg{width:11px;height:11px}
+.sl{height:9px;margin-top:2px}
 </style></head><body>
 <header><div class="logo">HR</div><div><h1>HR Analytics Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
 <button class="btn" id="rf">Refresh data</button><label class="btn">Upload CSV<input type="file" id="up" accept=".csv" hidden></label><button class="btn" id="th">Dark mode</button></header>
@@ -115,7 +127,7 @@ const has=a=>a&&(a.sched>0||a.cur>0||a.otc>0||a.tpc>0);
 const KP=[
 {k:'cur',l:'Current headcount',f:fN,u:1,hero:1,sub:a=>'Approved '+fN(a.appr)},{k:'active',l:'Active employees',f:fP,u:1},{k:'abs',l:'Absenteeism',f:fP,u:-1},{k:'lvp',l:'Leaves',f:fP,u:-1},
 {k:'late',l:'Late arrival',f:fP,u:-1},{k:'early',l:'Early out',f:fP,u:-1},{k:'avs',l:'Actual vs std hours',f:fP,u:1},{k:'sched',l:'Total scheduled hours',f:fN,u:0},
-{k:'ot',l:'Total OT hours',f:fN,u:-1,sub:a=>'OT '+fP(a.otp)},{k:'otp',l:'OT % of hours',f:fP,u:-1},{k:'otc',l:'OT cost (PKR)',f:fC,u:-1,hero:1},{k:'tpot',l:'TP OT hours',f:fN,u:-1,sub:a=>'TP OT '+fP(a.tpp)},{k:'tpc',l:'TP OT cost (PKR)',f:fC,u:-1},
+{k:'ot',l:'Total OT hours',f:fN,u:-1,sub:a=>'OT '+fP(a.otp)},{k:'otp',l:'OT % of hours',f:fP,u:-1},{k:'otc',l:'OT cost (PKR)',f:fC,u:-1},{k:'tpot',l:'TP OT hours',f:fN,u:-1,sub:a=>'TP OT '+fP(a.tpp)},{k:'tpc',l:'TP OT cost (PKR)',f:fC,u:-1},
 {k:'join',l:'Joiners',f:fN,u:1},{k:'lv',l:'Leavers',f:fN,u:-1},{k:'pend',l:'Pending final settlement',f:fN,u:-1}];
 const IC={people:'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z',
 check:'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
@@ -135,7 +147,7 @@ walk:'M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8
 doc:'M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'};
 const I=n=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
 
-const TR=[['cur','Headcount','b','people'],['active','Active employee %','l','check'],['abs','Absenteeism %','l','block'],['lvp','Leaves %','l','cal'],['late','Late arrival %','l','clock'],['early','Early out %','l','logout'],['avs','Actual vs std hours %','l','target'],['sched','Total hours','b','hour'],['ot','Total OT hours','b','bolt'],['otp','OT %','l','trend'],['otc','OT cost','b','money'],['tpot','TP OT hours','b','work'],['tpc','TP OT cost','b','wallet'],['join','Joiners','b','add'],['lv','Leavers','b','walk'],['pend','Pending final settlement','b','doc']];
+const TR=[['cur','Headcount','b','people'],['active','Active employee %','l','check'],['ot','Total OT hours','b','bolt'],['otp','OT %','l','trend'],['otc','OT cost','b','money'],['tpot','TP OT hours','b','work'],['tpc','TP OT cost','b','wallet'],['abs','Absenteeism %','l','block'],['lvp','Leaves %','l','cal'],['late','Late arrival %','l','clock'],['early','Early out %','l','logout'],['avs','Actual vs std hours %','l','target'],['sched','Total hours','b','hour'],['join','Joiners','b','add'],['lv','Leavers','b','walk'],['pend','Pending final settlement','b','doc']];
 const AL=['LFA','Vehicle Allowance','Relocation Allowance','Transportation Allowance','Fare Allowance','Mobile Allowance','Tardiness Reimbursment','Admin Reimbursment','Medical/OPD','Advance Salary'];
 const base=()=>RAW.filter(r=>r.y==S.y&&(S.co=='All'||r.co==S.co)&&(S.dept=='All'||r.dept==S.dept)&&(S.sec=='All'||r.sec==S.sec));
 const trend=b=>MN.map((_,i)=>{const a=agg(b.filter(r=>r.m==i));return has(a)?a:null});
@@ -175,7 +187,6 @@ function render(){
  <div class="ins">${top?`<div>Highest OT spend: ${top.k} (Rs ${fC(top.a.otc+top.a.tpc)})</div>`:''}${ab?`<div>Highest absenteeism: ${ab.k} (${fP(ab.a.abs)})</div>`:''}${lt?`<div>Most late arrivals: ${lt.k} (${fP(lt.a.late)})</div>`:''}</div>
  <h2>Month-wise trends <small>Jan–Dec ${S.y} · selected month highlighted · click any card for full detail</small></h2><div class="tg" id="tg"></div>
  <h2>Breakdown <small>${per}</small></h2><div class="g2"><div class="c"><div class="t">OT cost by department (own vs third party)</div><div class="cv big"><canvas id="c1"></canvas></div></div><div class="c"><div class="t">Allowances &amp; reimbursements</div><div class="cv big"><canvas id="c2"></canvas></div></div></div>
- <div class="g2b"><div class="c"><div class="t">Headcount by company (approved vs current)</div><div class="cv big"><canvas id="c3"></canvas></div></div><div class="c"><div class="t">Attendance quality by department (%)</div><div class="cv big"><canvas id="c4"></canvas></div></div></div>
  <div class="acc ${S.open?'open':''}" id="acc"><button class="ah" id="ah"><b>Section detail</b><small>${per}</small><span id="sc"></span><span class="sp"></span><svg class="chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></button><div class="ab"><div class="ai"><input type="search" id="q" placeholder="Search section or department" value="${S.q}"><div class="tw" id="tb"></div></div></div></div>`;
  $('#ah').onclick=()=>{S.open=!S.open;$('#acc').classList.toggle('open',S.open)};
  trends(tr,cm);countUp();
@@ -184,9 +195,6 @@ function render(){
  mk('c1',{type:'bar',data:{labels:dg.map(x=>x.k),datasets:[{label:'Own OT cost',data:dg.map(x=>x.a.otc),backgroundColor:'#2e9e5b',borderRadius:5},{label:'TP OT cost',data:dg.map(x=>x.a.tpc),backgroundColor:'#a7e3bd',borderRadius:5}]},options:{...base_,indexAxis:'y',scales:{x:{...ax,stacked:true},y:{...ax,stacked:true}}}});
  const al=AL.map(k=>[k,rs.reduce((s,r)=>s+(r.d[k]||0),0)]).filter(x=>x[1]>0);
  mk('c2',{type:'doughnut',data:{labels:al.map(x=>x[0]),datasets:[{data:al.map(x=>x[1]),backgroundColor:PAL,borderWidth:0}]},options:{...base_,cutout:'62%',plugins:{legend:{position:'bottom',labels:{color:gc,boxWidth:10,font:{size:11}}}}}});
- const cg=grp('co');mk('c3',{type:'bar',data:{labels:cg.map(x=>x.k),datasets:[{label:'Approved',data:cg.map(x=>x.a.appr),backgroundColor:'#a7e3bd',borderRadius:5},{label:'Current',data:cg.map(x=>x.a.cur),backgroundColor:'#2e9e5b',borderRadius:5}]},options:{...base_,scales:{x:ax,y:ax}}});
- const dd=grp('dept').filter(x=>x.a.cur>0);
- mk('c4',{type:'bar',data:{labels:dd.map(x=>x.k),datasets:[{label:'Absenteeism',data:dd.map(x=>+x.a.abs.toFixed(1)),backgroundColor:'#2e9e5b',borderRadius:5},{label:'Late arrival',data:dd.map(x=>+x.a.late.toFixed(1)),backgroundColor:'#6cc78f',borderRadius:5},{label:'Leaves',data:dd.map(x=>+x.a.lvp.toFixed(1)),backgroundColor:'#14532d',borderRadius:5}]},options:{...base_,scales:{x:ax,y:ax}}});
  table(rs);$('#q').oninput=e=>{S.q=e.target.value;table(rs)};
 }
 function trends(tr,cm){const g=$('#tg');if(!g)return;const mu=getComputedStyle(document.body).getPropertyValue('--mu');
