@@ -90,8 +90,9 @@ h2{margin:20px 0 10px}
 #tip{position:fixed;z-index:100;pointer-events:none;display:none;background:#14532d;color:#fff;padding:7px 11px;border-radius:9px;font:600 12px/1.45 Figtree,sans-serif;box-shadow:0 8px 22px rgba(0,0,0,.28);max-width:300px;white-space:pre-line}
 [data-theme=dark] #tip{background:#e3f3e8;color:#0e1a13}
 [data-tip]{cursor:default}.k[data-tip],.bl.ck[data-tip],.mp[data-tip],tr[data-tip]{cursor:pointer}
+img.logo{width:auto;height:36px;max-width:150px;object-fit:contain;background:none;border-radius:0;display:block}
 </style></head><body>
-<header><div class="logo">HR</div><div><h1>HR Analytics Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
+<header><img class="logo" src="logo.png" alt="Logo" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo',textContent:'HR'}))"><div><h1>HR Analytics Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
 <button class="btn" id="rf">Refresh data</button><label class="btn">Upload CSV<input type="file" id="up" accept=".csv" hidden></label><button class="btn" id="th">Dark mode</button></header>
 <main>
 <div class="err" id="er"></div>
@@ -129,10 +130,21 @@ function agg(rs){if(!rs.length)return null;
  join:s('Joiners'),lv:s('Leavers'),pend:s('Pending Final Settlement')}}
 const has=a=>a&&(a.sched>0||a.cur>0||a.otc>0||a.tpc>0);
 const KP=[
-{k:'cur',l:'Current headcount',f:fN,u:1,hero:1,sub:a=>'Approved '+fN(a.appr)},{k:'active',l:'Active employees',f:fP,u:1},{k:'abs',l:'Absenteeism',f:fP,u:-1},{k:'lvp',l:'Leaves',f:fP,u:-1},
-{k:'late',l:'Late arrival',f:fP,u:-1},{k:'early',l:'Early out',f:fP,u:-1},{k:'avs',l:'Actual vs std hours',f:fP,u:1},{k:'sched',l:'Total scheduled hours',f:fN,u:0},
-{k:'ot',l:'Total OT hours',f:fN,u:-1,sub:a=>'OT '+fP(a.otp)},{k:'otp',l:'OT % of hours',f:fP,u:-1},{k:'otc',l:'OT cost (PKR)',f:fC,u:-1},{k:'tpot',l:'TP OT hours',f:fN,u:-1,sub:a=>'TP OT '+fP(a.tpp)},{k:'tpc',l:'TP OT cost (PKR)',f:fC,u:-1},
-{k:'join',l:'Joiners',f:fN,u:1},{k:'lv',l:'Leavers',f:fN,u:-1},{k:'pend',l:'Pending final settlement',f:fN,u:-1}];
+{k:'cur',l:'Current headcount',f:fN,u:1,hero:1,sub:a=>'Approved '+fN(a.appr)},
+{k:'active',l:'Active employees',f:fP,u:1},
+{k:'ot',l:'Total OT hours',f:fN,u:-1,sub:a=>'OT '+fP(a.otp)},
+{k:'otp',l:'OT % of hours',f:fP,u:-1},
+{k:'otc',l:'OT cost (PKR)',f:fC,u:-1},
+{k:'tpot',l:'TP OT hours',f:fN,u:-1,sub:a=>'TP OT '+fP(a.tpp)},
+{k:'tpc',l:'TP OT cost (PKR)',f:fC,u:-1},
+{k:'abs',l:'Absenteeism',f:fP,u:-1},
+{k:'lvp',l:'Leaves',f:fP,u:-1},
+{k:'late',l:'Late arrival',f:fP,u:-1},
+{k:'early',l:'Early out',f:fP,u:-1},
+{k:'avs',l:'Actual vs std hours',f:fP,u:1},
+{k:'join',l:'Joiners',f:fN,u:1},
+{k:'lv',l:'Leavers',f:fN,u:-1},
+{k:'pend',l:'Pending final settlement',f:fN,u:-1}];
 const IC={people:'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z',
 check:'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
 block:'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z',
@@ -151,7 +163,7 @@ walk:'M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8
 doc:'M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'};
 const I=n=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
 
-const TR=[['cur','Headcount','b','people'],['active','Active employee %','l','check'],['ot','Total OT hours','b','bolt'],['otp','OT %','l','trend'],['otc','OT cost','b','money'],['tpot','TP OT hours','b','work'],['tpc','TP OT cost','b','wallet'],['abs','Absenteeism %','l','block'],['lvp','Leaves %','l','cal'],['late','Late arrival %','l','clock'],['early','Early out %','l','logout'],['avs','Actual vs std hours %','l','target'],['sched','Total hours','b','hour'],['join','Joiners','b','add'],['lv','Leavers','b','walk'],['pend','Pending final settlement','b','doc']];
+const TR=[['cur','Headcount','b','people'],['active','Active employee %','l','check'],['ot','Total OT hours','b','bolt'],['otp','OT %','l','trend'],['otc','OT cost','b','money'],['tpot','TP OT hours','b','work'],['tpc','TP OT cost','b','wallet'],['abs','Absenteeism %','l','block'],['lvp','Leaves %','l','cal'],['late','Late arrival %','l','clock'],['early','Early out %','l','logout'],['avs','Actual vs std hours %','l','target'],['join','Joiners','b','add'],['lv','Leavers','b','walk'],['pend','Pending final settlement','b','doc']];
 const AL=['LFA','Vehicle Allowance','Relocation Allowance','Transportation Allowance','Fare Allowance','Mobile Allowance','Tardiness Reimbursment','Admin Reimbursment','Medical/OPD','Advance Salary'];
 const base=()=>RAW.filter(r=>r.y==S.y&&(S.co=='All'||r.co==S.co)&&(S.dept=='All'||r.dept==S.dept)&&(S.sec=='All'||r.sec==S.sec));
 const trend=b=>MN.map((_,i)=>{const a=agg(b.filter(r=>r.m==i));return has(a)?a:null});
@@ -239,7 +251,7 @@ $('#rs').onclick=()=>{S={...S,co:'All',m:'latest',dept:'All',sec:'All',q:''};S.y
 $('#cc').onclick=e=>{const c=e.target.dataset.co;if(c){S.co=c;S.dept='All';S.sec='All';render()}};
 $('#mm').onclick=e=>{const m=e.target.dataset.m;if(m!==undefined){S.m=m=='ytd'?'ytd':+m;render()}};
 
-let CUR={},DI=0,DT='bar';const SUMK=['sched','ot','otc','tpot','tpc','join','lv'];
+let CUR={},DI=0,DT='bar';const SUMK=['ot','otc','tpot','tpc','join','lv'];
 function openDet(i){DI=(i+TR.length)%TR.length;$('#dv').classList.add('on');document.body.style.overflow='hidden';drawDet()}
 function closeDet(){$('#dv').classList.remove('on');document.body.style.overflow='';if(CH.dc){CH.dc.destroy();delete CH.dc}}
 function drawDet(){
