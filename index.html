@@ -176,7 +176,14 @@ function filters(){
 function months(tr){
  $('#mm').innerHTML='<span class="mlab">Month</span>'+MN.map((m,i)=>`<button class="mp ${tr[i]?'':'no'} ${S.m==i||(S.m=='latest'&&i==curM(tr))?'on':''}" data-m="${i}" data-tip="${mtip(tr,i)}">${m}</button>`).join('')+`<button class="mp ${S.m=='ytd'?'on':''}" data-m="ytd" data-tip="All months of ${S.y} combined">Full year</button>`}
 function curM(tr){if(S.m=='latest'||S.m=='ytd'){for(let i=11;i>=0;i--)if(tr[i])return i;return 0}return S.m}
-function mk(id,cfg){if(CH[id])CH[id].destroy();const e=document.getElementById(id);if(!e)return;if(cfg.type!='doughnut'){cfg.options=cfg.options||{};cfg.options.interaction=cfg.options.interaction||{mode:'index',intersect:false}}CH[id]=new Chart(e,cfg)}
+function ext({chart,tooltip}){
+ if(!tooltip||tooltip.opacity===0){tip.style.display='none';return}
+ const L=[...(tooltip.title||[]),...tooltip.body.flatMap(b=>b.lines),...(tooltip.footer||[])].filter(Boolean);
+ tip.textContent=L.join('\n');tip.dataset.src='chart';tip.style.display='block';
+ const r=chart.canvas.getBoundingClientRect();
+ tip.style.left=Math.max(6,Math.min(r.left+tooltip.caretX+14,innerWidth-tip.offsetWidth-8))+'px';
+ tip.style.top=Math.max(6,Math.min(r.top+tooltip.caretY+14,innerHeight-tip.offsetHeight-8))+'px'}
+function mk(id,cfg){if(CH[id])CH[id].destroy();const e=document.getElementById(id);if(!e)return;if(cfg.type!='doughnut'){cfg.options=cfg.options||{};cfg.options.interaction=cfg.options.interaction||{mode:'index',intersect:false}}cfg.options=cfg.options||{};cfg.options.plugins=cfg.options.plugins||{};cfg.options.plugins.tooltip={...(cfg.options.plugins.tooltip||{}),enabled:false,external:ext};CH[id]=new Chart(e,cfg)}
 function render(){
  filters();const b=base(),tr=trend(b),cm=curM(tr);months(tr);
  const rs=S.m=='ytd'?b:b.filter(r=>r.m==cm),a=agg(rs);
@@ -277,8 +284,8 @@ document.addEventListener('keydown',e=>{const on=$('#dv').classList.contains('on
  if(on&&e.key=='Escape')closeDet();else if(on&&e.key=='ArrowRight'){DI=(DI+1)%TR.length;drawDet()}else if(on&&e.key=='ArrowLeft'){DI=(DI-1+TR.length)%TR.length;drawDet()}
  else if(e.key=='Enter'&&e.target.dataset?.i!==undefined)openDet(+e.target.dataset.i)});
 const tip=document.createElement('div');tip.id='tip';document.body.appendChild(tip);
-document.addEventListener('mouseover',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(!t){tip.style.display='none';return}tip.textContent=t.dataset.tip;tip.style.display='block'});
-document.addEventListener('mousemove',e=>{if(tip.style.display!='block')return;tip.style.left=Math.max(6,Math.min(e.clientX+14,innerWidth-tip.offsetWidth-8))+'px';tip.style.top=Math.max(6,Math.min(e.clientY+16,innerHeight-tip.offsetHeight-8))+'px'});
+document.addEventListener('mouseover',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(!t){if(!(e.target.tagName=='CANVAS'))tip.style.display='none';return}tip.dataset.src='';tip.textContent=t.dataset.tip;tip.style.display='block'});
+document.addEventListener('mousemove',e=>{if(tip.style.display!='block'||tip.dataset.src=='chart')return;tip.style.left=Math.max(6,Math.min(e.clientX+14,innerWidth-tip.offsetWidth-8))+'px';tip.style.top=Math.max(6,Math.min(e.clientY+16,innerHeight-tip.offsetHeight-8))+'px'});
 document.addEventListener('mouseout',e=>{if(!e.relatedTarget)tip.style.display='none'});
 load();
 </script></body></html>
