@@ -51,14 +51,36 @@ h3{font-size:14px;font-weight:800;margin:22px 0 10px}.ug{color:var(--ok)!importa
 .bt{background:var(--pl);border-radius:99px;height:10px;overflow:hidden}.bt i{display:block;height:100%;background:linear-gradient(90deg,#6cc78f,#2e9e5b);border-radius:99px;animation:gr .7s}@keyframes gr{from{width:0}}.bl b{text-align:right}
 .mt tr.mr{cursor:pointer}.mt tr.sel td{background:var(--pl)}.mt td,.mt th{text-align:right}.mt td:first-child,.mt th:first-child{text-align:left}
 @media(max-width:900px){.dv.on{grid-template-columns:1fr;grid-template-rows:auto 1fr}.dside{flex-direction:row;border-right:0;border-bottom:1px solid var(--bd);overflow-x:auto}.ds{white-space:nowrap;gap:10px}.dmain{padding:14px}.bl{grid-template-columns:100px 1fr 70px}}
+
+header{padding:8px 20px;gap:10px}.logo{width:32px;height:32px;border-radius:9px;font-size:13px}h1{font-size:16px}main{padding-top:12px}
+.bar{padding:8px 12px;gap:6px;border-radius:12px}.bar .row{gap:6px}
+.bar>.row:first-child{flex-wrap:wrap}.bar #cc,.bar #mm{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.bar #cc{flex:1;min-width:220px;border-left:1px solid var(--bd);padding-left:10px}.bar #mm{padding-bottom:1px}
+.bar .f{flex-direction:row;align-items:center;gap:5px;min-width:0}.bar .f label{font-size:11px;white-space:nowrap}
+.bar select{padding:5px 8px;font-size:12.5px;border-radius:8px;max-width:150px}
+.btn{padding:6px 11px;font-size:12.5px}.chip,.mp{padding:3px 10px;font-size:12px;white-space:nowrap;flex:none}.mlab{font-size:11px;white-space:nowrap;flex:none}
+h2{margin:20px 0 10px}
+@media(max-width:900px){.bar #cc{border-left:0;padding-left:0;flex-basis:100%}}
+
+.ic{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--pl);color:var(--pr);flex:none;transition:transform .25s}.ic svg{width:17px;height:17px;fill:currentColor}
+.ic.s{width:24px;height:24px;border-radius:7px;margin-right:7px}.ic.s svg{width:14px;height:14px}.tl{font-style:normal;display:flex;align-items:center}
+.k{position:relative}.k .ic{position:absolute;top:12px;right:12px}.k .l{padding-right:36px}.k:hover .ic,.tc:hover .ic{transform:rotate(-10deg) scale(1.12)}.k.hero .ic{background:rgba(255,255,255,.22);color:#fff}.ds.on .ic{background:rgba(255,255,255,.22);color:#fff}.dh h2 .ic{width:34px;height:34px;vertical-align:middle}.dh h2 .ic svg{width:20px;height:20px}
+.sl{display:block;width:100%;height:22px;margin-top:6px;color:var(--pr);overflow:visible}.sl polyline{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1}.sl circle{fill:currentColor}.k.hero .sl{color:#fff;opacity:.9}
+.k:hover,.tc:hover{box-shadow:0 10px 26px rgba(46,158,91,.22);transform:translateY(-3px)}.k:active,.tc:active{transform:scale(.97)}
+.btn,.chip,.mp{transition:transform .15s,background .2s,border-color .2s}.btn:hover,.chip:hover,.mp:hover{transform:translateY(-1px)}.btn:active,.chip:active,.mp:active{transform:scale(.94)}
+.tc .hint{transition:transform .2s}.tc:hover .hint{transform:translateX(4px)}
+.acc{margin-top:20px;background:var(--sf);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.ah{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;cursor:pointer;font:600 13px Figtree,sans-serif;color:var(--tx)}.ah:hover{background:var(--sf2)}.ah:focus-visible{outline:2px solid var(--pr);outline-offset:-2px}
+.ah small,.ah #sc{color:var(--mu);font-size:12px;font-weight:500}.chev{width:20px;height:20px;fill:var(--mu);transition:transform .25s}.acc.open .chev{transform:rotate(180deg)}
+.ab{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}.acc.open .ab{grid-template-rows:1fr}.ai{overflow:hidden;min-height:0;padding:0 12px}.acc.open .ai{padding:4px 12px 12px}.ai input{margin:6px 0 8px;width:240px;max-width:100%;padding:5px 9px;font-size:12.5px}
+.ai .tw{max-height:260px;border-radius:10px}.ct td{padding:5px 10px;font-size:12px}.ct th{padding:7px 10px;font-size:12px}.ct tr[data-r]{cursor:pointer}.more{margin:8px 0 0}
+@media(prefers-reduced-motion:no-preference){.k,.tc{animation:up .45s backwards;animation-delay:calc(var(--i,0)*35ms)}@keyframes up{from{opacity:0;transform:translateY(12px)}}.sl polyline{animation:dr 1s .25s backwards ease-out}@keyframes dr{from{stroke-dashoffset:1}}}
 </style></head><body>
 <header><div class="logo">HR</div><div><h1>HR Analytics Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
 <button class="btn" id="rf">Refresh data</button><label class="btn">Upload CSV<input type="file" id="up" accept=".csv" hidden></label><button class="btn" id="th">Dark mode</button></header>
 <main>
 <div class="err" id="er"></div>
 <div class="bar">
-<div class="row"><div class="f"><label>Company</label><select id="fc"></select></div><div class="f"><label>Year</label><select id="fy"></select></div><div class="f"><label>Department</label><select id="fd"></select></div><div class="f"><label>Section</label><select id="fs"></select></div><div class="f" style="justify-content:flex-end"><button class="btn" id="rs">Reset view</button></div></div>
-<div class="row" id="cc"><span class="mlab">Quick company</span></div>
+<div class="row"><div class="f"><label>Company</label><select id="fc"></select></div><div class="f"><label>Year</label><select id="fy"></select></div><div class="f"><label>Department</label><select id="fd"></select></div><div class="f"><label>Section</label><select id="fs"></select></div><button class="btn" id="rs">Reset</button><div class="row" id="cc"></div></div>
 <div class="row" id="mm"><span class="mlab">Month</span></div></div>
 <div id="app"><div class="msg">Loading…</div></div>
 </main>
@@ -67,7 +89,7 @@ h3{font-size:14px;font-weight:800;margin:22px 0 10px}.ug{color:var(--ok)!importa
 const CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vSMBPrqkOVprAn_sLjg2NmzGCimRx13XoDClYB7a4HMcX0j6MjqH9x7u9Z-NlWG2vAEzv16nPaMOIUU/pub?gid=1670338970&single=true&output=csv';
 const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],$=s=>document.querySelector(s);
 const PAL=['#2e9e5b','#6cc78f','#14532d','#a7e3bd','#1f7a45','#4fb67a','#0e3b22','#8fd5aa','#3aa76d','#c9f0d6'];
-let RAW=[],S={co:'All',y:0,m:'latest',dept:'All',sec:'All',q:'',sk:'otc',sd:-1},CH={};
+let RAW=[],S={open:false,all:false,co:'All',y:0,m:'latest',dept:'All',sec:'All',q:'',sk:'otc',sd:-1},CH={};
 const num=v=>{const t=String(v??'').replace(/[,\s%]/g,'');return t===''||t==='-'?0:(parseFloat(t)||0)};
 const fN=v=>Math.round(v).toLocaleString('en-US'),fP=v=>(v||0).toFixed(1)+'%';
 const fC=v=>v>=1e6?(v/1e6).toFixed(2)+'M':v>=1e4?(v/1e3).toFixed(1)+'K':fN(v);
@@ -95,19 +117,44 @@ const KP=[
 {k:'late',l:'Late arrival',f:fP,u:-1},{k:'early',l:'Early out',f:fP,u:-1},{k:'avs',l:'Actual vs std hours',f:fP,u:1},{k:'sched',l:'Total scheduled hours',f:fN,u:0},
 {k:'ot',l:'Total OT hours',f:fN,u:-1,sub:a=>'OT '+fP(a.otp)},{k:'otp',l:'OT % of hours',f:fP,u:-1},{k:'otc',l:'OT cost (PKR)',f:fC,u:-1,hero:1},{k:'tpot',l:'TP OT hours',f:fN,u:-1,sub:a=>'TP OT '+fP(a.tpp)},{k:'tpc',l:'TP OT cost (PKR)',f:fC,u:-1},
 {k:'join',l:'Joiners',f:fN,u:1},{k:'lv',l:'Leavers',f:fN,u:-1},{k:'pend',l:'Pending final settlement',f:fN,u:-1}];
-const TR=[['cur','Headcount','b','👥'],['active','Active employee %','l','✅'],['abs','Absenteeism %','l','🚫'],['lvp','Leaves %','l','🏖️'],['late','Late arrival %','l','⏰'],['early','Early out %','l','🚪'],['avs','Actual vs std hours %','l','🎯'],['sched','Total hours','b','🕒'],['ot','Total OT hours','b','⚡'],['otp','OT %','l','📈'],['otc','OT cost','b','💰'],['tpot','TP OT hours','b','🧰'],['tpc','TP OT cost','b','💸'],['join','Joiners','b','🎉'],['lv','Leavers','b','👋'],['pend','Pending final settlement','b','📋']];
+const IC={people:'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z',
+check:'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
+block:'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z',
+cal:'M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z',
+clock:'M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z',
+logout:'M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z',
+target:'M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z',
+hour:'M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6z',
+bolt:'M7 2v11h3v9l7-12h-4l4-8z',
+trend:'M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z',
+money:'M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z',
+work:'M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z',
+wallet:'M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z',
+add:'M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
+walk:'M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z',
+doc:'M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'};
+const I=n=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
+
+const TR=[['cur','Headcount','b','people'],['active','Active employee %','l','check'],['abs','Absenteeism %','l','block'],['lvp','Leaves %','l','cal'],['late','Late arrival %','l','clock'],['early','Early out %','l','logout'],['avs','Actual vs std hours %','l','target'],['sched','Total hours','b','hour'],['ot','Total OT hours','b','bolt'],['otp','OT %','l','trend'],['otc','OT cost','b','money'],['tpot','TP OT hours','b','work'],['tpc','TP OT cost','b','wallet'],['join','Joiners','b','add'],['lv','Leavers','b','walk'],['pend','Pending final settlement','b','doc']];
 const AL=['LFA','Vehicle Allowance','Relocation Allowance','Transportation Allowance','Fare Allowance','Mobile Allowance','Tardiness Reimbursment','Admin Reimbursment','Medical/OPD','Advance Salary'];
 const base=()=>RAW.filter(r=>r.y==S.y&&(S.co=='All'||r.co==S.co)&&(S.dept=='All'||r.dept==S.dept)&&(S.sec=='All'||r.sec==S.sec));
 const trend=b=>MN.map((_,i)=>{const a=agg(b.filter(r=>r.m==i));return has(a)?a:null});
 const fmtFor=k=>KP.find(x=>x.k==k).f;
 function fill(id,vals,cur,all){const e=$(id);e.innerHTML=(all?`<option>All</option>`:'')+vals.map(v=>`<option ${v==cur?'selected':''}>${v}</option>`).join('')}
+
+const spark=(tr,k)=>{const pts=tr.map((x,i)=>x?[i,x[k]]:null).filter(Boolean);if(!pts.length)return'';const vs=pts.map(p=>p[1]),mn=Math.min(...vs),mx=Math.max(...vs),r=mx-mn||1,xy=p=>[(p[0]/11*96+2).toFixed(1),(20-(p[1]-mn)/r*16).toFixed(1)];
+ return pts.length>1?`<svg class="sl" viewBox="0 0 100 24"><polyline pathLength="1" points="${pts.map(p=>xy(p).join(',')).join(' ')}"/></svg>`:`<svg class="sl" viewBox="0 0 100 24"><circle cx="${xy(pts[0])[0]}" cy="12" r="3"/></svg>`};
+const LV={};
+function countUp(){const rm=matchMedia('(prefers-reduced-motion:reduce)').matches;document.querySelectorAll('.v[data-ck]').forEach(e=>{const k=e.dataset.ck,to=+e.dataset.cv,from=LV[k]??0,f=KP.find(x=>x.k==k).f;LV[k]=to;if(rm||from===to){e.textContent=f(to);return}const t0=performance.now();(function st(t){const p=Math.min(1,(t-t0)/700),z=1-Math.pow(1-p,3);e.textContent=f(from+(to-from)*z);if(p<1)requestAnimationFrame(st)})(t0)})}
+Chart.defaults.animation={duration:800,easing:'easeOutQuart',delay:c=>c.type=='data'&&c.mode=='default'?c.dataIndex*35:0};
+function load_dummy(){}
 function filters(){
  const uniq=a=>[...new Set(a)].sort();
  fill('#fc',uniq(RAW.map(r=>r.co)),S.co,1);fill('#fy',uniq(RAW.map(r=>r.y)),S.y);
  const r1=RAW.filter(r=>S.co=='All'||r.co==S.co);fill('#fd',uniq(r1.map(r=>r.dept)),S.dept,1);
  fill('#fs',uniq(r1.filter(r=>S.dept=='All'||r.dept==S.dept).map(r=>r.sec)),S.sec,1);
  const cos=['All',...uniq(RAW.map(r=>r.co))].slice(0,9);
- $('#cc').innerHTML='<span class="mlab">Quick company</span>'+cos.map(c=>`<button class="chip ${c==S.co?'on':''}" data-co="${c}">${c}</button>`).join('');
+ $('#cc').innerHTML=cos.map(c=>`<button class="chip ${c==S.co?'on':''}" data-co="${c}">${c}</button>`).join('');
 }
 function months(tr){
  $('#mm').innerHTML='<span class="mlab">Month</span>'+MN.map((m,i)=>`<button class="mp ${tr[i]?'':'no'} ${S.m==i||(S.m=='latest'&&i==curM(tr))?'on':''}" data-m="${i}">${m}</button>`).join('')+`<button class="mp ${S.m=='ytd'?'on':''}" data-m="ytd">Full year</button>`}
@@ -120,8 +167,8 @@ function render(){
  if(!has(a)){$('#app').innerHTML=`<div class="msg"><b>No data for ${per} yet.</b><br>Select another month, or add this month's rows to the Google Sheet and press Refresh data.</div>`;
   $('#app').innerHTML+=`<h2>Jan–Dec trends</h2><div class="tg" id="tg"></div>`;trends(tr,cm);return}
  const prev=S.m=='ytd'?null:tr.slice(0,cm).reverse().find(Boolean);
- const kp=KP.map(x=>{let d='',c='';if(prev&&x.u!==undefined){const df=a[x.k]-prev[x.k];if(Math.abs(df)>1e-9){d=(df>0?'▲ ':'▼ ')+x.f(Math.abs(df))+' vs prev month';c=x.u?((df>0)==(x.u>0)?'g':'b'):''}}
-  return `<div class="k ${x.hero?'hero':''}" data-k="${x.k}"><div class="l">${x.l}</div><div class="v">${x.f(a[x.k])}</div><div class="d ${c}">${x.sub?x.sub(a):d||'&nbsp;'}</div></div>`}).join('');
+ const kp=KP.map((x,i)=>{let d='',c='';if(prev&&x.u!==undefined){const df=a[x.k]-prev[x.k];if(Math.abs(df)>1e-9){d=(df>0?'▲ ':'▼ ')+x.f(Math.abs(df))+' vs prev month';c=x.u?((df>0)==(x.u>0)?'g':'b'):''}}
+  return `<div class="k ${x.hero?'hero':''}" data-k="${x.k}" style="--i:${i}"><i class="ic">${I(TR.find(t=>t[0]==x.k)[3])}</i><div class="l">${x.l}</div><div class="v" data-ck="${x.k}" data-cv="${a[x.k]}">${x.f(a[x.k])}</div><div class="d ${c}">${x.sub?x.sub(a):d||'&nbsp;'}</div>${spark(tr,x.k)}</div>`}).join('');
  const grp=(by)=>{const m={};rs.forEach(r=>(m[r[by]]??=[]).push(r));return Object.entries(m).map(([k,v])=>({k,a:agg(v)})).filter(x=>has(x.a))};
  const secs=grp('sec'),top=[...secs].sort((x,y)=>y.a.otc+y.a.tpc-x.a.otc-x.a.tpc)[0],ab=[...secs].filter(x=>x.a.cur>0).sort((x,y)=>y.a.abs-x.a.abs)[0],lt=[...secs].filter(x=>x.a.cur>0).sort((x,y)=>y.a.late-x.a.late)[0];
  $('#app').innerHTML=`<h2>Overview <small>${per} · ${S.co=='All'?'All companies':S.co}${S.dept!='All'?' · '+S.dept:''}${S.sec!='All'?' · '+S.sec:''}</small></h2><div class="kg">${kp}</div>
@@ -129,8 +176,9 @@ function render(){
  <h2>Month-wise trends <small>Jan–Dec ${S.y} · selected month highlighted · click any card for full detail</small></h2><div class="tg" id="tg"></div>
  <h2>Breakdown <small>${per}</small></h2><div class="g2"><div class="c"><div class="t">OT cost by department (own vs third party)</div><div class="cv big"><canvas id="c1"></canvas></div></div><div class="c"><div class="t">Allowances &amp; reimbursements</div><div class="cv big"><canvas id="c2"></canvas></div></div></div>
  <div class="g2b"><div class="c"><div class="t">Headcount by company (approved vs current)</div><div class="cv big"><canvas id="c3"></canvas></div></div><div class="c"><div class="t">Attendance quality by department (%)</div><div class="cv big"><canvas id="c4"></canvas></div></div></div>
- <h2>Section detail <small>${per}</small><span class="sp"></span><input type="search" id="q" placeholder="Search section or department" value="${S.q}"></h2><div class="tw" id="tb"></div>`;
- trends(tr,cm);
+ <div class="acc ${S.open?'open':''}" id="acc"><button class="ah" id="ah"><b>Section detail</b><small>${per}</small><span id="sc"></span><span class="sp"></span><svg class="chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></button><div class="ab"><div class="ai"><input type="search" id="q" placeholder="Search section or department" value="${S.q}"><div class="tw" id="tb"></div></div></div></div>`;
+ $('#ah').onclick=()=>{S.open=!S.open;$('#acc').classList.toggle('open',S.open)};
+ trends(tr,cm);countUp();
  const dg=grp('dept').sort((x,y)=>y.a.otc+y.a.tpc-x.a.otc-x.a.tpc).slice(0,12),gc=getComputedStyle(document.body).getPropertyValue('--mu');
  const ax={ticks:{color:gc},grid:{color:'rgba(120,160,135,.15)'}},base_={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:gc,boxWidth:12}}}};
  mk('c1',{type:'bar',data:{labels:dg.map(x=>x.k),datasets:[{label:'Own OT cost',data:dg.map(x=>x.a.otc),backgroundColor:'#2e9e5b',borderRadius:5},{label:'TP OT cost',data:dg.map(x=>x.a.tpc),backgroundColor:'#a7e3bd',borderRadius:5}]},options:{...base_,indexAxis:'y',scales:{x:{...ax,stacked:true},y:{...ax,stacked:true}}}});
@@ -142,16 +190,21 @@ function render(){
  table(rs);$('#q').oninput=e=>{S.q=e.target.value;table(rs)};
 }
 function trends(tr,cm){const g=$('#tg');if(!g)return;const mu=getComputedStyle(document.body).getPropertyValue('--mu');
- g.innerHTML=TR.map(([k,l,,ic],i)=>{const v=tr[cm]?fmtFor(k)(tr[cm][k]):'–';return `<div class="c tc" data-i="${i}" tabindex="0"><div class="t">${ic} ${l}<span>${v}</span></div><div class="cv"><canvas id="t${i}"></canvas></div><div class="hint">Full detail ›</div></div>`}).join('');
+ g.innerHTML=TR.map(([k,l,,ic],i)=>{const v=tr[cm]?fmtFor(k)(tr[cm][k]):'–';return `<div class="c tc" data-i="${i}" style="--i:${i}" tabindex="0"><div class="t"><em class="tl"><i class="ic s">${I(ic)}</i>${l}</em><span>${v}</span></div><div class="cv"><canvas id="t${i}"></canvas></div><div class="hint">Full detail ›</div></div>`}).join('');
  TR.forEach(([k,l,t],i)=>{const d=tr.map(x=>x?+x[k].toFixed(2):null),f=fmtFor(k),sel=S.m=='ytd'?-1:cm;
   mk('t'+i,{type:t=='b'?'bar':'line',data:{labels:MN,datasets:[{data:d,spanGaps:false,borderColor:'#2e9e5b',borderWidth:2.5,tension:.35,pointRadius:d.map((_,j)=>j==sel?5:3),pointBackgroundColor:'#2e9e5b',backgroundColor:t=='b'?d.map((_,j)=>j==sel?'#14532d':'#7fd4a0'):'rgba(46,158,91,.12)',fill:t!='b',borderRadius:4}]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>f(c.parsed.y)}}},scales:{x:{ticks:{color:mu,font:{size:10}},grid:{display:false}},y:{ticks:{color:mu,font:{size:10},maxTicksLimit:4},grid:{color:'rgba(120,160,135,.15)'},beginAtZero:true}}}})})}
+let SL=[];
 function table(rs){const m={};rs.forEach(r=>(m[r.co+'|'+r.dept+'|'+r.sec]??=[]).push(r));
  const q=S.q.toLowerCase();let L=Object.entries(m).map(([k,v])=>({co:k.split('|')[0],dept:k.split('|')[1],sec:k.split('|')[2],...agg(v)})).filter(x=>has(x)&&(x.sec+x.dept).toLowerCase().includes(q));
  L.sort((a,b)=>typeof a[S.sk]=='string'?S.sd*-a[S.sk].localeCompare(b[S.sk]):S.sd*(a[S.sk]-b[S.sk]));
+ const sc=$('#sc');if(sc)sc.textContent='· '+L.length+' sections';
+ const V=S.all?L:L.slice(0,8);
  const C=[['co','Company'],['dept','Department'],['sec','Section'],['cur','HC',fN],['ot','OT hrs',fN],['otc','OT cost',fN],['tpc','TP OT cost',fN],['abs','Absent',v=>pill(v,10,15)],['late','Late',v=>pill(v,5,15)],['avs','Act/Std',fP]];
- $('#tb').innerHTML=L.length?`<table><thead><tr>${C.map(c=>`<th data-s="${c[0]}">${c[1]}${S.sk==c[0]?(S.sd>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead><tbody>${L.map(x=>`<tr>${C.map(c=>`<td>${c[2]?c[2](x[c[0]]):x[c[0]]}</td>`).join('')}</tr>`).join('')}</tbody></table>`:'<div class="msg">No matching sections.</div>';
- document.querySelectorAll('th[data-s]').forEach(t=>t.onclick=()=>{const k=t.dataset.s;S.sd=S.sk==k?-S.sd:-1;S.sk=k;table(rs)})}
+ $('#tb').innerHTML=L.length?`<table class="ct"><thead><tr>${C.map(c=>`<th data-s="${c[0]}">${c[1]}${S.sk==c[0]?(S.sd>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead><tbody>${V.map((x,i)=>`<tr data-r="${i}" title="Click to filter on this section">${C.map(c=>`<td>${c[2]?c[2](x[c[0]]):x[c[0]]}</td>`).join('')}</tr>`).join('')}</tbody></table>${L.length>8?`<button class="btn more" id="mo">${S.all?'Show top 8':'Show all '+L.length}</button>`:''}`:'<div class="msg">No matching sections.</div>';
+ document.querySelectorAll('th[data-s]').forEach(t=>t.onclick=()=>{const k=t.dataset.s;S.sd=S.sk==k?-S.sd:-1;S.sk=k;table(rs)});
+ document.querySelectorAll('#tb tr[data-r]').forEach(t=>t.onclick=()=>{const x=V[+t.dataset.r];S.co=x.co;S.dept=x.dept;S.sec=x.sec;render()});
+ const mo=$('#mo');if(mo)mo.onclick=()=>{S.all=!S.all;table(rs)}}
 const pill=(v,a,b)=>`<span class="pill ${v>=b?'h':v>=a?'m':'l'}">${fP(v)}</span>`;
 async function load(){$('#st').textContent='Loading data…';$('#er').style.display='none';
  try{const r=await fetch(CSV+'&t='+Date.now());if(!r.ok)throw new Error('HTTP '+r.status);ingest(await r.text());$('#st').textContent='Live from Google Sheet · updated '+new Date().toLocaleTimeString();try{render()}catch(e){console.error(e);$('#er').style.display='block';$('#er').textContent='Dashboard error: '+e.message;return}}
@@ -182,8 +235,8 @@ function drawDet(){
  const mrows=MN.map((m,i)=>{const p=ok.filter(j=>j<i).pop(),d=(vals[i]!=null&&p!=null)?vals[i]-vals[p]:null;return `<tr class="mr ${i==cm&&S.m!='ytd'?'sel':''}" data-mm="${i}"><td>${m}</td><td>${vals[i]!=null?f(vals[i]):'<span class="nd">No data</span>'}</td><td class="${dc(d)}">${dt(d)}</td></tr>`}).join('');
  const ss=$('.dside')?.scrollTop||0,filt=(S.co!='All'||S.dept!='All'||S.sec!='All');
  if(CH.dc){CH.dc.destroy();delete CH.dc}
- $('#dv').innerHTML=`<div class="dside">${TR.map(([kk,ll,,ii],j)=>`<button class="ds ${j==DI?'on':''}" data-j="${j}"><span>${ii} ${ll}</span><b>${tr[cm]?KP.find(x=>x.k==kk).f(tr[cm][kk]):'–'}</b></button>`).join('')}</div>
- <div class="dmain"><div class="dh"><button class="btn" data-nav="-1" aria-label="Previous trend">◀</button><div><div class="sub">Trend ${DI+1} of ${TR.length} · ${S.co=='All'?'All companies':S.co}${S.dept!='All'?' · '+S.dept:''}${S.sec!='All'?' · '+S.sec:''}</div><h2>${ic} ${l}</h2></div><button class="btn" data-nav="1" aria-label="Next trend">▶</button><span class="sp"></span>${filt?'<button class="btn" data-reset="1">Clear filters</button>':''}<button class="btn ${DT=='bar'?'p':''}" data-ty="bar">Bars</button><button class="btn ${DT=='line'?'p':''}" data-ty="line">Line</button><button class="btn" id="dx">Close ✕</button></div>
+ $('#dv').innerHTML=`<div class="dside">${TR.map(([kk,ll,,ii],j)=>`<button class="ds ${j==DI?'on':''}" data-j="${j}"><span><i class="ic s">${I(ii)}</i>${ll}</span><b>${tr[cm]?KP.find(x=>x.k==kk).f(tr[cm][kk]):'–'}</b></button>`).join('')}</div>
+ <div class="dmain"><div class="dh"><button class="btn" data-nav="-1" aria-label="Previous trend">◀</button><div><div class="sub">Trend ${DI+1} of ${TR.length} · ${S.co=='All'?'All companies':S.co}${S.dept!='All'?' · '+S.dept:''}${S.sec!='All'?' · '+S.sec:''}</div><h2><i class="ic">${I(ic)}</i> ${l}</h2></div><button class="btn" data-nav="1" aria-label="Next trend">▶</button><span class="sp"></span>${filt?'<button class="btn" data-reset="1">Clear filters</button>':''}<button class="btn ${DT=='bar'?'p':''}" data-ty="bar">Bars</button><button class="btn ${DT=='line'?'p':''}" data-ty="line">Line</button><button class="btn" id="dx">Close ✕</button></div>
  <div class="row">${MN.map((m,i)=>`<button class="mp ${tr[i]?'':'no'} ${S.m!='ytd'&&i==cm?'on':''}" data-mm="${i}">${m}</button>`).join('')}<button class="mp ${S.m=='ytd'?'on':''}" data-mm="ytd">Full year</button></div>
  <div class="sg">${st.map(x=>`<div><small>${x[0]}</small><b class="${x[2]}">${x[1]}</b></div>`).join('')}</div>
  <div class="c"><div class="cv big"><canvas id="dc"></canvas></div></div>
