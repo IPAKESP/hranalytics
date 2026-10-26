@@ -91,9 +91,10 @@ h2{margin:20px 0 10px}
 [data-theme=dark] #tip{background:#e3f3e8;color:#0e1a13}
 [data-tip]{cursor:default}.k[data-tip],.bl.ck[data-tip],.mp[data-tip],tr[data-tip]{cursor:pointer}
 img.logo{width:auto;height:36px;max-width:150px;object-fit:contain;background:none;border-radius:0;display:block}
+.nav{display:flex;gap:6px;flex-wrap:wrap}.nl{text-decoration:none;color:var(--tx);border:1px solid var(--bd);background:var(--sf2);padding:7px 15px;border-radius:99px;font:600 13px Figtree,sans-serif;transition:transform .15s,background .2s,border-color .2s}.nl:hover{border-color:var(--pr);transform:translateY(-1px)}.nl.on{background:var(--pr);border-color:var(--pr);color:#fff}
 </style></head><body>
 <header><img class="logo" src="logo.png" alt="Logo" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo',textContent:'HR'}))"><div><h1>HR Analytics Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
-<button class="btn" id="rf">Refresh data</button><label class="btn">Upload CSV<input type="file" id="up" accept=".csv" hidden></label><button class="btn" id="th">Dark mode</button></header>
+<nav class="nav"><a class="nl on" href="index.html">Home</a><a class="nl" href="hrbp.html">HRBP</a><a class="nl" href="admin.html">Admin</a><a class="nl" href="cost-analysis.html">Cost Analysis</a></nav></header>
 <main>
 <div class="err" id="er"></div>
 <div class="bar">
@@ -241,10 +242,7 @@ function table(rs){const m={};rs.forEach(r=>(m[r.co+'|'+r.dept+'|'+r.sec]??=[]).
 const pill=(v,a,b)=>`<span class="pill ${v>=b?'h':v>=a?'m':'l'}">${fP(v)}</span>`;
 async function load(){$('#st').textContent='Loading data…';$('#er').style.display='none';
  try{const r=await fetch(CSV+'&t='+Date.now());if(!r.ok)throw new Error('HTTP '+r.status);ingest(await r.text());$('#st').textContent='Live from Google Sheet · updated '+new Date().toLocaleTimeString();try{render()}catch(e){console.error(e);$('#er').style.display='block';$('#er').textContent='Dashboard error: '+e.message;return}}
- catch(e){$('#st').textContent='Could not load live data';const x=$('#er');x.style.display='block';x.innerHTML='Could not reach the Google Sheet ('+e.message+'). Open this file from your website or a local server, or use <b>Upload CSV</b> to load a downloaded copy of the sheet.'}}
-$('#rf').onclick=load;
-$('#up').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{ingest(t);$('#er').style.display='none';$('#st').textContent='Loaded from '+f.name;render()}catch(x){$('#er').style.display='block';$('#er').textContent=x.message}})};
-$('#th').onclick=()=>{const d=document.documentElement;const n=d.dataset.theme=='dark'?'':'dark';n?d.dataset.theme='dark':delete d.dataset.theme;$('#th').textContent=n?'Light mode':'Dark mode';if(RAW.length)render()};
+ catch(e){$('#st').textContent='Could not load live data';const x=$('#er');x.style.display='block';x.innerHTML='Could not reach the Google Sheet ('+e.message+'). Open this file from your website or a local server.'}}
 $('#fc').onchange=e=>{S.co=e.target.value;S.dept='All';S.sec='All';render()};$('#fy').onchange=e=>{S.y=+e.target.value;render()};
 $('#fd').onchange=e=>{S.dept=e.target.value;S.sec='All';render()};$('#fs').onchange=e=>{S.sec=e.target.value;render()};
 $('#rs').onclick=()=>{S={...S,co:'All',m:'latest',dept:'All',sec:'All',q:''};S.y=Math.max(...RAW.map(r=>r.y));render()};
