@@ -108,11 +108,7 @@ img.logo{width:auto;height:36px;max-width:150px;object-fit:contain;background:no
 @media(max-width:600px){.vd{display:none}}
 @media(max-width:600px){.rg{grid-template-columns:1fr}}
 
-.ins2{margin-top:6px;background:var(--sf);border:1px solid var(--bd);border-radius:14px;overflow:hidden;box-shadow:var(--sh)}
-.ir{display:grid;grid-template-columns:185px 76px 116px 195px 1fr;gap:10px;align-items:center;padding:7px 14px;border-top:1px solid var(--bd);font-size:12px;cursor:pointer;transition:background .15s}.ir:first-child{border-top:0}.ir:hover{background:var(--sf2)}
-.ir .in{display:flex;align-items:center;font-weight:700;white-space:nowrap}.ir .iv{text-align:right;font-weight:800;font-size:13px}.ir .id{font-weight:600;color:var(--mu);white-space:nowrap}.ir .id.g{color:var(--ok)}.ir .id.b{color:var(--bad)}
-.ir .ip,.ir .ix{color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ir .ix b{color:var(--tx);font-weight:700}.ir em{font-style:normal;color:var(--mu);font-size:11px}.ir .bd{color:var(--bad);font-weight:700}.ir .gd{color:var(--ok);font-weight:700}
-@media(max-width:1100px){.ir{grid-template-columns:1fr auto auto}.ir .ip,.ir .ix{grid-column:1/-1;white-space:normal}}
+.ins{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.ins::-webkit-scrollbar{display:none}.ins div{white-space:nowrap;flex:none}.ins div[data-i]{cursor:pointer;transition:transform .15s}.ins div[data-i]:hover{transform:translateY(-1px)}
 </style></head><body>
 <header><img class="logo" src="logo.png" alt="Logo" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo',textContent:'HR'}))"><div><h1>HR Analytics Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
 <nav class="nav"><a class="nl on" href="index.html">Home</a><a class="nl" href="hrbp.html">HRBP</a><a class="nl" href="admin.html">Admin</a><a class="nl" href="cost-analysis.html">Cost Analysis</a></nav><span class="vd" aria-hidden="true"></span><button class="btn p" id="rp" title="Generate PDF report"><svg class="ri" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM8 18v-5h2v5H8zm3 0v-8h2v8h-2zm3 0v-3h2v3h-2zm-1-9V3.5L18.5 9H13z"/></svg>Report</button></header>
@@ -255,9 +251,9 @@ function render(){
   return `<div class="k ${x.hero?'hero':''}" data-k="${x.k}" data-tip="${tp}" style="--i:${i}"><i class="ic">${I(TR.find(t=>t[0]==x.k)[3])}</i><div class="l">${x.l}</div><div class="v" data-ck="${x.k}" data-cv="${a[x.k]}">${x.f(a[x.k])}</div><div class="d ${c}">${x.sub?x.sub(a):d||'&nbsp;'}</div>${spark(tr,x.k,x.f)}</div>`}).join('');
  const grp=(by)=>{const m={};rs.forEach(r=>(m[r[by]]??=[]).push(r));return Object.entries(m).map(([k,v])=>({k,a:agg(v)})).filter(x=>has(x.a))};
  const secs=grp('sec'),top=[...secs].sort((x,y)=>y.a.otc+y.a.tpc-x.a.otc-x.a.tpc)[0],ab=[...secs].filter(x=>x.a.cur>0).sort((x,y)=>y.a.abs-x.a.abs)[0],lt=[...secs].filter(x=>x.a.cur>0).sort((x,y)=>y.a.late-x.a.late)[0];
- const insH=insRows(a,rs,tr,cm,prev);
+ const lvr=[...secs].sort((x,y)=>y.a.lv-x.a.lv)[0];
  $('#app').innerHTML=`<h2>Overview <small>${per} · ${S.co=='All'?'All companies':S.co}${S.dept!='All'?' · '+S.dept:''}${S.sec!='All'?' · '+S.sec:''}</small></h2><div class="kg">${kp}</div>
- <h2>Insights <small>one line per metric · section-wise highest / lowest · click a row for full detail</small></h2><div class="ins2">${insH}</div>
+ <div class="ins">${top?`<div data-i="4">Highest OT spend: ${top.k} (Rs ${fC(top.a.otc+top.a.tpc)})</div>`:''}${ab?`<div data-i="7">Highest absenteeism: ${ab.k} (${fP(ab.a.abs)})</div>`:''}${lt?`<div data-i="9">Most late arrivals: ${lt.k} (${fP(lt.a.late)})</div>`:''}${lvr&&lvr.a.lv>0?`<div data-i="13">Most leavers: ${lvr.k} (${fN(lvr.a.lv)})</div>`:''}</div>
  <h2>Month-wise trends <small>Jan–Dec ${S.y} · selected month highlighted · click any card for full detail</small></h2><div class="tg" id="tg"></div>
  <h2>Breakdown <small>${per}</small></h2><div class="g2"><div class="c"><div class="t">OT cost by department (own vs third party)</div><div class="cv big"><canvas id="c1"></canvas></div></div><div class="c"><div class="t">Allowances &amp; reimbursements</div><div class="cv big"><canvas id="c2"></canvas></div></div></div>
  <div class="acc ${S.open?'open':''}" id="acc"><button class="ah" id="ah"><b>Section detail</b><small>${per}</small><span id="sc"></span><span class="sp"></span><svg class="chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></button><div class="ab"><div class="ai"><input type="search" id="q" placeholder="Search section or department" value="${S.q}"><div class="tw" id="tb"></div></div></div></div>`;
@@ -275,24 +271,6 @@ function trends(tr,cm){const g=$('#tg');if(!g)return;const mu=getComputedStyle(d
  TR.forEach(([k,l,t],i)=>{const d=tr.map(x=>x?+x[k].toFixed(2):null),f=fmtFor(k),sel=S.m=='ytd'?-1:cm;
   mk('t'+i,{type:t=='b'?'bar':'line',data:{labels:MN,datasets:[{data:d,spanGaps:false,borderColor:'#2e9e5b',borderWidth:2.5,tension:.35,pointRadius:d.map((_,j)=>j==sel?5:3),pointBackgroundColor:'#2e9e5b',backgroundColor:t=='b'?d.map((_,j)=>j==sel?'#14532d':'#7fd4a0'):'rgba(46,158,91,.12)',fill:t!='b',borderRadius:4}]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>i[0].label+' '+S.y,label:c=>l+': '+f(c.parsed.y)}}},scales:{x:{ticks:{color:mu,font:{size:10}},grid:{display:false}},y:{ticks:{color:mu,font:{size:10},maxTicksLimit:4},grid:{color:'rgba(120,160,135,.15)'},beginAtZero:true}}}})})}
-function insRows(a,rs,tr,cm,prev){
- const m={};rs.forEach(r=>(m[r.sec+'|'+r.dept]??=[]).push(r));
- const secs=Object.entries(m).map(([k,v])=>{const p=k.split('|');return{n:p[0],d:p[1],a:agg(v)}}).filter(x=>has(x.a));
- return TR.map(([k,l,t,ic],i)=>{
-  const f=fmtFor(k),u=KP.find(x=>x.k==k).u,v=a[k];
-  let dl='',c='';if(prev){const df=v-prev[k];if(Math.abs(df)>1e-9){dl=(df>0?'▲ ':'▼ ')+f(Math.abs(df))+' vs prev';c=u?((df>0)==(u>0)?'g':'b'):''}else dl='No change'}
-  const vals=tr.map(x=>x?x[k]:null),ok=vals.map((x,j)=>x==null?-1:j).filter(j=>j>=0);
-  const pk=ok.length?ok.reduce((q,j)=>vals[j]>vals[q]?j:q,ok[0]):null,av=ok.length?ok.reduce((q,j)=>q+vals[j],0)/ok.length:0;
-  const peak=pk!=null?`Peak ${MN[pk]} ${f(vals[pk])} · Avg ${f(av)}`:'';
-  const pool=t=='b'?secs.filter(x=>x.a[k]>0):secs.filter(x=>x.a.cur>0),so=[...pool].sort((p,q)=>q.a[k]-p.a[k]);
-  const nm=x=>rpEsc(x.n)+(x.d&&x.d!=x.n?` <em>(${rpEsc(x.d)})</em>`:'');
-  let hi='';
-  if(t=='b'){const tt=a[k]||0;hi=so.length?'Top: '+so.slice(0,3).map(x=>`<b>${nm(x)}</b> ${f(x.a[k])}${tt>0?' ('+Math.round(x.a[k]/tt*100)+'%)':''}`).join(' · '):''}
-  else if(so.length>1){const H=so[0],L=so[so.length-1];hi=`<span class="${u<0?'bd':'gd'}">High:</span> <b>${nm(H)}</b> ${f(H.a[k])} · <span class="${u<0?'gd':'bd'}">Low:</span> <b>${nm(L)}</b> ${f(L.a[k])}`}
-  else if(so.length==1)hi=`<b>${nm(so[0])}</b> ${f(so[0].a[k])}`;
-  const tip=rpEsc([l+': '+f(v)+(dl?' ('+dl+')':''),peak,hi.replace(/<[^>]+>/g,'').split(' · ').join('\n')].filter(Boolean).join('\n')).replace(/\n/g,'&#10;')+'&#10;Click for full detail';
-  return `<div class="ir" data-i="${i}" data-tip="${tip}"><span class="in"><i class="ic s">${I(ic)}</i>${l}</span><b class="iv">${f(v)}</b><span class="id ${c}">${dl||'&nbsp;'}</span><span class="ip">${peak}</span><span class="ix">${hi||'<span class="nd">No section data</span>'}</span></div>`}).join('')}
-
 let SL=[];
 function table(rs){const m={};rs.forEach(r=>(m[r.co+'|'+r.dept+'|'+r.sec]??=[]).push(r));
  const q=S.q.toLowerCase();let L=Object.entries(m).map(([k,v])=>({co:k.split('|')[0],dept:k.split('|')[1],sec:k.split('|')[2],...agg(v)})).filter(x=>has(x)&&(x.sec+x.dept).toLowerCase().includes(q));
