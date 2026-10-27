@@ -176,7 +176,7 @@ const spark=(tr,k,f)=>{const pts=tr.map((x,i)=>x?[i,x[k]]:null).filter(Boolean);
 const mtip=(tr,i)=>tr[i]?`${MN[i]} ${S.y}&#10;Headcount: ${fN(tr[i].cur)}&#10;OT cost: ${fN(tr[i].otc)}&#10;Absenteeism: ${fP(tr[i].abs)}`:`${MN[i]} ${S.y}: no data yet`;
 const LV={};
 function countUp(){const rm=matchMedia('(prefers-reduced-motion:reduce)').matches;document.querySelectorAll('.v[data-ck]').forEach(e=>{const k=e.dataset.ck,to=+e.dataset.cv,from=LV[k]??0,f=KP.find(x=>x.k==k).f;LV[k]=to;if(rm||from===to){e.textContent=f(to);return}const t0=performance.now();(function st(t){const p=Math.min(1,(t-t0)/700),z=1-Math.pow(1-p,3);e.textContent=f(from+(to-from)*z);if(p<1)requestAnimationFrame(st)})(t0)})}
-Chart.defaults.animation={duration:800,easing:'easeOutQuart',delay:c=>c.type=='data'&&c.mode=='default'?c.dataIndex*35:0};
+Object.assign(Chart.defaults.animation,{duration:800,easing:'easeOutQuart',delay:c=>c.type=='data'&&c.mode=='default'?c.dataIndex*35:0});
 function load_dummy(){}
 function filters(){
  const uniq=a=>[...new Set(a)].sort();
