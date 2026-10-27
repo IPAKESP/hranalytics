@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HR Analytics Dashboard</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -270,7 +272,7 @@ function trends(tr,cm){const g=$('#tg');if(!g)return;const mu=getComputedStyle(d
  g.innerHTML=TR.map(([k,l,,ic],i)=>{const v=tr[cm]?fmtFor(k)(tr[cm][k]):'–';return `<div class="c tc" data-i="${i}" style="--i:${i}" tabindex="0"><div class="t"><em class="tl"><i class="ic s">${I(ic)}</i>${l}</em><span>${v}</span></div><div class="cv"><canvas id="t${i}"></canvas></div><div class="hint">Full detail ›</div></div>`}).join('');
  TR.forEach(([k,l,t],i)=>{const d=tr.map(x=>x?+x[k].toFixed(2):null),f=fmtFor(k),sel=S.m=='ytd'?-1:cm;
   mk('t'+i,{type:t=='b'?'bar':'line',data:{labels:MN,datasets:[{data:d,spanGaps:false,borderColor:'#2e9e5b',borderWidth:2.5,tension:.35,pointRadius:d.map((_,j)=>j==sel?5:3),pointBackgroundColor:'#2e9e5b',backgroundColor:t=='b'?d.map((_,j)=>j==sel?'#14532d':'#7fd4a0'):'rgba(46,158,91,.12)',fill:t!='b',borderRadius:4}]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>i[0].label+' '+S.y,label:c=>l+': '+f(c.parsed.y)}}},scales:{x:{ticks:{color:mu,font:{size:10}},grid:{display:false}},y:{ticks:{color:mu,font:{size:10},maxTicksLimit:4},grid:{color:'rgba(120,160,135,.15)'},beginAtZero:true}}}})})}
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>i[0].label+' '+S.y,label:c=>l+': '+f(c.parsed.y)}}},scales:{x:{ticks:{color:mu,font:{size:10},maxRotation:0,minRotation:0,autoSkip:false},grid:{display:false}},y:{ticks:{color:mu,font:{size:10},maxTicksLimit:4},grid:{color:'rgba(120,160,135,.15)'},beginAtZero:true}}}})})}
 let SL=[];
 function table(rs){const m={};rs.forEach(r=>(m[r.co+'|'+r.dept+'|'+r.sec]??=[]).push(r));
  const q=S.q.toLowerCase();let L=Object.entries(m).map(([k,v])=>({co:k.split('|')[0],dept:k.split('|')[1],sec:k.split('|')[2],...agg(v)})).filter(x=>has(x)&&(x.sec+x.dept).toLowerCase().includes(q));
@@ -326,7 +328,7 @@ function drawDet(){
  $('.dside').scrollTop=ss;
  const mu=getComputedStyle(document.body).getPropertyValue('--mu'),sel=S.m=='ytd'?-1:cm,ds=[{type:DT,label:l,data:vals.map(v=>v===null?null:+v.toFixed(2)),borderColor:'#2e9e5b',borderWidth:3,tension:.35,pointRadius:vals.map((_,j)=>j==sel?7:4),pointBackgroundColor:'#2e9e5b',fill:DT=='line',backgroundColor:DT=='bar'?vals.map((_,j)=>j==sel?'#14532d':'#7fd4a0'):'rgba(46,158,91,.14)',borderRadius:8,order:2}];
  if(ok.length>1)ds.push({type:'line',label:'Average',data:vals.map(v=>v===null?null:+av.toFixed(2)),borderColor:'#f0a35e',borderDash:[6,4],borderWidth:2,pointRadius:0,order:1});
- mk('dc',{type:'bar',data:{labels:MN,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:mu,boxWidth:12}},tooltip:{callbacks:{title:i=>i[0].label+' '+S.y,label:c=>c.dataset.label+': '+f(c.parsed.y)}}},scales:{x:{ticks:{color:mu},grid:{display:false}},y:{beginAtZero:true,ticks:{color:mu,callback:v=>f(v)},grid:{color:'rgba(120,160,135,.15)'}}}}});
+ mk('dc',{type:'bar',data:{labels:MN,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:mu,boxWidth:12}},tooltip:{callbacks:{title:i=>i[0].label+' '+S.y,label:c=>c.dataset.label+': '+f(c.parsed.y)}}},scales:{x:{ticks:{color:mu,maxRotation:0,minRotation:0,autoSkip:false},grid:{display:false}},y:{beginAtZero:true,ticks:{color:mu,callback:v=>f(v)},grid:{color:'rgba(120,160,135,.15)'}}}}});
 }
 $('#dv').onclick=e=>{const T=e.target,q=s=>T.closest(s);let x;
  if(q('#dx'))return closeDet();
@@ -373,7 +375,7 @@ function rpLogo(){return new Promise(res=>{const i=new Image();i.onload=()=>{try
 function rpChart(tr,k,t,sel){
  const c=document.createElement('canvas');c.width=750;c.height=330;const d=tr.map(x=>x?+x[k].toFixed(2):null),f=fmtFor(k);
  const ch=new Chart(c,{type:t=='b'?'bar':'line',data:{labels:MN,datasets:[{data:d,borderColor:'#2e9e5b',borderWidth:4,tension:.35,pointRadius:d.map((_,j)=>j==sel?8:4),pointBackgroundColor:'#2e9e5b',backgroundColor:t=='b'?d.map((_,j)=>j==sel?'#14532d':'#7fd4a0'):'rgba(46,158,91,.15)',fill:t!='b',borderRadius:6}]},
- options:{responsive:false,animation:false,devicePixelRatio:1,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{ticks:{font:{size:18},color:'#5b7a66'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{size:18},color:'#5b7a66',maxTicksLimit:5,callback:v=>f(v)},grid:{color:'rgba(120,160,135,.25)'}}}}});
+ options:{responsive:false,animation:false,devicePixelRatio:1,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{ticks:{font:{size:16},color:'#5b7a66',maxRotation:0,minRotation:0,autoSkip:false},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{size:18},color:'#5b7a66',maxTicksLimit:5,callback:v=>f(v)},grid:{color:'rgba(120,160,135,.25)'}}}}});
  const u=c.toDataURL('image/png');ch.destroy();return u}
 async function rpGen(){
  if(!(window.jspdf&&window.jspdf.jsPDF)){alert('PDF library load nahi hui. Internet check karke page refresh karein.');return}
