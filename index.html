@@ -101,6 +101,8 @@ img.logo{width:auto;height:36px;max-width:150px;object-fit:contain;background:no
 .rb select,.rb input[type=search],.rb input[type=text]{width:100%;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);padding:8px 10px;border-radius:10px;font:500 13px Figtree,sans-serif}
 .rb .f{min-width:0}.ick{display:flex;gap:8px;align-items:center;padding:5px 0;font-weight:600;font-size:13px;cursor:pointer}.ick input{width:16px;height:16px;accent-color:var(--pr)}
 .btn:disabled{opacity:.6;cursor:wait}
+.ms{position:relative}.msb{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);padding:8px 10px;border-radius:10px;font:500 13px Figtree,sans-serif;cursor:pointer}.msb span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ms.open .msb{border-color:var(--pr)}
+.msp{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:5;background:var(--sf);border:1px solid var(--bd);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.18);max-height:230px;overflow:auto;padding:4px 12px}.ms.open .msp{display:block}
 .ri{fill:currentColor;flex:none}#rp{display:inline-flex;align-items:center;gap:7px}.rh{display:flex;align-items:center;gap:10px}.rh .ic{width:32px;height:32px}
 .vd{width:1px;align-self:stretch;min-height:28px;background:var(--bd);margin:0 4px}
 @media(max-width:600px){.vd{display:none}}
@@ -118,16 +120,15 @@ img.logo{width:auto;height:36px;max-width:150px;object-fit:contain;background:no
 <div id="dv" class="dv"></div>
 <div class="rm" id="rm"><div class="rb" role="dialog" aria-label="Generate report">
 <div class="row" style="justify-content:space-between"><h2 class="rh"><i class="ic"><svg class="ri" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM8 18v-5h2v5H8zm3 0v-8h2v8h-2zm3 0v-3h2v3h-2zm-1-9V3.5L18.5 9H13z"/></svg></i>Generate PDF report</h2><button class="btn" id="rx">Close ✕</button></div>
-<div class="sub" style="margin:4px 0 14px">Pick any company, department, section or keyword. Leave everything on "All" for the overall report.</div>
+<div class="sub" style="margin:4px 0 14px">Pick a company and tick one or more departments and sections. Leave everything on "All" for the overall report.</div>
 <div class="rg">
 <div class="f"><label for="rco">Company</label><select id="rco"></select></div>
 <div class="f"><label for="ry">Year</label><select id="ry"></select></div>
-<div class="f"><label for="rd">Department</label><select id="rd"></select></div>
-<div class="f"><label for="rs2">Section</label><select id="rs2"></select></div>
+<div class="f"><label>Department</label><div class="ms" id="rd"></div></div>
+<div class="f"><label>Section</label><div class="ms" id="rs2"></div></div>
 <div class="f"><label for="rm2">Period</label><select id="rm2"></select></div>
-<div class="f"><label for="rq">Keyword (section / department name)</label><input type="search" id="rq" placeholder="e.g. dispatch"></div>
+<div class="f"><label for="rt">Report title (optional)</label><input type="text" id="rt" placeholder="HR Analytics Report"></div>
 </div>
-<div class="f" style="margin-top:12px"><label for="rt">Report title (optional)</label><input type="text" id="rt" placeholder="HR Analytics Report"></div>
 <h3>Include in report</h3>
 <div class="rg" id="rinc">
 <label class="ick"><input type="checkbox" data-inc="kpi" checked>Key metrics summary</label>
@@ -346,16 +347,24 @@ document.addEventListener('mouseout',e=>{if(!e.relatedTarget)tip.style.display='
 const RC=[['HC','cur',fN],['Active %','active',fP],['OT hrs','ot',fN],['OT cost','otc',fN],['TP OT hrs','tpot',fN],['TP OT cost','tpc',fN],['Absent','abs',fP],['Leaves','lvp',fP],['Late','late',fP],['Early out','early',fP],['Act/Std','avs',fP],['Joiners','join',fN],['Leavers','lv',fN]];
 const rpU=a=>[...new Set(a)].sort();
 const rpSel=(id,vals,cur,all)=>{$(id).innerHTML=(all?'<option>All</option>':'')+vals.map(v=>`<option ${v==cur?'selected':''}>${v}</option>`).join('')};
-const rpRd=()=>({co:$('#rco').value,y:+$('#ry').value,dept:$('#rd').value,sec:$('#rs2').value,m:$('#rm2').value,q:$('#rq').value.trim().toLowerCase(),title:$('#rt').value.trim()});
+let RDs=[],RSs=[];
+const rpEsc=v=>String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+function rpMS(id,vals,sel,noun){const el=$(id),open=el.classList.contains('open');
+ const t=!sel.length?'All '+noun:sel.length==1?sel[0]:sel.length+' '+noun+' selected';
+ el.className='ms'+(open?' open':'');
+ el.innerHTML=`<button type="button" class="msb"><span>${rpEsc(t)}</span><span aria-hidden="true">▾</span></button><div class="msp"><label class="ick"><input type="checkbox" data-all ${sel.length?'':'checked'}>All ${noun}</label>${vals.map(v=>`<label class="ick"><input type="checkbox" value="${rpEsc(v)}" ${sel.includes(v)?'checked':''}>${rpEsc(v)}</label>`).join('')}</div>`}
+const rpRd=()=>({co:$('#rco').value,y:+$('#ry').value,dept:RDs,sec:RSs,m:$('#rm2').value,title:$('#rt').value.trim()});
 function rpOpts(k){
  rpSel('#rco',rpU(RAW.map(r=>r.co)),k.co,1);rpSel('#ry',rpU(RAW.map(r=>r.y)),k.y);
- const r1=RAW.filter(r=>k.co=='All'||r.co==k.co);
- rpSel('#rd',rpU(r1.map(r=>r.dept)),k.dept,1);
- rpSel('#rs2',rpU(r1.filter(r=>k.dept=='All'||r.dept==k.dept).map(r=>r.sec)),k.sec,1);
+ const r1=RAW.filter(r=>k.co=='All'||r.co==k.co),dl=rpU(r1.map(r=>r.dept));
+ RDs=(k.dept||[]).filter(d=>dl.includes(d));
+ const sl=rpU(r1.filter(r=>!RDs.length||RDs.includes(r.dept)).map(r=>r.sec));
+ RSs=(k.sec||[]).filter(x=>sl.includes(x));
+ rpMS('#rd',dl,RDs,'departments');rpMS('#rs2',sl,RSs,'sections');
  const ms=new Set(RAW.filter(r=>r.y==k.y).map(r=>r.m));
  $('#rm2').innerHTML='<option value="latest">Latest month</option>'+MN.map((m,i)=>ms.has(i)?`<option value="${i}">${m} ${k.y}</option>`:'').join('')+'<option value="ytd">Full year (all months)</option>';
  $('#rm2').value=String(k.m);if($('#rm2').value!==String(k.m))$('#rm2').value='latest'}
-function rpOpen(){if(!RAW.length)return;rpOpts({co:S.co,y:S.y,dept:S.dept,sec:S.sec,m:S.m});$('#rq').value='';$('#rm').classList.add('on')}
+function rpOpen(){if(!RAW.length)return;rpOpts({co:S.co,y:S.y,dept:S.dept=='All'?[]:[S.dept],sec:S.sec=='All'?[]:[S.sec],m:S.m});$('#rm').classList.add('on')}
 function rpClose(){$('#rm').classList.remove('on')}
 function rpLogo(){return new Promise(res=>{const i=new Image();i.onload=()=>{try{const c=document.createElement('canvas');c.width=i.naturalWidth;c.height=i.naturalHeight;c.getContext('2d').drawImage(i,0,0);res({d:c.toDataURL('image/png'),w:Math.min(120,34*i.naturalWidth/i.naturalHeight)})}catch(e){res(null)}};i.onerror=()=>res(null);i.src='logo.png'})}
 function rpChart(tr,k,t,sel){
@@ -366,7 +375,7 @@ function rpChart(tr,k,t,sel){
 async function rpGen(){
  if(!(window.jspdf&&window.jspdf.jsPDF)){alert('PDF library load nahi hui. Internet check karke page refresh karein.');return}
  const o=rpRd(),inc={};document.querySelectorAll('#rinc input[data-inc]').forEach(c=>inc[c.dataset.inc]=c.checked);
- const b=RAW.filter(r=>r.y==o.y&&(o.co=='All'||r.co==o.co)&&(o.dept=='All'||r.dept==o.dept)&&(o.sec=='All'||r.sec==o.sec)&&(!o.q||(r.sec+' '+r.dept).toLowerCase().includes(o.q)));
+ const b=RAW.filter(r=>r.y==o.y&&(o.co=='All'||r.co==o.co)&&(!o.dept.length||o.dept.includes(r.dept))&&(!o.sec.length||o.sec.includes(r.sec)));
  const tr=trend(b);let last=-1;tr.forEach((x,i)=>{if(x)last=i});
  if(last<0){alert('Is selection ke liye data nahi mila. Filters badal kar dobara try karein.');return}
  const ytd=o.m=='ytd',cm=(o.m=='latest'||ytd)?last:+o.m,rs=ytd?b:b.filter(r=>r.m==cm),a=agg(rs);
@@ -375,7 +384,7 @@ async function rpGen(){
  try{
  const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:'landscape',unit:'pt',format:'a4'});
  const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),M=36,G=[20,83,45],G2=[46,158,91];
- const scope=[o.co=='All'?'All companies':o.co,o.dept=='All'?'All departments':o.dept,o.sec=='All'?'All sections':o.sec].join(' | ')+(o.q?` | keyword: "${o.q}"`:'');
+ const lst=(a,n)=>!a.length?'All '+n:a.length<=3?a.join(', '):a.length+' '+n+' selected',scope=[o.co=='All'?'All companies':o.co,lst(o.dept,'departments'),lst(o.sec,'sections')].join(' | ');
  const per=ytd?`${MN[tr.findIndex(Boolean)]}-${MN[last]} ${o.y}`:`${MN[cm]} ${o.y}`;
  const logo=await rpLogo();let x0=M;if(logo){doc.addImage(logo.d,'PNG',M,20,logo.w,34);x0=M+logo.w+14}
  doc.setFont('helvetica','bold').setFontSize(20).setTextColor(...G).text(o.title||'HR Analytics Report',x0,38);
@@ -426,12 +435,14 @@ async function rpGen(){
  const n=doc.internal.getNumberOfPages();
  for(let i=1;i<=n;i++){doc.setPage(i);doc.setFont('helvetica','normal').setFontSize(8).setTextColor(120,140,128).text('HR Analytics Dashboard | '+scope,M,H-20);doc.text(`Page ${i} of ${n}`,W-M,H-20,{align:'right'})}
  const nm=s=>s.replace(/[^A-Za-z0-9]+/g,'_').replace(/^_|_$/g,'');
- doc.save(`HR_Report_${nm([o.co=='All'?'All':o.co,o.dept=='All'?'':o.dept,o.sec=='All'?'':o.sec,o.q].filter(Boolean).join('_')||'Overall')}_${nm(per)}.pdf`);rpClose();
+ doc.save(`HR_Report_${nm([o.co=='All'?'All':o.co,o.dept.length>2?o.dept.length+'_depts':o.dept.join('_'),o.sec.length>2?o.sec.length+'_sections':o.sec.join('_')].filter(Boolean).join('_')||'Overall')}_${nm(per)}.pdf`);rpClose();
  }catch(e){console.error(e);alert('Report error: '+e.message)}finally{btn.disabled=false;btn.textContent='Generate PDF'}}
 $('#rp').onclick=rpOpen;$('#rx').onclick=rpClose;$('#rm').onclick=e=>{if(e.target.id=='rm')rpClose()};
 $('#rgo').onclick=rpGen;
-$('#rco').onchange=()=>rpOpts({...rpRd(),dept:'All',sec:'All'});$('#rd').onchange=()=>rpOpts({...rpRd(),sec:'All'});$('#ry').onchange=()=>rpOpts(rpRd());
-$('#rall').onclick=async()=>{rpOpts({co:'All',y:+$('#ry').value||S.y,dept:'All',sec:'All',m:'ytd'});$('#rq').value='';document.querySelectorAll('#rinc input').forEach(c=>c.checked=true);await rpGen()};
+$('#rco').onchange=()=>rpOpts({...rpRd(),dept:[],sec:[]});$('#ry').onchange=()=>rpOpts(rpRd());
+$('#rm').addEventListener('click',e=>{const b=e.target.closest('.msb'),cur=e.target.closest('.ms');document.querySelectorAll('.ms.open').forEach(m=>{if(m!==cur)m.classList.remove('open')});if(b)b.parentElement.classList.toggle('open')});
+$('#rm').addEventListener('change',e=>{const ms=e.target.closest('.ms');if(!ms)return;const v=e.target.hasAttribute('data-all')?[]:[...ms.querySelectorAll('input[value]:checked')].map(i=>i.value);if(ms.id=='rd')RDs=v;else RSs=v;rpOpts(rpRd())});
+$('#rall').onclick=async()=>{rpOpts({co:'All',y:+$('#ry').value||S.y,dept:[],sec:[],m:'ytd'});document.querySelectorAll('#rinc input').forEach(c=>c.checked=true);await rpGen()};
 document.addEventListener('keydown',e=>{if(e.key=='Escape'&&$('#rm').classList.contains('on'))rpClose()});
 
 load();
