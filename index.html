@@ -197,7 +197,9 @@ function ext({chart,tooltip}){
  tip.style.left=Math.max(6,Math.min(r.left+tooltip.caretX+14,innerWidth-tip.offsetWidth-8))+'px';
  tip.style.top=Math.max(6,Math.min(r.top+tooltip.caretY+14,innerHeight-tip.offsetHeight-8))+'px'}
 function mk(id,cfg){if(CH[id])CH[id].destroy();const e=document.getElementById(id);if(!e)return;if(cfg.type!='doughnut'){cfg.options=cfg.options||{};cfg.options.interaction=cfg.options.interaction||{mode:'index',intersect:false}}cfg.options=cfg.options||{};cfg.options.plugins=cfg.options.plugins||{};cfg.options.plugins.tooltip={...(cfg.options.plugins.tooltip||{}),enabled:false,external:ext};CH[id]=new Chart(e,cfg)}
+function destroyCharts(){Object.keys(CH).forEach(k=>{try{CH[k].destroy()}catch(e){}delete CH[k]})}
 function render(){
+ destroyCharts();
  filters();const b=base(),tr=trend(b),cm=curM(tr);months(tr);
  const rs=S.m=='ytd'?b:b.filter(r=>r.m==cm),a=agg(rs);
  const per=S.m=='ytd'?'Jan–Dec '+S.y:MN[cm]+' '+S.y;CUR={tr,cm,rs,per,b};
@@ -251,7 +253,13 @@ $('#mm').onclick=e=>{const m=e.target.dataset.m;if(m!==undefined){S.m=m=='ytd'?'
 
 let CUR={},DI=0,DT='bar';const SUMK=['ot','otc','tpot','tpc','join','lv'];
 function openDet(i){DI=(i+TR.length)%TR.length;$('#dv').classList.add('on');document.body.style.overflow='hidden';drawDet()}
-function closeDet(){$('#dv').classList.remove('on');document.body.style.overflow='';if(CH.dc){CH.dc.destroy();delete CH.dc}}
+function closeDet(){
+ $('#dv').classList.remove('on');document.body.style.overflow='';
+ if(CH.dc){CH.dc.destroy();delete CH.dc}
+ requestAnimationFrame(()=>{
+  if(!document.querySelector('#tg canvas')||!Object.keys(CH).length){render();return}
+  Object.values(CH).forEach(c=>{try{c.resize();c.update('none')}catch(e){render()}})
+ })}
 function drawDet(){
  const [k,l,,ic]=TR[DI],kp=KP.find(x=>x.k==k),f=kp.f,u=kp.u,{tr,cm,rs,per}=CUR;
  const vals=tr.map(x=>x?x[k]:null),ok=vals.map((v,i)=>v===null?-1:i).filter(i=>i>=0);
@@ -284,7 +292,7 @@ $('#dv').onclick=e=>{const T=e.target,q=s=>T.closest(s);let x;
  if(x=q('[data-j]'))DI=+x.dataset.j;
  else if(x=q('[data-nav]'))DI=(DI+ +x.dataset.nav+TR.length)%TR.length;
  else if(x=q('[data-ty]'))DT=x.dataset.ty;
- else if(x=q('[data-mm]')){const v=x.dataset.mm;S.m=v=='ytd'?'ytd':+v;render()}
+ else if(x=q('[data-mm]')){const v=x.dataset.mm;if(v!='ytd'&&!CUR.tr[+v])return;S.m=v=='ytd'?'ytd':+v;render()}
  else if(x=q('.ck')){if(x.dataset.by=='co'){S.co=x.dataset.n;S.dept='All'}else S.dept=x.dataset.n;S.sec='All';render()}
  else if(q('[data-reset]')){S.co='All';S.dept='All';S.sec='All';render()}
  else return;
