@@ -129,6 +129,8 @@ img.logo{width:auto;height:36px;max-width:150px;object-fit:contain;background:no
 .bar select,.bar .btn:not(.p),.bar .mp:not(.on){background:rgba(255,255,255,.5);border-color:rgba(20,83,45,.12)}
 [data-theme=dark] .bar select,[data-theme=dark] .bar .btn:not(.p),[data-theme=dark] .bar .mp:not(.on){background:rgba(255,255,255,.06)}
 @media(max-width:700px){.bar{position:static}}
+/* page content fades out as it reaches the top edge while scrolling */
+.rl{transition:none!important;will-change:opacity}
 </style></head><body>
 <header><img class="logo" src="logo.png" alt="Logo" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo',textContent:'HR'}))"><div><h1>HR Analytics Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
 <nav class="nav"><a class="nl on" href="index.html">Home</a><a class="nl" href="hrbp.html">HRBP</a><a class="nl" href="admin.html">Admin</a><a class="nl" href="cost-analysis.html">Cost Analysis</a></nav><span class="vd" aria-hidden="true"></span><button class="btn p" id="rp" title="Generate PDF report"><svg class="ri" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM8 18v-5h2v5H8zm3 0v-8h2v8h-2zm3 0v-3h2v3h-2zm-1-9V3.5L18.5 9H13z"/></svg>Report</button></header>
@@ -465,5 +467,19 @@ $('#rall').onclick=async()=>{rpOpts({co:'All',y:+$('#ry').value||S.y,dept:[],sec
 document.addEventListener('keydown',e=>{if(e.key=='Escape'&&$('#rm').classList.contains('on'))rpClose()});
 
 (function(){const h=document.querySelector('header'),u=()=>document.documentElement.style.setProperty('--hh',h.offsetHeight+'px');u();addEventListener('resize',u);if(window.ResizeObserver)new ResizeObserver(u).observe(h)})();
+(function(){
+ if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+ const bar=document.querySelector('.bar'),hd=document.querySelector('header'),SEL='#app .k,#app .c,#app h2,#app .ins,#app .acc,#app .msg',Z=110;let tk=false;
+ function run(){tk=false;
+  const els=[...document.querySelectorAll(SEL)];
+  els.forEach(e=>{e.style.opacity=''});
+  const fold=(getComputedStyle(bar).position=='sticky'?bar:hd).getBoundingClientRect().bottom,R=els.map(e=>e.getBoundingClientRect());
+  els.forEach((e,i)=>{const o=Math.max(0,Math.min(1,(R[i].bottom-fold)/Z));
+   if(o>=1){e.classList.remove('rl');return}
+   e.classList.add('rl');e.style.opacity=(o*o*(3-2*o)).toFixed(2)})}
+ const go=()=>{if(!tk){tk=true;requestAnimationFrame(run)}};
+ addEventListener('scroll',go,{passive:true});addEventListener('resize',go);
+ new MutationObserver(go).observe(document.getElementById('app'),{childList:true,subtree:true});
+ go()})();
 load();
 </script></body></html>
