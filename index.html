@@ -3,7 +3,7 @@
 <title>HR Analytics Dashboard</title>
 <link rel="icon" type="image/png" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -131,71 +131,6 @@ img.logo{width:auto;height:36px;max-width:150px;object-fit:contain;background:no
 @media(max-width:700px){.bar{position:static}}
 /* page content fades out as it reaches the top edge while scrolling */
 .rl{transition:none!important;will-change:opacity}
-
-/* ===== PMS THEME LAYER: liquid-glass green, Outfit headings + Figtree body ===== */
-:root{
-  --bg1:#eef4ee;--bg2:#e2ece4;--orb1:rgba(143,209,169,.55);--orb2:rgba(31,122,74,.22);--orb3:rgba(167,207,116,.30);
-  --bg:#eef4ee;--sf:rgba(255,255,255,.72);--sf2:rgba(255,255,255,.5);--card-solid:#f6fbf7;
-  --bd:rgba(20,83,45,.14);--edge:rgba(255,255,255,.85);
-  --tx:#10281c;--mu:#47665a;--pr:#2e9d63;--pd:#14532d;--pl:#d6ebdd;--accent:#8fd1a9;
-  --ok:#1f7a4a;--bad:#a3262a;
-  --primary:#14532d;--on-primary:#f4fbf6;--primary-hover:#1f7a4a;
-  --grad:linear-gradient(135deg,#14532d,#2e9d63);
-  --hero1:#0f4125;--hero2:#1f7a4a;
-  --font-d:"Outfit","Segoe UI",system-ui,sans-serif;--font-b:"Figtree","Segoe UI",system-ui,sans-serif;
-  --sh:0 1px 0 rgba(255,255,255,.95) inset,0 12px 32px -14px rgba(20,83,45,.30);
-  --glass:blur(20px) saturate(1.35);
-}
-[data-theme=dark]{
-  --bg1:#0b1a12;--bg2:#10241a;--orb1:rgba(47,157,99,.28);--orb2:rgba(20,83,45,.45);--orb3:rgba(167,207,116,.10);
-  --bg:#0b1a12;--sf:rgba(22,52,37,.64);--sf2:rgba(22,52,37,.42);--card-solid:#14291d;
-  --bd:rgba(143,209,169,.17);--edge:rgba(143,209,169,.22);
-  --tx:#e9f4ec;--mu:#a9c4b4;--pr:#4fd49b;--pd:#8fd1a9;--pl:rgba(47,157,99,.26);
-  --ok:#7fdcab;--bad:#ff9b98;
-  --primary:#8fd1a9;--on-primary:#08220f;--primary-hover:#b4e3c6;
-  --grad:linear-gradient(135deg,#1f7a4a,#2e9d63);
-  --hero1:#0b2b1a;--hero2:#176b3f;
-  --sh:0 1px 0 rgba(143,209,169,.12) inset,0 12px 34px -14px rgba(0,0,0,.6);
-}
-html{color-scheme:light}[data-theme=dark]{color-scheme:dark}
-body{font-family:var(--font-b);background:linear-gradient(160deg,var(--bg1),var(--bg2));background-attachment:fixed;font-variant-numeric:tabular-nums;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(520px 420px at 12% 8%,var(--orb1),transparent 70%),radial-gradient(620px 520px at 92% 18%,var(--orb2),transparent 72%),radial-gradient(520px 460px at 70% 96%,var(--orb3),transparent 70%)}
-h1,h2,h3,.k .v,.sg b,.dh h2,.rh{font-family:var(--font-d);font-weight:600;letter-spacing:-.01em}
-.k .v{font-weight:600}
-:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
-/* glass surfaces */
-header,.k,.c,.tw,.acc,.sg div,.dside{background:var(--sf);border-color:var(--edge);box-shadow:var(--sh);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass)}
-header{border-bottom:1px solid var(--edge)}
-.c,.tw,.acc{border-radius:18px}
-.bar{background:var(--sf);border:1px solid var(--edge);box-shadow:var(--sh);border-radius:18px;-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass)}
-[data-theme=dark] .bar{background:var(--sf);border-color:var(--edge);box-shadow:var(--sh)}
-.bar select,.bar .btn:not(.p),.bar .mp:not(.on){background:var(--sf2);border-color:var(--bd)}
-[data-theme=dark] .bar select,[data-theme=dark] .bar .btn:not(.p),[data-theme=dark] .bar .mp:not(.on){background:var(--sf2)}
-.rb,.msp{background:var(--card-solid);border-color:var(--edge)}
-.rb{border-radius:22px}
-.dv{background:radial-gradient(520px 420px at 12% 8%,var(--orb1),transparent 70%),radial-gradient(620px 520px at 92% 18%,var(--orb2),transparent 72%),linear-gradient(160deg,var(--bg1),var(--bg2))}
-/* buttons / active states: PMS dark-green gradient */
-.btn.p{background:var(--primary);color:var(--on-primary);border-color:transparent;box-shadow:0 6px 14px -8px rgba(20,83,45,.7)}
-.btn.p:hover{background:var(--primary-hover)}
-.chip.on,.mp.on,.nl.on,.ds.on{background:var(--grad);border-color:transparent;color:#f4fbf6;box-shadow:0 8px 18px -10px rgba(20,83,45,.75)}
-.btn,.nl,.chip,.mp{border-color:var(--bd)}
-.btn:hover,.nl:hover,.chip:hover,.mp:hover{border-color:var(--pr)}
-.btn{border-radius:12px}
-.logo{background:var(--grad)}
-.k.hero{background:linear-gradient(135deg,var(--hero1),var(--hero2));box-shadow:0 18px 36px -22px rgba(20,83,45,.75)}
-.k:hover,.tc:hover{box-shadow:var(--sh),0 18px 34px -18px rgba(20,83,45,.35)}
-/* tables, bars, pills */
-th{background:var(--pl);color:var(--pd);font-family:var(--font-d);font-weight:600}
-tbody tr:nth-child(even) td{background:rgba(20,83,45,.03)}
-tr:hover td{background:var(--sf2)}
-.bt{background:var(--pl)}.bt i{background:linear-gradient(90deg,#2e9d63,#14532d)}
-[data-theme=dark] .bt i{background:linear-gradient(90deg,#8fd1a9,#2e9d63)}
-.ins div{background:var(--pl);color:var(--pd)}
-.pill.l{background:var(--pl);color:var(--pd)}
-[data-theme=dark] .pill.h{background:rgba(255,100,95,.16);color:#ff9b98}[data-theme=dark] .pill.m{background:rgba(255,200,80,.14);color:#ffd986}
-.err{background:rgba(253,226,225,.9);color:#a3262a}
-[data-theme=dark] .err{background:rgba(255,100,95,.16);color:#ff9b98}
-@media print{body::before{display:none}body{background:#fff}}
 </style></head><body>
 <header><img class="logo" src="logo.png" alt="Logo" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo',textContent:'HR'}))"><div><h1>HR Analytics Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
 <nav class="nav"><a class="nl on" href="index.html">Home</a><a class="nl" href="hrbp.html">HRBP</a><a class="nl" href="admin.html">Admin</a><a class="nl" href="cost-analysis.html">Cost Analysis</a></nav><span class="vd" aria-hidden="true"></span><button class="btn p" id="rp" title="Generate PDF report"><svg class="ri" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM8 18v-5h2v5H8zm3 0v-8h2v8h-2zm3 0v-3h2v3h-2zm-1-9V3.5L18.5 9H13z"/></svg>Report</button></header>
@@ -230,7 +165,6 @@ tr:hover td{background:var(--sf2)}
 </div></div>
 
 <script>
-Chart.defaults.font.family="Figtree,system-ui,sans-serif";
 const CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vSMBPrqkOVprAn_sLjg2NmzGCimRx13XoDClYB7a4HMcX0j6MjqH9x7u9Z-NlWG2vAEzv16nPaMOIUU/pub?gid=1670338970&single=true&output=csv';
 const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],$=s=>document.querySelector(s);
 const PAL=['#2e9e5b','#6cc78f','#14532d','#a7e3bd','#1f7a45','#4fb67a','#0e3b22','#8fd5aa','#3aa76d','#c9f0d6'];
