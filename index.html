@@ -3,6 +3,8 @@
 <title>HR Analytics Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <style>
 :root{--bg:#eef8f0;--sf:#fff;--sf2:#f5fbf6;--bd:#d5ebda;--tx:#133524;--mu:#5b7a66;--pr:#2e9e5b;--pd:#14532d;--pl:#cdeed8;--bad:#d4543a;--ok:#1f8a4c;--sh:0 1px 2px rgba(20,83,45,.06),0 6px 20px rgba(20,83,45,.05)}
 [data-theme=dark]{--bg:#0e1a13;--sf:#15251c;--sf2:#1a2d22;--bd:#25402f;--tx:#e3f3e8;--mu:#8fb09b;--pr:#4fcb84;--pd:#9be3b8;--pl:#1f3a2a;--bad:#ff7a60;--ok:#4fcb84;--sh:none}
@@ -92,9 +94,20 @@ h2{margin:20px 0 10px}
 [data-tip]{cursor:default}.k[data-tip],.bl.ck[data-tip],.mp[data-tip],tr[data-tip]{cursor:pointer}
 img.logo{width:auto;height:36px;max-width:150px;object-fit:contain;background:none;border-radius:0;display:block}
 .nav{display:flex;gap:6px;flex-wrap:wrap}.nl{text-decoration:none;color:var(--tx);border:1px solid var(--bd);background:var(--sf2);padding:7px 15px;border-radius:99px;font:600 13px Figtree,sans-serif;transition:transform .15s,background .2s,border-color .2s}.nl:hover{border-color:var(--pr);transform:translateY(-1px)}.nl.on{background:var(--pr);border-color:var(--pr);color:#fff}
+
+.rm{position:fixed;inset:0;z-index:80;background:rgba(10,30,20,.45);display:none;place-items:center;padding:16px}.rm.on{display:grid}
+.rb{background:var(--sf);border:1px solid var(--bd);border-radius:18px;max-width:660px;width:100%;max-height:92vh;overflow:auto;padding:20px 22px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.rb h2{margin:0;font-size:18px}.rb h3{margin:16px 0 6px}.rg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rb select,.rb input[type=search],.rb input[type=text]{width:100%;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);padding:8px 10px;border-radius:10px;font:500 13px Figtree,sans-serif}
+.rb .f{min-width:0}.ick{display:flex;gap:8px;align-items:center;padding:5px 0;font-weight:600;font-size:13px;cursor:pointer}.ick input{width:16px;height:16px;accent-color:var(--pr)}
+.btn:disabled{opacity:.6;cursor:wait}
+.ri{fill:currentColor;flex:none}#rp{display:inline-flex;align-items:center;gap:7px}.rh{display:flex;align-items:center;gap:10px}.rh .ic{width:32px;height:32px}
+.vd{width:1px;align-self:stretch;min-height:28px;background:var(--bd);margin:0 4px}
+@media(max-width:600px){.vd{display:none}}
+@media(max-width:600px){.rg{grid-template-columns:1fr}}
 </style></head><body>
 <header><img class="logo" src="logo.png" alt="Logo" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo',textContent:'HR'}))"><div><h1>HR Analytics Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
-<nav class="nav"><a class="nl on" href="index.html">Home</a><a class="nl" href="hrbp.html">HRBP</a><a class="nl" href="admin.html">Admin</a><a class="nl" href="cost-analysis.html">Cost Analysis</a></nav></header>
+<nav class="nav"><a class="nl on" href="index.html">Home</a><a class="nl" href="hrbp.html">HRBP</a><a class="nl" href="admin.html">Admin</a><a class="nl" href="cost-analysis.html">Cost Analysis</a></nav><span class="vd" aria-hidden="true"></span><button class="btn p" id="rp" title="Generate PDF report"><svg class="ri" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM8 18v-5h2v5H8zm3 0v-8h2v8h-2zm3 0v-3h2v3h-2zm-1-9V3.5L18.5 9H13z"/></svg>Report</button></header>
 <main>
 <div class="err" id="er"></div>
 <div class="bar">
@@ -103,6 +116,30 @@ img.logo{width:auto;height:36px;max-width:150px;object-fit:contain;background:no
 <div id="app"><div class="msg">Loading…</div></div>
 </main>
 <div id="dv" class="dv"></div>
+<div class="rm" id="rm"><div class="rb" role="dialog" aria-label="Generate report">
+<div class="row" style="justify-content:space-between"><h2 class="rh"><i class="ic"><svg class="ri" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM8 18v-5h2v5H8zm3 0v-8h2v8h-2zm3 0v-3h2v3h-2zm-1-9V3.5L18.5 9H13z"/></svg></i>Generate PDF report</h2><button class="btn" id="rx">Close ✕</button></div>
+<div class="sub" style="margin:4px 0 14px">Pick any company, department, section or keyword. Leave everything on "All" for the overall report.</div>
+<div class="rg">
+<div class="f"><label for="rco">Company</label><select id="rco"></select></div>
+<div class="f"><label for="ry">Year</label><select id="ry"></select></div>
+<div class="f"><label for="rd">Department</label><select id="rd"></select></div>
+<div class="f"><label for="rs2">Section</label><select id="rs2"></select></div>
+<div class="f"><label for="rm2">Period</label><select id="rm2"></select></div>
+<div class="f"><label for="rq">Keyword (section / department name)</label><input type="search" id="rq" placeholder="e.g. dispatch"></div>
+</div>
+<div class="f" style="margin-top:12px"><label for="rt">Report title (optional)</label><input type="text" id="rt" placeholder="HR Analytics Report"></div>
+<h3>Include in report</h3>
+<div class="rg" id="rinc">
+<label class="ick"><input type="checkbox" data-inc="kpi" checked>Key metrics summary</label>
+<label class="ick"><input type="checkbox" data-inc="trend" checked>Month-wise trend charts</label>
+<label class="ick"><input type="checkbox" data-inc="mon" checked>Month-by-month table</label>
+<label class="ick"><input type="checkbox" data-inc="dept" checked>Department breakdown</label>
+<label class="ick"><input type="checkbox" data-inc="sec" checked>Section breakdown</label>
+<label class="ick"><input type="checkbox" data-inc="al" checked>Allowances &amp; reimbursements</label>
+</div>
+<div class="row" style="margin-top:18px"><button class="btn" id="rall">Overall report (all, full year)</button><span class="sp"></span><button class="btn p" id="rgo">Generate PDF</button></div>
+</div></div>
+
 <script>
 const CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vSMBPrqkOVprAn_sLjg2NmzGCimRx13XoDClYB7a4HMcX0j6MjqH9x7u9Z-NlWG2vAEzv16nPaMOIUU/pub?gid=1670338970&single=true&output=csv';
 const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],$=s=>document.querySelector(s);
@@ -305,5 +342,97 @@ const tip=document.createElement('div');tip.id='tip';document.body.appendChild(t
 document.addEventListener('mouseover',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(!t){if(!(e.target.tagName=='CANVAS'))tip.style.display='none';return}tip.dataset.src='';tip.textContent=t.dataset.tip;tip.style.display='block'});
 document.addEventListener('mousemove',e=>{if(tip.style.display!='block'||tip.dataset.src=='chart')return;tip.style.left=Math.max(6,Math.min(e.clientX+14,innerWidth-tip.offsetWidth-8))+'px';tip.style.top=Math.max(6,Math.min(e.clientY+16,innerHeight-tip.offsetHeight-8))+'px'});
 document.addEventListener('mouseout',e=>{if(!e.relatedTarget)tip.style.display='none'});
+/* ===== PDF report ===== */
+const RC=[['HC','cur',fN],['Active %','active',fP],['OT hrs','ot',fN],['OT cost','otc',fN],['TP OT hrs','tpot',fN],['TP OT cost','tpc',fN],['Absent','abs',fP],['Leaves','lvp',fP],['Late','late',fP],['Early out','early',fP],['Act/Std','avs',fP],['Joiners','join',fN],['Leavers','lv',fN]];
+const rpU=a=>[...new Set(a)].sort();
+const rpSel=(id,vals,cur,all)=>{$(id).innerHTML=(all?'<option>All</option>':'')+vals.map(v=>`<option ${v==cur?'selected':''}>${v}</option>`).join('')};
+const rpRd=()=>({co:$('#rco').value,y:+$('#ry').value,dept:$('#rd').value,sec:$('#rs2').value,m:$('#rm2').value,q:$('#rq').value.trim().toLowerCase(),title:$('#rt').value.trim()});
+function rpOpts(k){
+ rpSel('#rco',rpU(RAW.map(r=>r.co)),k.co,1);rpSel('#ry',rpU(RAW.map(r=>r.y)),k.y);
+ const r1=RAW.filter(r=>k.co=='All'||r.co==k.co);
+ rpSel('#rd',rpU(r1.map(r=>r.dept)),k.dept,1);
+ rpSel('#rs2',rpU(r1.filter(r=>k.dept=='All'||r.dept==k.dept).map(r=>r.sec)),k.sec,1);
+ const ms=new Set(RAW.filter(r=>r.y==k.y).map(r=>r.m));
+ $('#rm2').innerHTML='<option value="latest">Latest month</option>'+MN.map((m,i)=>ms.has(i)?`<option value="${i}">${m} ${k.y}</option>`:'').join('')+'<option value="ytd">Full year (all months)</option>';
+ $('#rm2').value=String(k.m);if($('#rm2').value!==String(k.m))$('#rm2').value='latest'}
+function rpOpen(){if(!RAW.length)return;rpOpts({co:S.co,y:S.y,dept:S.dept,sec:S.sec,m:S.m});$('#rq').value='';$('#rm').classList.add('on')}
+function rpClose(){$('#rm').classList.remove('on')}
+function rpLogo(){return new Promise(res=>{const i=new Image();i.onload=()=>{try{const c=document.createElement('canvas');c.width=i.naturalWidth;c.height=i.naturalHeight;c.getContext('2d').drawImage(i,0,0);res({d:c.toDataURL('image/png'),w:Math.min(120,34*i.naturalWidth/i.naturalHeight)})}catch(e){res(null)}};i.onerror=()=>res(null);i.src='logo.png'})}
+function rpChart(tr,k,t,sel){
+ const c=document.createElement('canvas');c.width=750;c.height=330;const d=tr.map(x=>x?+x[k].toFixed(2):null),f=fmtFor(k);
+ const ch=new Chart(c,{type:t=='b'?'bar':'line',data:{labels:MN,datasets:[{data:d,borderColor:'#2e9e5b',borderWidth:4,tension:.35,pointRadius:d.map((_,j)=>j==sel?8:4),pointBackgroundColor:'#2e9e5b',backgroundColor:t=='b'?d.map((_,j)=>j==sel?'#14532d':'#7fd4a0'):'rgba(46,158,91,.15)',fill:t!='b',borderRadius:6}]},
+ options:{responsive:false,animation:false,devicePixelRatio:1,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{ticks:{font:{size:18},color:'#5b7a66'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{size:18},color:'#5b7a66',maxTicksLimit:5,callback:v=>f(v)},grid:{color:'rgba(120,160,135,.25)'}}}}});
+ const u=c.toDataURL('image/png');ch.destroy();return u}
+async function rpGen(){
+ if(!(window.jspdf&&window.jspdf.jsPDF)){alert('PDF library load nahi hui. Internet check karke page refresh karein.');return}
+ const o=rpRd(),inc={};document.querySelectorAll('#rinc input[data-inc]').forEach(c=>inc[c.dataset.inc]=c.checked);
+ const b=RAW.filter(r=>r.y==o.y&&(o.co=='All'||r.co==o.co)&&(o.dept=='All'||r.dept==o.dept)&&(o.sec=='All'||r.sec==o.sec)&&(!o.q||(r.sec+' '+r.dept).toLowerCase().includes(o.q)));
+ const tr=trend(b);let last=-1;tr.forEach((x,i)=>{if(x)last=i});
+ if(last<0){alert('Is selection ke liye data nahi mila. Filters badal kar dobara try karein.');return}
+ const ytd=o.m=='ytd',cm=(o.m=='latest'||ytd)?last:+o.m,rs=ytd?b:b.filter(r=>r.m==cm),a=agg(rs);
+ if(!has(a)){alert('Is month ka data maujood nahi hai. Koi aur month chunein.');return}
+ const btn=$('#rgo');btn.disabled=true;btn.textContent='Generating…';await new Promise(r=>setTimeout(r,30));
+ try{
+ const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:'landscape',unit:'pt',format:'a4'});
+ const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),M=36,G=[20,83,45],G2=[46,158,91];
+ const scope=[o.co=='All'?'All companies':o.co,o.dept=='All'?'All departments':o.dept,o.sec=='All'?'All sections':o.sec].join(' | ')+(o.q?` | keyword: "${o.q}"`:'');
+ const per=ytd?`${MN[tr.findIndex(Boolean)]}-${MN[last]} ${o.y}`:`${MN[cm]} ${o.y}`;
+ const logo=await rpLogo();let x0=M;if(logo){doc.addImage(logo.d,'PNG',M,20,logo.w,34);x0=M+logo.w+14}
+ doc.setFont('helvetica','bold').setFontSize(20).setTextColor(...G).text(o.title||'HR Analytics Report',x0,38);
+ doc.setFont('helvetica','normal').setFontSize(10).setTextColor(90,120,102).text(scope,x0,54);
+ doc.text(`Period: ${per}   |   Generated: ${new Date().toLocaleString()}`,x0,67);
+ doc.setDrawColor(...G2).setLineWidth(1.5).line(M,76,W-M,76);let y=94;
+ const need=h=>{if(y+h>H-44){doc.addPage();y=M}};
+ const H2=(t,min=70)=>{need(min);doc.setFont('helvetica','bold').setFontSize(13).setTextColor(...G).text(t,M,y);y+=7;doc.setDrawColor(205,238,216).setLineWidth(1).line(M,y,W-M,y);y+=10};
+ const TB=o2=>{const {styles,...rest}=o2;need(60);doc.autoTable({startY:y,margin:{left:M,right:M,bottom:44},theme:'grid',styles:{font:'helvetica',fontSize:8.5,cellPadding:3,lineColor:[213,235,218],lineWidth:.5,textColor:[19,53,36],...(styles||{})},headStyles:{fillColor:G,textColor:255,fontStyle:'bold'},alternateRowStyles:{fillColor:[245,251,246]},...rest});y=doc.lastAutoTable.finalY+18};
+ const grp=by=>{const m={};rs.forEach(r=>(m[r[by]]??=[]).push(r));return Object.entries(m).map(([k,v])=>({k,a:agg(v)})).filter(x=>has(x.a))};
+ const tot=x=>{const z=x.a||x;return z.otc+z.tpc};
+ if(inc.kpi){H2('Key metrics - '+per);
+  const prev=ytd?null:tr.slice(0,cm).reverse().find(Boolean),pf=(x,v)=>x.f===fP?v.toFixed(2)+'%':fN(v);
+  const rows=KP.map(x=>{const v=a[x.k];let ch='-',col=null;
+   if(prev){const df=v-prev[x.k];if(Math.abs(df)>1e-9){ch=(df>0?'+':'-')+(x.f===fP?Math.abs(df).toFixed(2)+' pts':fN(Math.abs(df)));col=x.u?((df>0)==(x.u>0)?[31,138,76]:[212,84,58]):null}else ch='No change'}
+   return [x.l,pf(x,v),prev?pf(x,prev[x.k]):'-',{content:ch,styles:col?{textColor:col,fontStyle:'bold'}:{}}]});
+  rows.unshift(['Approved headcount',fN(a.appr),'-','-']);
+  TB(ytd?{head:[['Metric','Value (full period)']],body:rows.map(r=>r.slice(0,2)),columnStyles:{1:{halign:'right',fontStyle:'bold'}}}:{head:[['Metric','Value','Previous month','Change']],body:rows,columnStyles:{1:{halign:'right',fontStyle:'bold'},2:{halign:'right'},3:{halign:'right'}}});
+  const secs=grp('sec'),top=[...secs].sort((p,q)=>tot(q)-tot(p))[0],ab=[...secs].filter(x=>x.a.cur>0).sort((p,q)=>q.a.abs-p.a.abs)[0],lt=[...secs].filter(x=>x.a.cur>0).sort((p,q)=>q.a.late-p.a.late)[0];
+  const L=[top&&`Highest OT spend: ${top.k} (PKR ${fN(tot(top))})`,ab&&`Highest absenteeism: ${ab.k} (${fP(ab.a.abs)})`,lt&&`Most late arrivals: ${lt.k} (${fP(lt.a.late)})`].filter(Boolean);
+  if(L.length){need(20+L.length*14);doc.setFont('helvetica','bold').setFontSize(10).setTextColor(...G).text('Highlights',M,y);y+=14;doc.setFont('helvetica','normal').setFontSize(9.5).setTextColor(19,53,36);L.forEach(t=>{doc.text('- '+t,M+6,y);y+=14});y+=8}}
+ if(inc.trend){H2(`Month-wise trends - ${o.y}`,190);
+  const cw=(W-2*M-28)/3,ch=112;let ry=y;
+  for(let i=0;i<TR.length;i++){const [k,l,t]=TR[i],col=i%3;
+   if(col==0){if(y+ch+26>H-44){doc.addPage();y=M}ry=y}
+   const x=M+col*(cw+14),v=tr[cm]?fmtFor(k)(tr[cm][k]):'-';
+   doc.setFont('helvetica','bold').setFontSize(9).setTextColor(...G).text(l,x,ry+8);doc.setTextColor(...G2).text(v,x+cw,ry+8,{align:'right'});
+   doc.addImage(rpChart(tr,k,t,ytd?-1:cm),'PNG',x,ry+12,cw,ch);
+   if(col==2||i==TR.length-1)y=ry+ch+26}
+  y+=4}
+ if(inc.mon){H2('Month by month',120);
+  const body=TR.map(([k,l])=>{const f=fmtFor(k),vals=tr.map(x=>x?x[k]:null),ok=vals.filter(v=>v!=null),s=ok.reduce((p,c)=>p+c,0),sm=SUMK.includes(k);return [l,...vals.map(v=>v==null?'-':f(v)),(sm?'Total ':'Avg ')+f(sm?s:(ok.length?s/ok.length:0))]});
+  TB({head:[['Metric',...MN,'Year']],body,styles:{fontSize:7.2,cellPadding:2.5},columnStyles:{0:{cellWidth:100,fontStyle:'bold'},13:{cellWidth:62,fontStyle:'bold'}}})}
+ const flag=n=>({didParseCell:d=>{if(d.section!='body')return;const i=d.column.index,v=parseFloat(d.cell.raw);if(i==n+6){if(v>=15)d.cell.styles.fillColor=[253,227,220];else if(v>=10)d.cell.styles.fillColor=[255,240,201]}if(i==n+8){if(v>=15)d.cell.styles.fillColor=[253,227,220];else if(v>=5)d.cell.styles.fillColor=[255,240,201]}}});
+ const rowOf=(lead,x)=>[...lead,...RC.map(c=>c[2](x[c[1]]))],right=n=>Object.fromEntries(RC.map((_,i)=>[n+i,{halign:'right'}]));
+ if(inc.dept){const dg=grp('dept').sort((p,q)=>tot(q)-tot(p));
+  if(dg.length){H2(`Department breakdown - ${per}`,110);
+   const body=dg.map(x=>rowOf([x.k],x.a));body.push(rowOf(['TOTAL'],a).map(c=>({content:c,styles:{fontStyle:'bold',fillColor:[205,238,216]}})));
+   TB({head:[['Department',...RC.map(c=>c[0])]],body,styles:{fontSize:7.6,cellPadding:2.5},columnStyles:right(1),...flag(1)})}}
+ if(inc.sec){const m={};rs.forEach(r=>(m[r.co+'|'+r.dept+'|'+r.sec]??=[]).push(r));
+  const L=Object.entries(m).map(([k,v])=>({p:k.split('|'),a:agg(v)})).filter(x=>has(x.a)).sort((p,q)=>tot(q.a)-tot(p.a));
+  if(L.length){H2(`Section breakdown - ${per} (${L.length} sections)`,110);
+   TB({head:[['Company','Department','Section',...RC.map(c=>c[0])]],body:L.map(x=>rowOf(x.p,x.a)),styles:{fontSize:7,cellPadding:2.2},columnStyles:right(3),...flag(3)})}}
+ if(inc.al){const al=AL.map(k=>[k,rs.reduce((s,r)=>s+(r.d[k]||0),0)]).filter(x=>x[1]>0),sm=al.reduce((s,x)=>s+x[1],0);
+  if(al.length){H2(`Allowances & reimbursements - ${per}`,110);
+   const body=al.sort((p,q)=>q[1]-p[1]).map(x=>[x[0],fN(x[1]),(x[1]/sm*100).toFixed(1)+'%']);body.push(['TOTAL',fN(sm),'100%'].map(c=>({content:c,styles:{fontStyle:'bold',fillColor:[205,238,216]}})));
+   TB({head:[['Allowance','Amount (PKR)','Share']],body,columnStyles:{1:{halign:'right'},2:{halign:'right'}},tableWidth:420})}}
+ const n=doc.internal.getNumberOfPages();
+ for(let i=1;i<=n;i++){doc.setPage(i);doc.setFont('helvetica','normal').setFontSize(8).setTextColor(120,140,128).text('HR Analytics Dashboard | '+scope,M,H-20);doc.text(`Page ${i} of ${n}`,W-M,H-20,{align:'right'})}
+ const nm=s=>s.replace(/[^A-Za-z0-9]+/g,'_').replace(/^_|_$/g,'');
+ doc.save(`HR_Report_${nm([o.co=='All'?'All':o.co,o.dept=='All'?'':o.dept,o.sec=='All'?'':o.sec,o.q].filter(Boolean).join('_')||'Overall')}_${nm(per)}.pdf`);rpClose();
+ }catch(e){console.error(e);alert('Report error: '+e.message)}finally{btn.disabled=false;btn.textContent='Generate PDF'}}
+$('#rp').onclick=rpOpen;$('#rx').onclick=rpClose;$('#rm').onclick=e=>{if(e.target.id=='rm')rpClose()};
+$('#rgo').onclick=rpGen;
+$('#rco').onchange=()=>rpOpts({...rpRd(),dept:'All',sec:'All'});$('#rd').onchange=()=>rpOpts({...rpRd(),sec:'All'});$('#ry').onchange=()=>rpOpts(rpRd());
+$('#rall').onclick=async()=>{rpOpts({co:'All',y:+$('#ry').value||S.y,dept:'All',sec:'All',m:'ytd'});$('#rq').value='';document.querySelectorAll('#rinc input').forEach(c=>c.checked=true);await rpGen()};
+document.addEventListener('keydown',e=>{if(e.key=='Escape'&&$('#rm').classList.contains('on'))rpClose()});
+
 load();
 </script></body></html>
