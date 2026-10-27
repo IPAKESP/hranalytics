@@ -111,14 +111,19 @@ img.logo{width:auto;height:36px;max-width:150px;object-fit:contain;background:no
 @media(max-width:600px){.rg{grid-template-columns:1fr}}
 
 .ins{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.ins::-webkit-scrollbar{display:none}.ins div{white-space:nowrap;flex:none}.ins div[data-i]{cursor:pointer;transition:transform .15s}.ins div[data-i]:hover{transform:translateY(-1px)}
+
+.bar{gap:0}
+.bar #mm{flex:1;min-width:260px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;border-left:1px solid var(--bd);padding-left:10px;margin-left:4px}
+.bar #mm::-webkit-scrollbar{display:none}
+.bar select{max-width:130px}
+@media(max-width:900px){.bar #mm{flex-basis:100%;border-left:0;padding-left:0;margin-left:0;margin-top:6px}}
 </style></head><body>
 <header><img class="logo" src="logo.png" alt="Logo" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo',textContent:'HR'}))"><div><h1>HR Analytics Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
 <nav class="nav"><a class="nl on" href="index.html">Home</a><a class="nl" href="hrbp.html">HRBP</a><a class="nl" href="admin.html">Admin</a><a class="nl" href="cost-analysis.html">Cost Analysis</a></nav><span class="vd" aria-hidden="true"></span><button class="btn p" id="rp" title="Generate PDF report"><svg class="ri" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM8 18v-5h2v5H8zm3 0v-8h2v8h-2zm3 0v-3h2v3h-2zm-1-9V3.5L18.5 9H13z"/></svg>Report</button></header>
 <main>
 <div class="err" id="er"></div>
 <div class="bar">
-<div class="row"><div class="f"><label>Company</label><select id="fc"></select></div><div class="f"><label>Year</label><select id="fy"></select></div><div class="f"><label>Department</label><select id="fd"></select></div><div class="f"><label>Section</label><select id="fs"></select></div><button class="btn" id="rs">Reset</button><div class="row" id="cc"></div></div>
-<div class="row" id="mm"><span class="mlab">Month</span></div></div>
+<div class="row"><div class="f"><label>Company</label><select id="fc"></select></div><div class="f"><label>Year</label><select id="fy"></select></div><div class="f"><label>Department</label><select id="fd"></select></div><div class="f"><label>Section</label><select id="fs"></select></div><button class="btn" id="rs">Reset</button><div class="row" id="mm"><span class="mlab">Month</span></div></div></div>
 <div id="app"><div class="msg">Loading…</div></div>
 </main>
 <div id="dv" class="dv"></div>
@@ -225,8 +230,6 @@ function filters(){
  fill('#fc',uniq(RAW.map(r=>r.co)),S.co,1);fill('#fy',uniq(RAW.map(r=>r.y)),S.y);
  const r1=RAW.filter(r=>S.co=='All'||r.co==S.co);fill('#fd',uniq(r1.map(r=>r.dept)),S.dept,1);
  fill('#fs',uniq(r1.filter(r=>S.dept=='All'||r.dept==S.dept).map(r=>r.sec)),S.sec,1);
- const cos=['All',...uniq(RAW.map(r=>r.co))].slice(0,9);
- $('#cc').innerHTML=cos.map(c=>`<button class="chip ${c==S.co?'on':''}" data-co="${c}">${c}</button>`).join('');
 }
 function months(tr){
  $('#mm').innerHTML='<span class="mlab">Month</span>'+MN.map((m,i)=>`<button class="mp ${tr[i]?'':'no'} ${S.m==i||(S.m=='latest'&&i==curM(tr))?'on':''}" data-m="${i}" data-tip="${mtip(tr,i)}">${m}</button>`).join('')+`<button class="mp ${S.m=='ytd'?'on':''}" data-m="ytd" data-tip="All months of ${S.y} combined">Full year</button>`}
@@ -291,7 +294,6 @@ async function load(){$('#st').textContent='Loading data…';$('#er').style.disp
 $('#fc').onchange=e=>{S.co=e.target.value;S.dept='All';S.sec='All';render()};$('#fy').onchange=e=>{S.y=+e.target.value;render()};
 $('#fd').onchange=e=>{S.dept=e.target.value;S.sec='All';render()};$('#fs').onchange=e=>{S.sec=e.target.value;render()};
 $('#rs').onclick=()=>{S={...S,co:'All',m:'latest',dept:'All',sec:'All',q:''};S.y=Math.max(...RAW.map(r=>r.y));render()};
-$('#cc').onclick=e=>{const c=e.target.dataset.co;if(c){S.co=c;S.dept='All';S.sec='All';render()}};
 $('#mm').onclick=e=>{const m=e.target.dataset.m;if(m!==undefined){S.m=m=='ytd'?'ytd':+m;render()}};
 
 let CUR={},DI=0,DT='bar';const SUMK=['ot','otc','tpot','tpc','join','lv'];
