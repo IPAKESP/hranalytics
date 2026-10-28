@@ -63,6 +63,9 @@ th:first-child,td:first-child{text-align:left}td{padding:8px 12px;border-top:1px
 table.sc{font-size:12.5px}.sc th{cursor:pointer;user-select:none;padding:7px 10px}.sc td{padding:5px 10px}.sc tbody tr{cursor:pointer}
 .sc th.sa::after{content:' ▲';font-size:9px}.sc th.sd::after{content:' ▼';font-size:9px}
 .sc tbody tr.sel td{background:var(--pl);font-weight:700}.sc tfoot td{position:sticky;bottom:0;background:var(--pl);color:var(--pd);font-weight:800;border-top:2px solid var(--bd)}
+.st{display:inline-block;padding:1px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap}
+.st.f{background:var(--pl);color:var(--pd)}.st.v{background:rgba(240,163,94,.28);color:#b45309}[data-theme=dark] .st.v{color:#f0a35e}.st.o{background:var(--sf2);color:var(--mu);border:1px solid var(--bd)}
+table.pr th,table.pr td{text-align:left}table.pr tbody tr{cursor:default}.tools .seg2{display:flex;gap:6px;flex-wrap:wrap}.tools .grow{flex:1}
 @media(max-width:900px){.c.w2{grid-column:auto}.g{grid-template-columns:1fr}main{padding:10px 14px}header{padding:8px 14px}.bar{position:static}#mm{flex-basis:100%;border-left:0;padding-left:0;margin:6px 0 0}}
 @media(max-width:600px){.bl{grid-template-columns:100px 1fr 60px}}
 @media(prefers-reduced-motion:no-preference){.k,.c{animation:up .45s backwards;animation-delay:calc(var(--i,0)*35ms)}@keyframes up{from{opacity:0;transform:translateY(12px)}}.sl polyline{animation:dr 1s .25s backwards ease-out}@keyframes dr{from{stroke-dashoffset:1}}}
@@ -99,7 +102,7 @@ const num=v=>{const t=String(v??'').replace(/[,\s%]/g,'');return t===''||t==='-'
 const fN=v=>Math.round(v).toLocaleString('en-US'),fP=v=>(v||0).toFixed(1)+'%',fD=v=>(v||0).toFixed(0)+' days';
 const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
 const sum=(a,f)=>a.reduce((x,r)=>x+f(r),0);
-let S={co:'All',geo:'All',sec:'All',dept:'All',y:0,m:-1},P=[],M=[],R=[],X=[],MISS=[],CH={},YS=[],LOADED=false,SC={k:'d',dir:1},SCQ='',SCROWS=[],SCT={};
+let S={co:'All',geo:'All',sec:'All',dept:'All',y:0,m:-1},P=[],M=[],R=[],X=[],MISS=[],CH={},YS=[],LOADED=false,SC={k:'d',dir:1},SCQ='',SCROWS=[],SCT={},PS='All',PQ='',PK={k:'dept',dir:1},PREG=[],PROWS=[];
 
 /* ---------- CSV + helpers ---------- */
 function parseCSV(t){const r=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}else if(c=='"')q=true;else if(c==','){row.push(f);f=''}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;row.push(f);r.push(row);row=[];f=''}else f+=c}if(f!==''||row.length){row.push(f);r.push(row)}return r}
@@ -117,7 +120,7 @@ function normPos(rows){return rows.map(o=>{
  const ps=pick(o,['positionstatus','status']),es=pick(o,['employmentstatus','employmenttype']),eid=pick(o,['employeeid','empid','employeecode']),en=pick(o,['employeename','name']);
  const s=ps.toLowerCase();let st;
  if(/vacan|open|unfill|hiring|requisition/.test(s))st='v';else if(/hold|freez|frozen|cancel|closed|abolish|inactive/.test(s))st='o';else if(/fill|occup|active|incumb/.test(s))st='f';else st=(eid||en)?'f':'v';
- return{co:pick(o,A.co),geo:pick(o,['geo','location','city']),dept:pick(o,A.dept),sec:pick(o,A.sec),st,tp:/3rd|third|contract|outsourc|agency|\btp\b|temporary|consult|daily/i.test(es)}}).filter(r=>r.dept)}
+ return{co:pick(o,A.co),geo:pick(o,['geo','location','city']),dept:pick(o,A.dept),sec:pick(o,A.sec),pos:pick(o,['positiontitle','position','jobtitle']),grade:pick(o,['grade','jobgrade']),desig:pick(o,['designation']),es,eid,en,ps:ps||(st=='f'?'Filled':'Vacant'),st,tp:/3rd|third|contract|outsourc|agency|\btp\b|temporary|consult|daily/i.test(es)}}).filter(r=>r.dept)}
 function normMaster(rows){return rows.map(o=>{const d=pDate(o.month);if(!d)return null;
  const cur=num(pick(o,['currentheadcount','currenthc','actualheadcount','headcount']));
  return{co:pick(o,['company']),dept:pick(o,A.dept),sec:pick(o,A.sec),y:d.getFullYear(),m:d.getMonth(),cur:isNaN(cur)?0:cur,lv:num(o.leavers)||0}}).filter(Boolean)}
@@ -223,6 +226,17 @@ function drawSC(){const q=SCQ.toLowerCase(),k=SC.k,dr=SC.dir;
  const cols=[['d','Department'],['ap','Approved'],['f','Actual'],['v','Vacant'],['fill','Fill %'],['perm','Perm'],['tp','3rd party'],['tov','Turnover'],['ttf','Time to fill']];
  const bg=(w,c)=>`background:linear-gradient(90deg,${c} ${w}%,transparent ${w}%)`,dash=v=>v==null?'–':v;
  $('#sct').innerHTML=`<thead><tr>${cols.map(c=>`<th data-sk="${c[0]}" class="${SC.k==c[0]?'s'+(SC.dir>0?'a':'d'):''}">${c[1]}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr data-dp="${esc(r.d)}" class="${S.dept==r.d?'sel':''}" data-tip="${esc(r.d)}&#10;Approved ${fN(r.ap)} · Actual ${fN(r.f)} · Vacant ${r.v}&#10;Click to ${S.dept==r.d?'clear filter':'filter dashboard'}"><td>${esc(r.d)}</td><td>${fN(r.ap)}</td><td>${fN(r.f)}</td><td style="${r.v?bg(r.v/mxV*100,'rgba(240,163,94,.35)'):''}">${r.v||'–'}</td><td style="${r.fill==null?'':bg(r.fill,'rgba(37,99,235,.2)')}">${r.fill==null?'–':fP(r.fill)}</td><td>${fN(r.perm)}</td><td>${fN(r.tp)}</td><td style="${r.tov?bg(r.tov/mxT*100,'rgba(212,84,58,.25)'):''}">${r.tov==null?'–':fP(r.tov)}</td><td>${r.ttf==null?'–':fD(r.ttf)}</td></tr>`).join('')||'<tr><td colspan="9" class="msg">No departments</td></tr>'}</tbody><tfoot><tr><td>Total</td><td>${fN(T.ap)}</td><td>${fN(T.f)}</td><td>${fN(T.v)}</td><td>${T.fill==null?'–':fP(T.fill)}</td><td>${fN(T.perm)}</td><td>${fN(T.tp)}</td><td>${T.tov==null?'–':fP(T.tov)}</td><td>${T.ttf==null?'–':fD(T.ttf)}</td></tr></tfoot>`}
+function drawPR(){const q=PQ.toLowerCase(),cnt={All:PREG.length,f:0,v:0,o:0};PREG.forEach(r=>cnt[r.st]++);
+ const rows=PREG.filter(r=>(PS=='All'||r.st==PS)&&(!q||[r.pos,r.dept,r.sec,r.geo,r.co,r.grade,r.desig,r.en,r.eid,r.es,r.ps].join(' ').toLowerCase().includes(q)));
+ const k=PK.k,dr=PK.dir,key=r=>r.dept+'|'+r.sec+'|'+r.pos;
+ rows.sort((a,b)=>String(a[k]||'').localeCompare(String(b[k]||''),undefined,{numeric:true})*dr||key(a).localeCompare(key(b)));PROWS=rows;
+ $('#prb').innerHTML=[['All','All'],['f','Filled'],['v','Vacant'],['o','On hold / other']].filter(x=>x[0]!='o'||cnt.o).map(x=>`<button class="mp ${PS==x[0]?'on':''}" data-ps="${x[0]}">${x[1]} (${fN(cnt[x[0]])})</button>`).join('');
+ const cols=[['pos','Position title'],['dept','Department'],['sec','Section'],['geo','Geo'],['co','Company'],['grade','Grade'],['desig','Designation'],['en','Employee'],['es','Employment'],['ps','Status']],c=v=>v?esc(v):'–';
+ $('#prt').innerHTML=`<thead><tr>${cols.map(x=>`<th data-pk="${x[0]}" class="${PK.k==x[0]?'s'+(PK.dir>0?'a':'d'):''}">${x[1]}</th>`).join('')}</tr></thead><tbody>${rows.slice(0,400).map(r=>`<tr><td>${c(r.pos)}</td><td>${c(r.dept)}</td><td>${c(r.sec)}</td><td>${c(r.geo)}</td><td>${c(r.co)}</td><td>${c(r.grade)}</td><td>${c(r.desig)}</td><td>${r.en?esc(r.en)+(r.eid?' <span class="sub">#'+esc(r.eid)+'</span>':''):'–'}</td><td>${c(r.es)}</td><td><span class="st ${r.st}">${esc(r.ps||(r.st=='f'?'Filled':'Vacant'))}</span></td></tr>`).join('')||'<tr><td colspan="10" class="msg">No positions match</td></tr>'}</tbody>`;
+ $('#prn').textContent=rows.length>400?'Showing first 400 of '+fN(rows.length)+' positions — use search or filters to narrow down.':fN(rows.length)+' positions'}
+function csvOut(rows){const H=['Position title','Department','Section','Geo','Company','Grade','Designation','Employee ID','Employee name','Employment status','Position status'],q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const body=rows.map(r=>[r.pos,r.dept,r.sec,r.geo,r.co,r.grade,r.desig,r.eid,r.en,r.es,r.ps].map(q).join(','));
+ const b=new Blob(['\ufeff'+[H.map(q).join(','),...body].join('\n')],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='positions.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function saveHash(){const q=new URLSearchParams();['co','geo','dept','sec'].forEach(k=>{if(S[k]!='All')q.set(k,S[k])});q.set('y',S.y);if(S.m>=0)q.set('m',S.m);try{history.replaceState(null,'','#'+q)}catch(e){}}
 function render(){if(!LOADED)return;card.n=0;kpi.n=0;saveHash();
  const pr=P.filter(okP),fl=pr.filter(r=>r.st=='f'),vc=pr.filter(r=>r.st=='v'),ap=fl.length+vc.length,perm=fl.filter(r=>!r.tp).length,tp=fl.filter(r=>r.tp).length,org=ap?fl.length/ap*100:null;
@@ -258,15 +272,20 @@ function render(){if(!LOADED)return;card.n=0;kpi.n=0;saveHash();
  h+=card('Vacant by site <small>(click to filter)</small>',fN(vc.length),nd('POSITIONS',siteV.length>0,'<div class="sc1">'+blist(siteV,fN,1,'geo')+'</div>'),'','add')+card('Permanent vs 3rd party',ratio=='–'?'':ratio,nd('POSITIONS',perm+tp>0,cv('p3')),'','work')+card('Top exit reasons',xp.length?xp.length+' exits':'',nd('EXITS',hasX,'<div class="sc1">'+blist(rs.slice(0,8),fN)+'</div>'),'','doc')+card('Vacant: department × site',fN(vc.length),'<div class="tw" id="hm" style="max-height:150px"></div>','w2','block')+'</div>';
 
  h+=`<h2>Department scorecard <small>click a row to filter · click a header to sort</small></h2><div class="c" style="--i:${card.n++}"><div class="tools"><input class="sr" id="scq" type="search" placeholder="Search department…" value="${esc(SCQ)}"><span class="sub">Approved vs actual, vacancy, fill rate, perm/3rd party, turnover and time to fill per department</span></div><div class="tw" style="max-height:340px"><table class="sc" id="sct"></table></div></div>`;
- $('#app').innerHTML=h;pills(mr,rr);countUp();drawSC();$('#scq').oninput=e=>{SCQ=e.target.value;drawSC()};
+ h+=`<h2>Position register <small>filled vs vacant, straight from the Positions sheet · follows the filters above</small></h2><div class="c" style="--i:${card.n++}"><div class="tools"><input class="sr" id="prq" type="search" placeholder="Search position, employee, grade…" value="${esc(PQ)}"><span class="seg2" id="prb"></span><span class="grow"></span><button class="btn" data-ex="1">Export CSV</button></div><div class="tw" style="max-height:360px"><table class="sc pr" id="prt"></table></div><div class="sub" id="prn" style="margin-top:6px"></div></div>`;
+ PREG=pr.slice();
+ $('#app').innerHTML=h;pills(mr,rr);countUp();drawSC();drawPR();$('#scq').oninput=e=>{SCQ=e.target.value;drawSC()};$('#prq').oninput=e=>{PQ=e.target.value;drawPR()};
 
  if(hasJ){line('h1',sT,v=>v==null?'–':fD(v),TG.ttf);line('h3',sQ,fP,TG.qoh)}
  if(rr.length)line('h2',sO,fP,TG.oar);
  if(hasM)line('a1',sV,fP,TG.tov/12);
  if(perm+tp)mk('p3',{type:'doughnut',data:{labels:['Permanent','3rd party'],datasets:[{data:[perm,tp],backgroundColor:[DK,WN],borderColor:'transparent'}]},options:{cutout:'62%',plugins:{legend:{display:true,position:'right',labels:{color:css('--mu'),boxWidth:10}}}}});
  $('#hm').innerHTML=`<table><thead><tr><th>Department</th>${sites.map(s=>`<th>${esc(s)}</th>`).join('')}<th>Total</th></tr></thead><tbody>${dp.map(d=>{let t=0;const cells=sites.map(s=>{const v=vm[d+'|'+s]||0;t+=v;return `<td class="hm" style="${v?`background:rgba(var(--warm),${(.15+.6*v/mx).toFixed(2)})`:''}">${v||'–'}</td>`}).join('');return `<tr><td>${esc(d)}</td>${cells}<td class="hm">${t||'–'}</td></tr>`}).join('')||'<tr><td colspan="9" class="msg">No positions</td></tr>'}</tbody></table>`}
-document.addEventListener('click',e=>{const T=e.target.closest&&e.target.closest('[data-m],[data-sk],[data-dp],[data-fk]');if(!T)return;const d=T.dataset;
+document.addEventListener('click',e=>{const T=e.target.closest&&e.target.closest('[data-m],[data-sk],[data-dp],[data-fk],[data-ps],[data-pk],[data-ex]');if(!T)return;const d=T.dataset;
  if(d.m!==undefined)S.m=+d.m;
+ else if(d.ps!==undefined){PS=d.ps;return drawPR()}
+ else if(d.pk){if(PK.k==d.pk)PK.dir*=-1;else{PK.k=d.pk;PK.dir=1}return drawPR()}
+ else if(d.ex){return csvOut(PROWS)}
  else if(d.sk){if(SC.k==d.sk)SC.dir*=-1;else{SC.k=d.sk;SC.dir=d.sk=='d'?1:-1}return drawSC()}
  else if(d.dp!==undefined)S.dept=S.dept==d.dp?'All':d.dp;
  else if(d.fk)S[d.fk]=S[d.fk]==d.fv?'All':d.fv;
