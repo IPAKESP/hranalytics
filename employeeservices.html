@@ -82,6 +82,7 @@ const DOC='1LjKBfeNcPS43QowN_qInOxOWzRz3iUHWfSuDCxq0axU';
 const GID={sub:'265262700',area:'1481590677'};
 const TARGET=95;                         // achieved score >= 95 = green, below = red
 const ORDER=['mess','transport','housekeeping'];
+const PERSONS=2,ROUNDS=2;               // har point par roz 2 log × 2 rounds = 4 rounds planned (per company)
 const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],$=s=>document.querySelector(s);
 const PAL=['#2e9e5b','#f0a35e','#14532d','#6cc78f','#4a8fd4','#a7e3bd'];
 const pad=n=>String(n).padStart(2,'0'),fP=v=>v==null?'–':v.toFixed(1)+'%',fN=v=>Math.round(v).toLocaleString('en-US');
@@ -135,6 +136,16 @@ const pill=v=>v==null?'–':`<span class="pill ${v>=TARGET?'l':'h'}">${fP(v)}</s
 const cls=v=>v==null?'':v>=TARGET?'g':'b';
 const bl=(arr,lim)=>{const A=lim?arr.slice(0,lim):arr;return A.length?A.map(x=>`<div class="bl" title="${esc(x.k)}: ${fP(x.v)}"><span class="bn">${esc(x.k)}</span><div class="bt"><i style="width:${Math.max(2,Math.min(100,x.v))}%;background:${okc(x.v)}"></i></div><b style="color:${okc(x.v)}">${fP(x.v)}</b></div>`).join(''):'<div class="msg" style="padding:14px">Is selection ke liye data nahi hai</div>'};
 
+/* ---------- planned rounds vs completed ---------- */
+function elapsedDays(){const t=new Date();t.setHours(0,0,0,0);let a,z;
+ if(S.dt!='All'){const [y,m,d]=S.dt.split('-').map(Number);a=z=new Date(y,m-1,d)}
+ else if(S.m=='ytd'){a=new Date(S.y,0,1);z=new Date(S.y,11,31)}
+ else{a=new Date(S.y,CUR.cm,1);z=new Date(S.y,CUR.cm+1,0)}
+ if(z>t)z=t;const out=[];for(let d=new Date(a);d<=z;d.setDate(d.getDate()+1))out.push(dstr({y:d.getFullYear(),m:d.getMonth(),d:d.getDate()}));return out}
+function planPerDay(pk){const rd=S.rd=='All'?ROUNDS:1,nc=S.co=='All'?Math.max(1,new Set(SUB.filter(r=>r.pk==pk&&r.y==S.y).map(r=>r.co)).size):1;return PERSONS*rd*nc}
+function roundStats(pk,rs){const per=planPerDay(pk),days=elapsedDays(),cnt={};rs.forEach(r=>cnt[r.day]=(cnt[r.day]||0)+1);
+ return{per,days,cnt,planned:per*days.length,done:rs.length,nd:days.reduce((t,d)=>t+Math.max(0,per-(cnt[d]||0)),0)}}
+
 /* ---------- ui ---------- */
 const uniq=a=>[...new Set(a)].sort();
 function fill(id,vals,cur,all){$(id).innerHTML=(all?'<option>All</option>':'')+vals.map(v=>`<option ${v==cur?'selected':''}>${v}</option>`).join('')}
@@ -153,16 +164,17 @@ function render(){
  if(S.dt!='All'&&S.m!='ytd'&&+S.dt.slice(5,7)-1!=CUR.cm)S.dt='All';$('#fd').value=S.dt=='All'?'':S.dt;
  const per=S.dt!='All'?S.dt:S.m=='ytd'?'Jan–Dec '+S.y:MN[CUR.cm]+' '+S.y,rs=monthRows(b),scope=(S.co=='All'?'All companies':S.co)+(S.rd!='All'?' · '+S.rd:'');CUR.per=per;CUR.scope=scope;
  if(!rs.length){$('#app').innerHTML=`<div class="msg"><b>${per} ke liye abhi koi submission nahi.</b><br>Koi aur month ya date chunein, ya data aane ke baad page reload karein.</div>`;return}
- const all=stat(rs),ps=PTS.map(p=>({...p,st:stat(rs.filter(r=>r.pk==p.k))}));CUR.ps=ps;
+ const all=stat(rs),ps=PTS.map(p=>{const x=rs.filter(r=>r.pk==p.k);return{...p,st:stat(x),rd:roundStats(p.k,x)}});CUR.ps=ps;
+ const rt={planned:ps.reduce((t,p)=>t+p.rd.planned,0),done:ps.reduce((t,p)=>t+p.rd.done,0),nd:ps.reduce((t,p)=>t+p.rd.nd,0)};
  const when=p=>{const m=uniq(base().filter(r=>r.pk==p.k).map(r=>r.m)).map(i=>MN[i]).join(', ');return m?'Data in: '+m:'Is year/filter mein koi row nahi'};
  const kp=[`<div class="k hero ${all.a>=TARGET?'':'bd2'}" style="--i:0"><i class="ic">${I('target')}</i><div class="l">Overall achieved SLA</div><div class="v">${fP(all.a)}</div><div class="d">Target ${TARGET}% · ${all.a>=TARGET?'▲ '+(all.a-TARGET).toFixed(1)+' pts above':'▼ '+(TARGET-all.a).toFixed(1)+' pts below'}</div></div>`]
-  .concat(ps.map((p,i)=>`<div class="k cl" data-d="${i}" style="--i:${i+1}"><i class="ic">${I(pIc(p.k))}</i><div class="l">${esc(p.t)} SLA</div><div class="v ${cls(p.st.a)}">${fP(p.st.a)}</div><div class="d">${p.st.n} submissions · ${p.st.below} day${p.st.below==1?'':'s'} below</div></div>`))
+  .concat(ps.map((p,i)=>`<div class="k cl" data-d="${i}" style="--i:${i+1}"><i class="ic">${I(pIc(p.k))}</i><div class="l">${esc(p.t)} SLA</div><div class="v ${cls(p.st.a)}">${fP(p.st.a)}</div><div class="d">${p.rd.done}/${p.rd.planned} rounds · ${p.rd.nd} not completed</div></div>`))
   .concat([`<div class="k" style="--i:${ps.length+1}"><i class="ic">${I('doc')}</i><div class="l">Submissions</div><div class="v">${fN(all.n)}</div><div class="d">${all.dn} day${all.dn==1?'':'s'} with data</div></div>`,
   `<div class="k" style="--i:${ps.length+2}"><i class="ic">${I('block')}</i><div class="l">Days below target</div><div class="v ${all.below?'b':'g'}">${all.below}</div><div class="d">All forms combined, daily avg</div></div>`,
-  `<div class="k" style="--i:${ps.length+3}"><i class="ic">${I('trend')}</i><div class="l">Best / worst day</div><div class="v" style="font-size:17px">${fP(all.best)} / ${fP(all.worst)}</div><div class="d">Daily average of all forms</div></div>`]).join('');
+  `<div class="k" style="--i:${ps.length+3}"><i class="ic">${I('cal')}</i><div class="l">Rounds completed / planned</div><div class="v ${rt.nd?'b':'g'}">${fN(rt.done)} / ${fN(rt.planned)}</div><div class="d">${fN(rt.nd)} not completed · ${rt.planned?fP((rt.planned-rt.nd)/rt.planned*100):'–'}</div></div>`]).join('');
  $('#app').innerHTML=`<h2>Overview <small>${per} · ${scope} · achieved SLA = average of submission scores</small></h2><div class="kg">${kp}</div>
  <h2>Daily SLA trend <small>${per} · <span class="leg"><span><i style="background:#2e9e5b"></i>≥ ${TARGET}% achieved</span><span><i style="background:#d4543a"></i>below ${TARGET}%</span><span>– – target</span></span></small></h2>
- <div class="tg" style="--n:${Math.min(ps.length,3)}">${ps.map((p,i)=>`<div class="c cl" data-d="${i}" style="--i:${i}"><div class="ct"><i class="ic">${I(pIc(p.k))}</i><b>${esc(p.t)}</b>${pill(p.st.a)}<small>${p.st.n?p.st.n+' submissions · '+p.st.below+' day'+(p.st.below==1?'':'s')+' below':'No data in '+per+' · '+when(p)}</small></div><div class="cv sm"><canvas id="p${i}"></canvas></div><div class="hint">Area detail ›</div></div>`).join('')}</div>
+ <div class="tg" style="--n:${Math.min(ps.length,3)}">${ps.map((p,i)=>`<div class="c cl" data-d="${i}" style="--i:${i}"><div class="ct"><i class="ic">${I(pIc(p.k))}</i><b>${esc(p.t)}</b>${pill(p.st.a)}<small>${p.st.n?p.rd.done+'/'+p.rd.planned+' rounds · '+p.rd.nd+' not completed · '+p.st.below+' day'+(p.st.below==1?'':'s')+' below':'No data in '+per+' · '+when(p)}</small></div><div class="cv sm"><canvas id="p${i}"></canvas></div><div class="hint">Area detail ›</div></div>`).join('')}</div>
  <h2>Area SLA <small>${per} · lowest areas first · line = ${TARGET}% target</small></h2>
  <div class="g3" style="--n:${Math.min(ps.length,3)}">${ps.map((p,i)=>{const ar=areaStats(p.k);return `<div class="c cl" data-d="${i}" style="--i:${i}"><div class="ct"><i class="ic">${I(pIc(p.k))}</i><b>${esc(p.t)}</b>${pill(p.st.a)}</div>${AREA.length?bl(ar,8):'<div class="msg" style="padding:14px">AreaScores tab load nahi hui</div>'}${ar.length>8?`<div class="hint">All ${ar.length} areas ›</div>`:'<div class="hint">Detail ›</div>'}</div>`}).join('')}</div>`;
  const vs=ps.flatMap(p=>p.st.s.vals.filter(x=>x!=null));CUR.ymin=vs.length?Math.max(0,Math.floor((Math.min(...vs,TARGET)-5)/5)*5):null;
@@ -173,12 +185,12 @@ function render(){
 function openDet(i){DI=(i+CUR.ps.length)%CUR.ps.length;$('#dv').classList.add('on');document.body.style.overflow='hidden';drawDet()}
 function closeDet(){$('#dv').classList.remove('on');document.body.style.overflow='';if(CH.dc){CH.dc.destroy();delete CH.dc}}
 function drawDet(){
- const p=CUR.ps[DI],{per,scope}=CUR,rs=sel().filter(r=>r.pk==p.k),st=stat(rs),s=st.s;
+ const p=CUR.ps[DI],{per,scope}=CUR,rs=sel().filter(r=>r.pk==p.k),st=stat(rs),s=st.s,RD=roundStats(p.k,rs);
  const byCo=uniq(sel({co:'All'}).filter(r=>r.pk==p.k).map(r=>r.co)).map(c=>({k:c,v:avg(sel({co:'All'}).filter(r=>r.pk==p.k&&r.co==c).map(r=>r.sc))})).filter(x=>x.v!=null);
  const byRd=uniq(sel({rd:'All'}).filter(r=>r.pk==p.k).map(r=>r.round)).map(c=>({k:c||'–',v:avg(sel({rd:'All'}).filter(r=>r.pk==p.k&&r.round==c).map(r=>r.sc))})).filter(x=>x.v!=null);
  const d=st.a-TARGET,ar=areaStats(p.k);
- const stats=[['Achieved SLA',fP(st.a),cls(st.a)=='g'?'ug':cls(st.a)=='b'?'ub':''],['Vs target '+TARGET+'%',st.a==null?'–':(d>=0?'▲ ':'▼ ')+Math.abs(d).toFixed(1)+' pts',d>=0?'ug':'ub'],['Submissions',fN(st.n),''],['Days with data',st.dn,''],['Days below target',st.below,st.below?'ub':'ug'],['Best day',fP(st.best),''],['Worst day',fP(st.worst),st.worst!=null&&st.worst<TARGET?'ub':'']];
- const trs=s.days.map((dy,j)=>s.vals[j]==null?'':`<tr><td>${dy}</td><td>${s.ns[j]}</td><td>${fP(s.vals[j])}</td><td>${pill(s.vals[j])}</td></tr>`).filter(Boolean).reverse().join('');
+ const stats=[['Achieved SLA',fP(st.a),cls(st.a)=='g'?'ug':cls(st.a)=='b'?'ub':''],['Vs target '+TARGET+'%',st.a==null?'–':(d>=0?'▲ ':'▼ ')+Math.abs(d).toFixed(1)+' pts',d>=0?'ug':'ub'],['Planned rounds',fN(RD.planned),''],['Completed',fN(RD.done),''],['Not completed',fN(RD.nd),RD.nd?'ub':'ug'],['Days with data',st.dn,''],['Days below target',st.below,st.below?'ub':'ug']];
+ const dsum={};rs.forEach(r=>(dsum[r.day]??=[]).push(r.sc));const trs=RD.days.slice().reverse().map(dy=>{const n=RD.cnt[dy]||0,nc=Math.max(0,RD.per-n),v=dsum[dy]?avg(dsum[dy]):null;return `<tr><td>${dy}</td><td>${n}</td><td>${RD.per}</td><td style="color:${nc?'var(--bad)':'var(--ok)'};font-weight:700">${nc}</td><td>${fP(v)}</td><td>${pill(v)}</td></tr>`}).join('');
  if(CH.dc){CH.dc.destroy();delete CH.dc}
  const sc=$('.dside')?.scrollTop||0;
  $('#dv').innerHTML=`<div class="dside">${CUR.ps.map((q,j)=>`<button class="ds ${j==DI?'on':''}" data-j="${j}"><span><i class="ic">${I(pIc(q.k))}</i>${esc(q.t)}</span><b>${fP(q.st.a)}</b></button>`).join('')}</div>
@@ -187,7 +199,7 @@ function drawDet(){
  <div class="c"><div class="cv big"><canvas id="dc"></canvas></div></div>
  <div class="g2b"><div><h3>Area SLA <small class="sub">· ${ar.length} areas, lowest first</small></h3>${AREA.length?bl(ar):'<div class="msg">AreaScores tab load nahi hui</div>'}</div>
  <div><h3>By company</h3>${bl(byCo)}<h3>By round</h3>${bl(byRd)}</div></div>
- <h3>Day by day</h3><div class="tw"><table><thead><tr><th>Date</th><th>Submissions</th><th>Daily SLA</th><th>Status</th></tr></thead><tbody>${trs||'<tr><td colspan="4">No data</td></tr>'}</tbody></table></div></div>`;
+ <h3>Day by day</h3><div class="tw"><table><thead><tr><th>Date</th><th>Done</th><th>Planned</th><th>Not completed</th><th>Daily SLA</th><th>Status</th></tr></thead><tbody>${trs||'<tr><td colspan="6">No data</td></tr>'}</tbody></table></div></div>`;
  $('.dside').scrollTop=sc;mk('dc',dailyCfg(st,p.t+' daily SLA',true));
 }
 $('#dv').onclick=e=>{const T=e.target,q=s=>T.closest(s);let x;if(q('#dx'))return closeDet();
