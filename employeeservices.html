@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Employee Services – SLA Dashboard</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#eef8f0;--sf:#fff;--sf2:#f5fbf6;--bd:#d5ebda;--tx:#133524;--mu:#5b7a66;--pr:#2e9e5b;--pd:#14532d;--pl:#cdeed8;--bad:#d4543a;--ok:#1f8a4c;--sh:0 1px 2px rgba(20,83,45,.06),0 6px 20px rgba(20,83,45,.05);--hh:54px}
+[data-theme=dark]{--bg:#0e1a13;--sf:#15251c;--sf2:#1a2d22;--bd:#25402f;--tx:#e3f3e8;--mu:#8fb09b;--pr:#4fcb84;--pd:#9be3b8;--pl:#1f3a2a;--bad:#ff7a60;--ok:#4fcb84;--sh:none}
+*{box-sizing:border-box;margin:0}body{font-family:Figtree,system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:14px}
+header{position:sticky;top:0;z-index:20;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;padding:8px 20px;flex-wrap:wrap}
+.logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#2e9e5b,#86e0a6);display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px}
+img.logo{width:auto;height:36px;max-width:150px;object-fit:contain;background:none;border-radius:0;display:block}
+h1{font-size:16px;font-weight:800;letter-spacing:-.01em}.sub{color:var(--mu);font-size:12px}.sp{flex:1}
+.btn{border:1px solid var(--bd);background:var(--sf2);color:var(--tx);padding:6px 11px;border-radius:10px;font:600 12.5px Figtree,sans-serif;cursor:pointer;transition:transform .15s,border-color .2s}.btn:hover{border-color:var(--pr);transform:translateY(-1px)}.btn:active{transform:scale(.94)}.btn.p{background:var(--pr);color:#fff;border-color:var(--pr)}.btn:disabled{opacity:.6;cursor:wait}
+:focus-visible{outline:2px solid var(--pr);outline-offset:2px}
+.nav{display:flex;gap:6px;flex-wrap:wrap}.nl{text-decoration:none;color:var(--tx);border:1px solid var(--bd);background:var(--sf2);padding:7px 15px;border-radius:99px;font:600 13px Figtree,sans-serif;transition:transform .15s,background .2s,border-color .2s}.nl:hover{border-color:var(--pr);transform:translateY(-1px)}.nl.on{background:var(--pr);border-color:var(--pr);color:#fff}
+main{max-width:1500px;margin:0 auto;padding:12px 24px 60px}
+.bar{position:sticky;top:calc(var(--hh) + 8px);z-index:15;border-radius:12px;padding:8px 12px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(14px) saturate(160%);backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(20,83,45,.10);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 2px 10px rgba(20,83,45,.05)}
+[data-theme=dark] .bar{background:rgba(21,37,28,.55);border-color:rgba(255,255,255,.10)}
+.f{display:flex;align-items:center;gap:5px}.f label{font-size:11px;color:var(--mu);font-weight:600;white-space:nowrap}
+select{border:1px solid rgba(20,83,45,.12);background:rgba(255,255,255,.5);color:var(--tx);padding:5px 8px;border-radius:8px;font:500 12.5px Figtree,sans-serif;max-width:140px}
+#mm{flex:1;min-width:260px;display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:none;border-left:1px solid var(--bd);padding-left:10px;margin-left:4px}#mm::-webkit-scrollbar{display:none}
+.mp{border:1px solid var(--bd);background:rgba(255,255,255,.5);color:var(--tx);padding:3px 10px;border-radius:99px;font:600 12px Figtree,sans-serif;cursor:pointer;white-space:nowrap;flex:none;transition:transform .15s,background .2s}.mp:hover{transform:translateY(-1px)}.mp.on{background:var(--pr);border-color:var(--pr);color:#fff}.mp.no{opacity:.45;cursor:default}.mp.no:hover{transform:none}
+.mlab{font-size:11px;color:var(--mu);font-weight:600;flex:none}
+h2{font-size:16px;font-weight:800;margin:20px 0 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}h2 small{font-weight:500;color:var(--mu);font-size:12px}
+h3{font-size:14px;font-weight:800;margin:20px 0 10px}
+.kg{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px}
+.k{position:relative;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;box-shadow:var(--sh);transition:transform .15s,box-shadow .2s}
+.k.cl{cursor:pointer}.k.cl:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(46,158,91,.22)}
+.k .l{color:var(--mu);font-size:11.5px;font-weight:600;padding-right:26px}.k .v{font-size:22px;font-weight:800;margin:3px 0 2px;letter-spacing:-.02em}.k .d{font-size:11px;font-weight:600;color:var(--mu)}
+.k .v.g{color:var(--ok)}.k .v.b{color:var(--bad)}
+.k.hero{background:linear-gradient(135deg,#2e9e5b,#1f7a45);border:0}.k.hero.bd2{background:linear-gradient(135deg,#d4543a,#a3321c)}.k.hero .l,.k.hero .d,.k.hero .v{color:#fff}
+.ic{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--pl);color:var(--pr);flex:none}.ic svg{width:17px;height:17px;fill:currentColor}
+.k .ic{position:absolute;top:9px;right:9px;width:22px;height:22px;border-radius:7px}.k .ic svg{width:13px;height:13px}.k.hero .ic{background:rgba(255,255,255,.22);color:#fff}
+.c{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;box-shadow:var(--sh)}.c+.c{margin-top:12px}
+.c.cl{cursor:pointer;transition:transform .15s,box-shadow .2s}.c.cl:hover{border-color:var(--pr);box-shadow:0 10px 26px rgba(46,158,91,.18)}
+.ct{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}.ct b{font-size:15px;font-weight:800}.ct small{color:var(--mu);font-size:12px}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:800}.pill.l{background:var(--pl);color:var(--pd)}.pill.h{background:#fde3dc;color:#a3321c}
+[data-theme=dark] .pill.h{background:rgba(255,100,95,.16);color:#ff9b98}
+.cv{position:relative;height:250px}.cv.big{height:320px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}.g3 .c+.c{margin-top:0}
+.hint{font-size:11px;color:var(--pr);font-weight:700;text-align:right;margin-top:6px}
+.leg{display:flex;gap:14px;font-size:11.5px;color:var(--mu);font-weight:600;flex-wrap:wrap;align-items:center}.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.bl{display:grid;grid-template-columns:minmax(120px,210px) 1fr 62px;gap:10px;align-items:center;padding:5px 0;font-size:12.5px}.bn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.bt{position:relative;background:var(--pl);border-radius:99px;height:10px}.bt i{display:block;height:100%;border-radius:99px;animation:gr .7s}.bt::after{content:"";position:absolute;left:95%;top:-3px;bottom:-3px;width:2px;background:var(--pd);opacity:.55}@keyframes gr{from{width:0}}.bl b{text-align:right}
+.tw{overflow:auto;max-height:420px;border:1px solid var(--bd);border-radius:12px;background:var(--sf)}
+table{border-collapse:collapse;width:100%;font-size:13px}th{position:sticky;top:0;background:var(--pl);color:var(--pd);text-align:right;padding:9px 12px;white-space:nowrap;font-weight:700}td{padding:8px 12px;border-top:1px solid var(--bd);text-align:right;font-variant-numeric:tabular-nums}th:first-child,td:first-child{text-align:left}tr:hover td{background:var(--sf2)}
+.msg{padding:40px;text-align:center;color:var(--mu)}.err{background:#fde3dc;color:#8b2a16;padding:12px 16px;border-radius:12px;margin-top:12px;display:none;line-height:1.6}.err code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:5px}
+.warn{background:#fff0c9;color:#7a5a00;padding:9px 14px;border-radius:12px;margin-top:10px;display:none;font-size:12.5px}
+/* detail overlay */
+.dv{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;grid-template-columns:250px 1fr}.dv.on{display:grid;animation:pop .22s}@keyframes pop{from{opacity:0;transform:scale(.985)}}
+.dside{overflow:auto;background:var(--sf);border-right:1px solid var(--bd);padding:12px;display:flex;flex-direction:column;gap:4px}
+.ds{display:flex;justify-content:space-between;gap:8px;border:0;background:transparent;color:var(--tx);padding:9px 11px;border-radius:11px;font:600 12.5px Figtree,sans-serif;cursor:pointer;text-align:left}.ds:hover{background:var(--sf2)}.ds.on{background:var(--pr);color:#fff}.ds b{font-weight:800}.ds .ic{width:24px;height:24px;border-radius:7px;margin-right:7px;vertical-align:middle}.ds .ic svg{width:14px;height:14px}.ds.on .ic{background:rgba(255,255,255,.22);color:#fff}
+.dmain{overflow:auto;padding:20px 26px 60px}.dh{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}.dh h2{margin:0;font-size:24px}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}.sg div{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:11px 13px}.sg small{display:block;color:var(--mu);font-size:11.5px;font-weight:600}.sg b{font-size:18px;font-weight:800}.ug{color:var(--ok)}.ub{color:var(--bad)}
+.g2b{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.g2b{grid-template-columns:1fr}main{padding:10px 14px}.dv.on{grid-template-columns:1fr;grid-template-rows:auto 1fr}.dside{flex-direction:row;border-right:0;border-bottom:1px solid var(--bd);overflow-x:auto}.ds{white-space:nowrap;gap:10px}.dmain{padding:14px}.bar{position:static}#mm{flex-basis:100%;border-left:0;padding-left:0;margin-left:0;margin-top:6px}.bl{grid-template-columns:100px 1fr 58px}}
+@media(prefers-reduced-motion:no-preference){.k,.c{animation:up .4s backwards;animation-delay:calc(var(--i,0)*35ms)}@keyframes up{from{opacity:0;transform:translateY(12px)}}}
+</style></head><body>
+<header><img class="logo" src="logo.png" alt="Logo" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo',textContent:'HR'}))"><div><h1>Employee Services – SLA Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
+<nav class="nav"><a class="nl" href="index.html">Home</a><a class="nl" href="hrbp.html">HRBP</a><a class="nl" href="admin.html">Admin Employee Service</a><a class="nl" href="cost-analysis.html">Cost Analysis</a><a class="nl on" href="employeeservices.html">Employee Services</a></nav></header>
+<main>
+<div class="err" id="er"></div><div class="warn" id="wn"></div>
+<div class="bar"><div class="f"><label>Company</label><select id="fc"></select></div><div class="f"><label>Year</label><select id="fy"></select></div><div class="f"><label>Round</label><select id="fr"></select></div><button class="btn" id="rs">Reset</button><button class="btn" id="rf">Refresh data</button><div id="mm"><span class="mlab">Month</span></div></div>
+<div id="app"><div class="msg">Loading…</div></div>
+</main>
+<div id="dv" class="dv"></div>
+<script>
+/* ===== DATA SOURCE =====
+   Published link of the sheet "Admin Employee service".
+   For the most reliable result paste the gid of each tab below (open the tab in Google Sheets, the URL shows ...#gid=123456).
+   Publish ONLY the Submissions and AreaScores tabs (File > Share > Publish to web > choose the tab, format CSV).
+   If a gid is left empty the page reads that tab by name through the sheet's normal "anyone with the link can view" access. */
+const PUB='https://docs.google.com/spreadsheets/d/e/2PACX-1vR_G6_fg9cUKFAoV8BfJGpTKLLmFoFKVph2XtAaKW03cwAjzsZnmNIjFdAUKeoPWOPogdOdC-s1vvKw/pub';
+const DOC='1LjKBfeNcPS43QowN_qInOxOWzRz3iUHWfSuDCxq0axU';
+const GID={sub:'',area:''};
+const TARGET=95;                         // achieved score >= 95 = green, below = red
+const ORDER=['mess','transport','housekeeping'];
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],$=s=>document.querySelector(s);
+const PAL=['#2e9e5b','#f0a35e','#14532d','#6cc78f','#4a8fd4','#a7e3bd'];
+const pad=n=>String(n).padStart(2,'0'),fP=v=>v==null?'–':v.toFixed(1)+'%',fN=v=>Math.round(v).toLocaleString('en-US');
+const okc=v=>v>=TARGET?'#2e9e5b':'#d4543a',esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
+const IC={target:'M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z',
+check:'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
+block:'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z',
+cal:'M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z',
+doc:'M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z',
+trend:'M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z',
+food:'M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z',
+home:'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z',
+bus:'M4 16c0 .88.39 1.67 1 2.22V20a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm9 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM6 11V6h12v5H6z'};
+const I=n=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${IC[n]||IC.doc}"/></svg>`;
+const pIc=k=>/transport/.test(k)?'bus':/house/.test(k)?'home':/mess/.test(k)?'food':'doc';
+
+let SUB=[],AREA=[],S={co:'All',y:0,rd:'All',m:'latest'},CH={},CUR={},DI=0,PTS=[];
+
+/* ---------- CSV ---------- */
+function parseCSV(t){const r=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}else if(c=='"')q=true;else if(c==','){row.push(f);f=''}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;row.push(f);r.push(row);row=[];f=''}else f+=c}if(f!==''||row.length){row.push(f);r.push(row)}return r}
+const rows=text=>{const t=parseCSV(text);if(!t.length)return[];const h=t[0].map(s=>s.trim().toLowerCase().replace(/[^a-z0-9]/g,''));return t.slice(1).filter(r=>r.length>3).map(r=>{const o={};h.forEach((k,i)=>o[k]=(r[i]??'').trim());return o})};
+function pd(o){const s=o.date||o.timestamp||'';let m=s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return{y:+m[1],m:+m[2]-1,d:+m[3]};
+ m=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);if(m)return{y:+m[3],m:+m[2]-1,d:+m[1]};const t=new Date(s);return isNaN(t)?null:{y:t.getFullYear(),m:t.getMonth(),d:t.getDate()}}
+const dstr=p=>p.y+'-'+pad(p.m+1)+'-'+pad(p.d);
+function ingest(sub,area){
+ SUB=rows(sub).map(o=>{const p=pd(o),sc=parseFloat(String(o.scorepct).replace('%',''));if(!p||isNaN(sc)||!o.point)return null;
+  return{id:o.submissionid,co:(o.company||'').toUpperCase(),point:o.point,pk:o.point.toLowerCase(),round:o.round||'',sc,y:p.y,m:p.m,day:dstr(p)}}).filter(Boolean);
+ AREA=rows(area||'').map(o=>{const p=pd(o);if(!p||!o.point||!o.area)return null;return{co:(o.company||'').toUpperCase(),pk:o.point.toLowerCase(),round:o.round||'',area:o.area,y:p.y,m:p.m,yes:+o.yes||0,part:+o.partially||0,no:+o.no||0}}).filter(Boolean);
+ if(!SUB.length)throw new Error('Submissions tab mein koi valid row (date, point, scorePct) nahi mili.');
+ const seen={};SUB.forEach(r=>{if(!seen[r.pk])seen[r.pk]=r.point});
+ PTS=Object.keys(seen).sort((a,b)=>{const x=ORDER.indexOf(a),y=ORDER.indexOf(b);return (x<0?99:x)-(y<0?99:y)||a.localeCompare(b)}).map(k=>({k,t:seen[k]}));
+ S.y=Math.max(...SUB.map(r=>r.y));
+}
+
+/* ---------- filters / stats ---------- */
+const base=(o={})=>{const s={...S,...o};return SUB.filter(r=>r.y==s.y&&(s.co=='All'||r.co==s.co)&&(s.rd=='All'||r.round==s.rd))};
+const monthRows=rs=>S.m=='ytd'?rs:rs.filter(r=>r.m==CUR.cm);
+const sel=(o={})=>monthRows(base(o));
+function series(rs){const dm={};rs.forEach(r=>(dm[r.day]??=[]).push(r.sc));let days;
+ if(S.m=='ytd')days=Object.keys(dm).sort();else{const n=new Date(S.y,CUR.cm+1,0).getDate();days=Array.from({length:n},(_,i)=>S.y+'-'+pad(CUR.cm+1)+'-'+pad(i+1))}
+ return{days,labels:days.map(d=>S.m=='ytd'?(+d.slice(8))+' '+MN[+d.slice(5,7)-1]:+d.slice(8)),vals:days.map(d=>dm[d]?avg(dm[d]):null),ns:days.map(d=>dm[d]?dm[d].length:0)}}
+function stat(rs){const s=series(rs),v=s.vals.filter(x=>x!=null);
+ return{n:rs.length,a:avg(rs.map(r=>r.sc)),s,dn:v.length,below:v.filter(x=>x<TARGET).length,best:v.length?Math.max(...v):null,worst:v.length?Math.min(...v):null}}
+function areaStats(pk,o={}){const s={...S,...o},m={};
+ AREA.filter(r=>r.pk==pk&&r.y==s.y&&(s.co=='All'||r.co==s.co)&&(s.rd=='All'||r.round==s.rd)&&(S.m=='ytd'||r.m==CUR.cm)).forEach(r=>{const a=m[r.area]??={y:0,p:0,n:0};a.y+=r.yes;a.p+=r.part;a.n+=r.no});
+ return Object.entries(m).map(([k,a])=>{const t=a.y+a.p+a.n;return{k,v:t?(a.y+a.p*.5)/t*100:null,n:t}}).filter(x=>x.v!=null).sort((x,y)=>x.v-y.v)}
+const pill=v=>v==null?'–':`<span class="pill ${v>=TARGET?'l':'h'}">${fP(v)}</span>`;
+const cls=v=>v==null?'':v>=TARGET?'g':'b';
+const bl=(arr,lim)=>{const A=lim?arr.slice(0,lim):arr;return A.length?A.map(x=>`<div class="bl" title="${esc(x.k)}: ${fP(x.v)}"><span class="bn">${esc(x.k)}</span><div class="bt"><i style="width:${Math.max(2,Math.min(100,x.v))}%;background:${okc(x.v)}"></i></div><b style="color:${okc(x.v)}">${fP(x.v)}</b></div>`).join(''):'<div class="msg" style="padding:14px">Is selection ke liye data nahi hai</div>'};
+
+/* ---------- ui ---------- */
+const uniq=a=>[...new Set(a)].sort();
+function fill(id,vals,cur,all){$(id).innerHTML=(all?'<option>All</option>':'')+vals.map(v=>`<option ${v==cur?'selected':''}>${v}</option>`).join('')}
+function filters(){fill('#fc',uniq(SUB.map(r=>r.co)),S.co,1);fill('#fy',uniq(SUB.map(r=>r.y)),S.y);fill('#fr',uniq(SUB.map(r=>r.round).filter(Boolean)),S.rd,1)}
+function months(av){$('#mm').innerHTML='<span class="mlab">Month</span>'+MN.map((m,i)=>`<button class="mp ${av.has(i)?'':'no'} ${S.m!='ytd'&&i==CUR.cm?'on':''}" data-m="${i}">${m}</button>`).join('')+`<button class="mp ${S.m=='ytd'?'on':''}" data-m="ytd">Full year</button>`}
+function mk(id,cfg){if(CH[id])CH[id].destroy();const e=document.getElementById(id);if(e)CH[id]=new Chart(e,cfg)}
+function destroy(){Object.keys(CH).forEach(k=>{try{CH[k].destroy()}catch(e){}delete CH[k]})}
+function dailyCfg(st,name,big){const s=st.s,v=s.vals.filter(x=>x!=null),mn=Math.max(0,Math.floor((Math.min(...v,TARGET)-5)/5)*5),mu=getComputedStyle(document.body).getPropertyValue('--mu');
+ return{type:'bar',data:{labels:s.labels,datasets:[{label:name,data:s.vals,backgroundColor:s.vals.map(x=>x==null?'transparent':okc(x)),borderRadius:4,order:2},{type:'line',label:'Target '+TARGET+'%',data:s.labels.map(()=>TARGET),borderColor:'#14532d',borderDash:[6,4],borderWidth:1.5,pointRadius:0,order:1}]},
+ options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>s.days[i[0].dataIndex],label:c=>c.datasetIndex==0?(c.parsed.y==null?'No submission':'SLA: '+fP(c.parsed.y)+' ('+s.ns[c.dataIndex]+' submission'+(s.ns[c.dataIndex]>1?'s':'')+')'):c.dataset.label}}},
+ scales:{x:{ticks:{color:mu,maxRotation:0,autoSkip:true,maxTicksLimit:big?40:31,font:{size:10}},grid:{display:false}},y:{min:mn,max:100,ticks:{color:mu,callback:v=>v+'%'},grid:{color:'rgba(120,160,135,.15)'}}}}}}
+
+function render(){
+ destroy();filters();
+ const b=base(),av=new Set(b.map(r=>r.m));CUR.cm=(S.m=='latest'||S.m=='ytd')?(av.size?Math.max(...av):0):+S.m;months(av);
+ const per=S.m=='ytd'?'Jan–Dec '+S.y:MN[CUR.cm]+' '+S.y,rs=monthRows(b),scope=(S.co=='All'?'All companies':S.co)+(S.rd!='All'?' · '+S.rd:'');CUR.per=per;CUR.scope=scope;
+ if(!rs.length){$('#app').innerHTML=`<div class="msg"><b>${per} ke liye abhi koi submission nahi.</b><br>Koi aur month chunein ya data aane ke baad Refresh data dabayen.</div>`;return}
+ const all=stat(rs),ps=PTS.map(p=>({...p,st:stat(rs.filter(r=>r.pk==p.k))})).filter(p=>p.st.n>0);CUR.ps=ps;
+ const kp=[`<div class="k hero ${all.a>=TARGET?'':'bd2'}" style="--i:0"><i class="ic">${I('target')}</i><div class="l">Overall achieved SLA</div><div class="v">${fP(all.a)}</div><div class="d">Target ${TARGET}% · ${all.a>=TARGET?'▲ '+(all.a-TARGET).toFixed(1)+' pts above':'▼ '+(TARGET-all.a).toFixed(1)+' pts below'}</div></div>`]
+  .concat(ps.map((p,i)=>`<div class="k cl" data-d="${i}" style="--i:${i+1}"><i class="ic">${I(pIc(p.k))}</i><div class="l">${esc(p.t)} SLA</div><div class="v ${cls(p.st.a)}">${fP(p.st.a)}</div><div class="d">${p.st.n} submissions · ${p.st.below} day${p.st.below==1?'':'s'} below</div></div>`))
+  .concat([`<div class="k" style="--i:${ps.length+1}"><i class="ic">${I('doc')}</i><div class="l">Submissions</div><div class="v">${fN(all.n)}</div><div class="d">${all.dn} day${all.dn==1?'':'s'} with data</div></div>`,
+  `<div class="k" style="--i:${ps.length+2}"><i class="ic">${I('block')}</i><div class="l">Days below target</div><div class="v ${all.below?'b':'g'}">${all.below}</div><div class="d">All forms combined, daily avg</div></div>`,
+  `<div class="k" style="--i:${ps.length+3}"><i class="ic">${I('trend')}</i><div class="l">Best / worst day</div><div class="v" style="font-size:17px">${fP(all.best)} / ${fP(all.worst)}</div><div class="d">Daily average of all forms</div></div>`]).join('');
+ $('#app').innerHTML=`<h2>Overview <small>${per} · ${scope} · achieved SLA = average of submission scores</small></h2><div class="kg">${kp}</div>
+ <h2>Daily SLA trend <small>${per} · <span class="leg"><span><i style="background:#2e9e5b"></i>≥ ${TARGET}% achieved</span><span><i style="background:#d4543a"></i>below ${TARGET}%</span><span>– – target</span></span></small></h2>
+ ${ps.map((p,i)=>`<div class="c cl" data-d="${i}" style="--i:${i}"><div class="ct"><i class="ic">${I(pIc(p.k))}</i><b>${esc(p.t)}</b>${pill(p.st.a)}<small>${per} achieved SLA · ${p.st.n} submissions · ${p.st.below} day${p.st.below==1?'':'s'} below target</small></div><div class="cv"><canvas id="p${i}"></canvas></div><div class="hint">Area detail ›</div></div>`).join('')}
+ <h2>Area SLA <small>${per} · lowest areas first · line = ${TARGET}% target</small></h2>
+ <div class="g3">${ps.map((p,i)=>{const ar=areaStats(p.k);return `<div class="c cl" data-d="${i}" style="--i:${i}"><div class="ct"><i class="ic">${I(pIc(p.k))}</i><b>${esc(p.t)}</b>${pill(p.st.a)}</div>${AREA.length?bl(ar,8):'<div class="msg" style="padding:14px">AreaScores tab load nahi hui</div>'}${ar.length>8?`<div class="hint">All ${ar.length} areas ›</div>`:'<div class="hint">Detail ›</div>'}</div>`}).join('')}</div>
+ <h2>All forms together <small>${per} · daily SLA</small></h2><div class="c"><div class="cv"><canvas id="pa"></canvas></div></div>`;
+ ps.forEach((p,i)=>mk('p'+i,dailyCfg(p.st,p.t+' daily SLA')));
+ const mu=getComputedStyle(document.body).getPropertyValue('--mu'),ds=ps.map((p,i)=>({label:p.t,data:p.st.s.vals,borderColor:PAL[i%PAL.length],backgroundColor:PAL[i%PAL.length],borderWidth:2.5,tension:.3,pointRadius:3,spanGaps:true}));
+ const s0=ps[0]?stat(rs).s:{labels:[],days:[]};
+ const sa=series(rs);ds.forEach((d,i)=>d.data=series(rs.filter(r=>r.pk==ps[i].k)).vals);
+ mk('pa',{type:'line',data:{labels:sa.labels,datasets:ds.concat([{label:'Target '+TARGET+'%',data:sa.labels.map(()=>TARGET),borderColor:'#14532d',borderDash:[6,4],borderWidth:1.5,pointRadius:0}])},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:mu,boxWidth:12}},tooltip:{callbacks:{title:i=>sa.days[i[0].dataIndex],label:c=>c.dataset.label+': '+fP(c.parsed.y)}}},scales:{x:{ticks:{color:mu,maxRotation:0,autoSkip:true,maxTicksLimit:31,font:{size:10}},grid:{display:false}},y:{max:100,ticks:{color:mu,callback:v=>v+'%'},grid:{color:'rgba(120,160,135,.15)'}}}}});
+}
+
+/* ---------- detail overlay ---------- */
+function openDet(i){DI=(i+CUR.ps.length)%CUR.ps.length;$('#dv').classList.add('on');document.body.style.overflow='hidden';drawDet()}
+function closeDet(){$('#dv').classList.remove('on');document.body.style.overflow='';if(CH.dc){CH.dc.destroy();delete CH.dc}}
+function drawDet(){
+ const p=CUR.ps[DI],{per,scope}=CUR,rs=sel().filter(r=>r.pk==p.k),st=stat(rs),s=st.s;
+ const byCo=uniq(sel({co:'All'}).filter(r=>r.pk==p.k).map(r=>r.co)).map(c=>({k:c,v:avg(sel({co:'All'}).filter(r=>r.pk==p.k&&r.co==c).map(r=>r.sc))})).filter(x=>x.v!=null);
+ const byRd=uniq(sel({rd:'All'}).filter(r=>r.pk==p.k).map(r=>r.round)).map(c=>({k:c||'–',v:avg(sel({rd:'All'}).filter(r=>r.pk==p.k&&r.round==c).map(r=>r.sc))})).filter(x=>x.v!=null);
+ const d=st.a-TARGET,ar=areaStats(p.k);
+ const stats=[['Achieved SLA',fP(st.a),cls(st.a)=='g'?'ug':cls(st.a)=='b'?'ub':''],['Vs target '+TARGET+'%',(d>=0?'▲ ':'▼ ')+Math.abs(d).toFixed(1)+' pts',d>=0?'ug':'ub'],['Submissions',fN(st.n),''],['Days with data',st.dn,''],['Days below target',st.below,st.below?'ub':'ug'],['Best day',fP(st.best),''],['Worst day',fP(st.worst),st.worst!=null&&st.worst<TARGET?'ub':'']];
+ const trs=s.days.map((dy,j)=>s.vals[j]==null?'':`<tr><td>${dy}</td><td>${s.ns[j]}</td><td>${fP(s.vals[j])}</td><td>${pill(s.vals[j])}</td></tr>`).filter(Boolean).reverse().join('');
+ if(CH.dc){CH.dc.destroy();delete CH.dc}
+ const sc=$('.dside')?.scrollTop||0;
+ $('#dv').innerHTML=`<div class="dside">${CUR.ps.map((q,j)=>`<button class="ds ${j==DI?'on':''}" data-j="${j}"><span><i class="ic">${I(pIc(q.k))}</i>${esc(q.t)}</span><b>${fP(q.st.a)}</b></button>`).join('')}</div>
+ <div class="dmain"><div class="dh"><button class="btn" data-nav="-1" aria-label="Previous">◀</button><div><div class="sub">Form ${DI+1} of ${CUR.ps.length} · ${per} · ${scope}</div><h2><i class="ic">${I(pIc(p.k))}</i> ${esc(p.t)}</h2></div><button class="btn" data-nav="1" aria-label="Next">▶</button><span class="sp"></span><button class="btn" id="dx">Close ✕</button></div>
+ <div class="sg">${stats.map(x=>`<div><small>${x[0]}</small><b class="${x[2]}">${x[1]}</b></div>`).join('')}</div>
+ <div class="c"><div class="cv big"><canvas id="dc"></canvas></div></div>
+ <div class="g2b"><div><h3>Area SLA <small class="sub">· ${ar.length} areas, lowest first</small></h3>${AREA.length?bl(ar):'<div class="msg">AreaScores tab load nahi hui</div>'}</div>
+ <div><h3>By company</h3>${bl(byCo)}<h3>By round</h3>${bl(byRd)}</div></div>
+ <h3>Day by day</h3><div class="tw"><table><thead><tr><th>Date</th><th>Submissions</th><th>Daily SLA</th><th>Status</th></tr></thead><tbody>${trs||'<tr><td colspan="4">No data</td></tr>'}</tbody></table></div></div>`;
+ $('.dside').scrollTop=sc;mk('dc',dailyCfg(st,p.t+' daily SLA',true));
+}
+$('#dv').onclick=e=>{const T=e.target,q=s=>T.closest(s);let x;if(q('#dx'))return closeDet();
+ if(x=q('[data-j]'))DI=+x.dataset.j;else if(x=q('[data-nav]'))DI=(DI+ +x.dataset.nav+CUR.ps.length)%CUR.ps.length;else return;drawDet()};
+$('#app').onclick=e=>{const c=e.target.closest('[data-d]');if(c)openDet(+c.dataset.d)};
+document.addEventListener('keydown',e=>{const on=$('#dv').classList.contains('on');if(!on)return;
+ if(e.key=='Escape')closeDet();else if(e.key=='ArrowRight'){DI=(DI+1)%CUR.ps.length;drawDet()}else if(e.key=='ArrowLeft'){DI=(DI-1+CUR.ps.length)%CUR.ps.length;drawDet()}});
+
+/* ---------- events ---------- */
+$('#fc').onchange=e=>{S.co=e.target.value;render()};$('#fy').onchange=e=>{S.y=+e.target.value;render()};$('#fr').onchange=e=>{S.rd=e.target.value;render()};
+$('#rs').onclick=()=>{S={co:'All',y:Math.max(...SUB.map(r=>r.y)),rd:'All',m:'latest'};render()};
+$('#rf').onclick=load;
+$('#mm').onclick=e=>{const b=e.target.closest('[data-m]');if(!b||b.classList.contains('no'))return;const m=b.dataset.m;S.m=m=='ytd'?'ytd':+m;render()};
+
+/* ---------- load ---------- */
+const csvUrl=(name,gid)=>(gid?`${PUB}?gid=${gid}&single=true&output=csv`:`https://docs.google.com/spreadsheets/d/${DOC}/gviz/tq?tqx=out:csv&sheet=${name}`)+'&t='+Date.now();
+async function get(name,gid){const r=await fetch(csvUrl(name,gid));if(!r.ok)throw new Error(name+': HTTP '+r.status);const t=await r.text();if(/^\s*<(!DOCTYPE|html)/i.test(t))throw new Error(name+': sheet public nahi hai ya gid galat hai');return t}
+async function load(){$('#st').textContent='Loading data…';$('#er').style.display='none';$('#wn').style.display='none';const b=$('#rf');b.disabled=true;
+ try{const [sub,area]=await Promise.all([get('Submissions',GID.sub),get('AreaScores',GID.area).catch(e=>{$('#wn').style.display='block';$('#wn').textContent='Area scores load nahi huay ('+e.message+'). Daily charts chal rahe hain, area detail khali rahegi.';return ''})]);
+  ingest(sub,area);$('#st').textContent='Live from Google Sheet · updated '+new Date().toLocaleTimeString();render()}
+ catch(e){console.error(e);$('#st').textContent='Could not load live data';const x=$('#er');x.style.display='block';
+  x.innerHTML='Data load nahi hua: <b>'+esc(e.message)+'</b><br>1) Sheet mein <code>Submissions</code> aur <code>AreaScores</code> tabs ko File &gt; Share &gt; Publish to web se CSV mein publish karein, aur har tab ka <code>gid</code> file ke upar <code>GID</code> mein paste karein.<br>2) Page ko website ya local server se kholein (file:// se fetch block ho sakta hai).'}
+ finally{b.disabled=false}}
+(function(){const h=document.querySelector('header'),u=()=>document.documentElement.style.setProperty('--hh',h.offsetHeight+'px');u();addEventListener('resize',u);if(window.ResizeObserver)new ResizeObserver(u).observe(h)})();
+load();
+</script></body></html>
