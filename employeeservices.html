@@ -82,6 +82,7 @@ const DOC='1LjKBfeNcPS43QowN_qInOxOWzRz3iUHWfSuDCxq0axU';
 const GID={sub:'265262700',area:'1481590677'};
 const TARGET=95;                         // achieved score >= 95 = green, below = red
 const ORDER=['mess','transport','housekeeping'];
+const OFF_SUNDAYS=true;                 // true = Sunday ko planned rounds mein nahi ginna
 const PERSONS=2,ROUNDS=2;               // 2 inspectors, har point ke 2 rounds: 1 inspector = 3 points × 2 = 6 rounds/din, 2 inspectors = 12 rounds/din (company se farq nahi)
 const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],$=s=>document.querySelector(s);
 const PAL=['#2e9e5b','#f0a35e','#14532d','#6cc78f','#4a8fd4','#a7e3bd'];
@@ -141,10 +142,10 @@ function elapsedDays(){const t=new Date();t.setHours(0,0,0,0);let a,z;
  if(S.dt!='All'){const [y,m,d]=S.dt.split('-').map(Number);a=z=new Date(y,m-1,d)}
  else if(S.m=='ytd'){a=new Date(S.y,0,1);z=new Date(S.y,11,31)}
  else{a=new Date(S.y,CUR.cm,1);z=new Date(S.y,CUR.cm+1,0)}
- if(z>t)z=t;const out=[];for(let d=new Date(a);d<=z;d.setDate(d.getDate()+1))out.push(dstr({y:d.getFullYear(),m:d.getMonth(),d:d.getDate()}));return out}
+ if(z>t)z=t;const out=[];for(let d=new Date(a);d<=z;d.setDate(d.getDate()+1))if(!(OFF_SUNDAYS&&d.getDay()==0))out.push(dstr({y:d.getFullYear(),m:d.getMonth(),d:d.getDate()}));return out}
 function planPerDay(pk){return PERSONS*(S.rd=='All'?ROUNDS:1)}
 function roundStats(pk,rs){const per=planPerDay(pk),days=elapsedDays(),cnt={};rs.forEach(r=>cnt[r.day]=(cnt[r.day]||0)+1);
- return{per,days,cnt,planned:per*days.length,done:rs.length,nd:days.reduce((t,d)=>t+Math.max(0,per-(cnt[d]||0)),0)}}
+ return{per,days,cnt,planned:per*days.length,done:days.reduce((t,d)=>t+(cnt[d]||0),0),nd:days.reduce((t,d)=>t+Math.max(0,per-(cnt[d]||0)),0)}}
 
 /* ---------- ui ---------- */
 const uniq=a=>[...new Set(a)].sort();
@@ -171,7 +172,7 @@ function render(){
   .concat(ps.map((p,i)=>`<div class="k cl" data-d="${i}" style="--i:${i+1}"><i class="ic">${I(pIc(p.k))}</i><div class="l">${esc(p.t)} SLA</div><div class="v ${cls(p.st.a)}">${fP(p.st.a)}</div><div class="d">${p.rd.done}/${p.rd.planned} rounds · ${p.rd.nd} not completed</div></div>`))
   .concat([`<div class="k" style="--i:${ps.length+1}"><i class="ic">${I('doc')}</i><div class="l">Submissions</div><div class="v">${fN(all.n)}</div><div class="d">${all.dn} day${all.dn==1?'':'s'} with data</div></div>`,
   `<div class="k" style="--i:${ps.length+2}"><i class="ic">${I('block')}</i><div class="l">Days below target</div><div class="v ${all.below?'b':'g'}">${all.below}</div><div class="d">All forms combined, daily avg</div></div>`,
-  `<div class="k" title="Planned = ${rt.planned&&ps.length?fN(ps.reduce((t,p)=>t+p.rd.per,0)):0} rounds/din: ${PERSONS} inspectors × ${S.rd=='All'?ROUNDS:1} round × ${ps.length} points" style="--i:${ps.length+3}"><i class="ic">${I('cal')}</i><div class="l">Rounds completed / planned</div><div class="v ${rt.nd?'b':'g'}">${fN(rt.done)} / ${fN(rt.planned)}</div><div class="d">${fN(rt.nd)} not completed · ${rt.planned?fP((rt.planned-rt.nd)/rt.planned*100):'–'}</div></div>`]).join('');
+  `<div class="k" title="Planned = ${rt.planned&&ps.length?fN(ps.reduce((t,p)=>t+p.rd.per,0)):0} rounds/din: ${PERSONS} inspectors × ${S.rd=='All'?ROUNDS:1} round × ${ps.length} points${OFF_SUNDAYS?' · Sunday off':''}" style="--i:${ps.length+3}"><i class="ic">${I('cal')}</i><div class="l">Rounds completed / planned</div><div class="v ${rt.nd?'b':'g'}">${fN(rt.done)} / ${fN(rt.planned)}</div><div class="d">${fN(rt.nd)} not completed · ${rt.planned?fP((rt.planned-rt.nd)/rt.planned*100):'–'}</div></div>`]).join('');
  $('#app').innerHTML=`<h2>Overview <small>${per} · ${scope} · achieved SLA = average of submission scores</small></h2><div class="kg">${kp}</div>
  <h2>Daily SLA trend <small>${per} · <span class="leg"><span><i style="background:#2e9e5b"></i>≥ ${TARGET}% achieved</span><span><i style="background:#d4543a"></i>below ${TARGET}%</span><span>– – target</span></span></small></h2>
  <div class="tg" style="--n:${Math.min(ps.length,3)}">${ps.map((p,i)=>`<div class="c cl" data-d="${i}" style="--i:${i}"><div class="ct"><i class="ic">${I(pIc(p.k))}</i><b>${esc(p.t)}</b>${pill(p.st.a)}<small>${p.st.n?p.rd.done+'/'+p.rd.planned+' rounds · '+p.rd.nd+' not completed · '+p.st.below+' day'+(p.st.below==1?'':'s')+' below':'No data in '+per+' · '+when(p)}</small></div><div class="cv sm"><canvas id="p${i}"></canvas></div><div class="hint">Area detail ›</div></div>`).join('')}</div>
