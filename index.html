@@ -34,8 +34,8 @@ h2{font-size:16px;font-weight:800;margin:26px 0 12px;display:flex;align-items:ce
 .tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
 .c{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px;box-shadow:var(--sh)}
 .c .t{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-weight:700;font-size:13px}.c .t span{color:var(--pr);font-weight:800}
-.cv{position:relative;height:130px}.cv.big{height:300px}
-.g2{display:grid;grid-template-columns:2fr 1fr;gap:12px}.g2b{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.cv{position:relative;height:130px;min-width:0;overflow:hidden}.cv.big{height:300px}
+.g2{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:12px}.g2b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:12px}.g2>.c,.g2b>.c{min-width:0;overflow:hidden}.cv canvas{max-width:100%}
 .tw{overflow:auto;max-height:480px;border:1px solid var(--bd);border-radius:14px;background:var(--sf)}
 table{border-collapse:collapse;width:100%;font-size:13px}th{position:sticky;top:0;background:var(--pl);color:var(--pd);text-align:right;padding:10px 12px;cursor:pointer;white-space:nowrap;font-weight:700}
 th:nth-child(-n+3),td:nth-child(-n+3){text-align:left}td{padding:9px 12px;border-top:1px solid var(--bd);text-align:right;font-variant-numeric:tabular-nums}tr:hover td{background:var(--sf2)}
@@ -131,32 +131,6 @@ img.logo{width:auto;height:36px;max-width:150px;object-fit:contain;background:no
 @media(max-width:700px){.bar{position:static}}
 /* page content fades out as it reaches the top edge while scrolling */
 .rl{transition:none!important;will-change:opacity}
-
-/* Overview KPI boxes: headcount box tall (2 rows), baaki 7 + 7 */
-@media(min-width:1100px){
- .kg{grid-template-columns:minmax(170px,.8fr) repeat(7,1fr);gap:8px}
- .k{padding:8px 11px}
- .k .l{font-size:11.5px}
- .k .v{font-size:19px;margin:3px 0 1px}
- .k .d{font-size:10.5px}
- .sl{height:14px;margin-top:4px}
- .k.hero{grid-row:span 2;display:flex;flex-direction:column;padding:14px 16px}
- .k.hero .l{font-size:12.5px}
- .k.hero .v{font-size:32px;margin:10px 0 2px}
- .k.hero .d{font-size:12px}
- .k.hero .sl{margin-top:auto;height:34px}
-}
-@media(min-width:700px) and (max-width:1099px){
- .kg{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
-}
-
-/* Breakdown charts: pie/doughnut screen se bahar na jaye, ek view mein fit */
-.g2>*,.g2b>*,.tg>*,.kg>*{min-width:0}
-.g2 .c{overflow:hidden}
-.cv{min-width:0;width:100%;max-width:100%}
-.cv canvas{max-width:100%}
-body{overflow-x:clip}
-@media(min-width:901px){.g2{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}}
 </style></head><body>
 <header><img class="logo" src="logo.png" alt="Logo" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo',textContent:'HR'}))"><div><h1>HR Analytics Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
 <nav class="nav"><a class="nl on" href="index.html">Home</a><a class="nl" href="hrbp.html">HRBP</a><a class="nl" href="employeeservices.html">Employee Services</a><a class="nl" href="admin.html">Admin Service</a><a class="nl" href="cost-analysis.html">Cost Analysis</a></nav><span class="vd" aria-hidden="true"></span><button class="btn p" id="rp" title="Generate PDF report"><svg class="ri" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM8 18v-5h2v5H8zm3 0v-8h2v8h-2zm3 0v-3h2v3h-2zm-1-9V3.5L18.5 9H13z"/></svg>Report</button></header>
@@ -259,7 +233,7 @@ const fmtFor=k=>KP.find(x=>x.k==k).f;
 function fill(id,vals,cur,all){const e=$(id);e.innerHTML=(all?`<option>All</option>`:'')+vals.map(v=>`<option ${v==cur?'selected':''}>${v}</option>`).join('')}
 
 const spark=(tr,k,f)=>{const pts=tr.map((x,i)=>x?[i,x[k]]:null).filter(Boolean);if(!pts.length)return'';const vs=pts.map(p=>p[1]),mn=Math.min(...vs),mx=Math.max(...vs),r=mx-mn||1,xy=p=>[(p[0]/11*96+2).toFixed(1),(20-(p[1]-mn)/r*16).toFixed(1)];
- const tp=pts.map(p=>MN[p[0]]+': '+f(p[1])).join('&#10;');return pts.length>1?`<svg class="sl" data-tip="${tp}" viewBox="0 0 100 24" preserveAspectRatio="none"><polyline pathLength="1" points="${pts.map(p=>xy(p).join(',')).join(' ')}"/></svg>`:`<svg class="sl" data-tip="${tp}" viewBox="0 0 100 24"><circle cx="${xy(pts[0])[0]}" cy="12" r="3"/></svg>`};
+ const tp=pts.map(p=>MN[p[0]]+': '+f(p[1])).join('&#10;');return pts.length>1?`<svg class="sl" data-tip="${tp}" viewBox="0 0 100 24"><polyline pathLength="1" points="${pts.map(p=>xy(p).join(',')).join(' ')}"/></svg>`:`<svg class="sl" data-tip="${tp}" viewBox="0 0 100 24"><circle cx="${xy(pts[0])[0]}" cy="12" r="3"/></svg>`};
 const mtip=(tr,i)=>tr[i]?`${MN[i]} ${S.y}&#10;Headcount: ${fN(tr[i].cur)}&#10;OT cost: ${fN(tr[i].otc)}&#10;Absenteeism: ${fP(tr[i].abs)}`:`${MN[i]} ${S.y}: no data yet`;
 const LV={};
 function countUp(){const rm=matchMedia('(prefers-reduced-motion:reduce)').matches;document.querySelectorAll('.v[data-ck]').forEach(e=>{const k=e.dataset.ck,to=+e.dataset.cv,from=LV[k]??0,f=KP.find(x=>x.k==k).f;LV[k]=to;if(rm||from===to){e.textContent=f(to);return}const t0=performance.now();(function st(t){const p=Math.min(1,(t-t0)/700),z=1-Math.pow(1-p,3);e.textContent=f(from+(to-from)*z);if(p<1)requestAnimationFrame(st)})(t0)})}
@@ -308,7 +282,7 @@ function render(){
  const ax={ticks:{color:gc},grid:{color:'rgba(120,160,135,.15)'}},base_={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:gc,boxWidth:12}}}};
  mk('c1',{type:'bar',data:{labels:dg.map(x=>x.k),datasets:[{label:'Own OT cost',data:dg.map(x=>x.a.otc),backgroundColor:'#2e9e5b',borderRadius:5},{label:'TP OT cost',data:dg.map(x=>x.a.tpc),backgroundColor:'#a7e3bd',borderRadius:5}]},options:{...base_,indexAxis:'y',interaction:{mode:'index',axis:'y',intersect:false},plugins:{...base_.plugins,tooltip:{callbacks:{label:c=>c.dataset.label+': '+fN(c.parsed.x),footer:it=>'Total: '+fN(it.reduce((q,i)=>q+i.parsed.x,0))}}},scales:{x:{...ax,stacked:true},y:{...ax,stacked:true}}}});
  const al=AL.map(k=>[k,rs.reduce((s,r)=>s+(r.d[k]||0),0)]).filter(x=>x[1]>0);
- mk('c2',{type:'doughnut',data:{labels:al.map(x=>x[0]),datasets:[{data:al.map(x=>x[1]),backgroundColor:PAL,borderWidth:0}]},options:{...base_,cutout:'62%',plugins:{legend:{position:'bottom',labels:{color:gc,boxWidth:10,font:{size:11}}},tooltip:{callbacks:{label:c=>{const t=c.dataset.data.reduce((q,z)=>q+z,0);return c.label+': '+fN(c.parsed)+' ('+(c.parsed/t*100).toFixed(1)+'%)'}}}}}});
+ mk('c2',{type:'doughnut',data:{labels:al.map(x=>x[0]),datasets:[{data:al.map(x=>x[1]),backgroundColor:PAL,borderWidth:0}]},options:{...base_,cutout:'62%',layout:{padding:8},plugins:{legend:{position:'bottom',labels:{color:gc,boxWidth:10,padding:8,font:{size:11}}},tooltip:{callbacks:{label:c=>{const t=c.dataset.data.reduce((q,z)=>q+z,0);return c.label+': '+fN(c.parsed)+' ('+(c.parsed/t*100).toFixed(1)+'%)'}}}}}});
  table(rs);$('#q').oninput=e=>{S.q=e.target.value;table(rs)};
 }
 function trends(tr,cm){const g=$('#tg');if(!g)return;const mu=getComputedStyle(document.body).getPropertyValue('--mu');
