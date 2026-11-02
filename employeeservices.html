@@ -107,7 +107,7 @@ let SKIP={},SUB=[],AREA=[],S={co:'All',y:0,rd:'All',m:'latest',dt:'All'},CH={},C
 function parseCSV(t){const r=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}else if(c=='"')q=true;else if(c==','){row.push(f);f=''}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;row.push(f);r.push(row);row=[];f=''}else f+=c}if(f!==''||row.length){row.push(f);r.push(row)}return r}
 const rows=text=>{const t=parseCSV(text);if(!t.length)return[];const h=t[0].map(s=>s.trim().toLowerCase().replace(/[^a-z0-9]/g,''));return t.slice(1).filter(r=>r.length>3).map(r=>{const o={};h.forEach((k,i)=>o[k]=(r[i]??'').trim());return o})};
 function pd(o){const s=o.date||o.timestamp||'';let m=s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return{y:+m[1],m:+m[2]-1,d:+m[3]};
- m=s.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);if(m){const a=+m[1],b=+m[2];return b>12?{y:+m[3],m:a-1,d:b}:{y:+m[3],m:b-1,d:a}}const t=new Date(s);return isNaN(t)?null:{y:t.getFullYear(),m:t.getMonth(),d:t.getDate()}}
+ m=s.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);if(m)return{y:+m[3],m:+m[1]-1,d:+m[2]}; /* MM/DD/YYYY */const t=new Date(s);return isNaN(t)?null:{y:t.getFullYear(),m:t.getMonth(),d:t.getDate()}}
 const dstr=p=>p.y+'-'+pad(p.m+1)+'-'+pad(p.d);
 function ingest(sub,area){
  SKIP={};const sk=(o,why)=>{const k=(o.point||'(point khali)')+' – '+why;SKIP[k]=(SKIP[k]||0)+1;return null};
