@@ -67,7 +67,7 @@ table{border-collapse:collapse;width:100%;font-size:13px}th{position:sticky;top:
 <nav class="nav"><a class="nl" href="index.html">Home</a><a class="nl" href="hrbp.html">HRBP</a><a class="nl on" href="employeeservices.html">Employee Services</a><a class="nl" href="admin.html">Admin Service</a><a class="nl" href="cost-analysis.html">Cost Analysis</a></nav></header>
 <main>
 <div class="err" id="er"></div><div class="warn" id="wn"></div>
-<div class="bar"><div class="f"><label>Company</label><select id="fc"></select></div><div class="f"><label>Year</label><select id="fy"></select></div><div class="f"><label>Round</label><select id="fr"></select></div><div class="f"><label>Date</label><input type="date" id="fd"><button class="btn" id="fx" title="Date clear karein" aria-label="Clear date">✕</button></div><button class="btn" id="rs">Reset</button><div id="mm"><span class="mlab">Month</span></div></div>
+<div class="bar"><div class="f"><label>Company</label><select id="fc"></select></div><div class="f"><label>Year</label><select id="fy"></select></div><div class="f"><label>Round</label><select id="fr"></select></div><div class="f"><label>Date</label><input type="date" id="fd"><button class="btn" id="fx" title="Clear date" aria-label="Clear date">✕</button></div><button class="btn" id="rs">Reset</button><div id="mm"><span class="mlab">Month</span></div></div>
 <div id="app"><div class="msg">Loading…</div></div>
 </main>
 <div id="dv" class="dv"></div>
@@ -82,8 +82,8 @@ const DOC='1LjKBfeNcPS43QowN_qInOxOWzRz3iUHWfSuDCxq0axU';
 const GID={sub:'265262700',area:'1481590677'};
 const TARGET=95;                         // achieved score >= 95 = green, below = red
 const ORDER=['mess','transport','housekeeping'];
-const OFF_SUNDAYS=true;                 // true = Sunday ko planned rounds mein nahi ginna
-const PERSONS=2,ROUNDS=2;               // 2 inspectors, har point ke 2 rounds: 1 inspector = 3 points × 2 = 6 rounds/din, 2 inspectors = 12 rounds/din (company se farq nahi)
+const OFF_SUNDAYS=true;                 // true = Sundays are not counted in planned rounds
+const PERSONS=2,ROUNDS=2;               // 2 inspectors, 2 rounds per point: 1 inspector = 3 points × 2 = 6 rounds/day, 2 inspectors = 12 rounds/day (same for every company)
 const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],$=s=>document.querySelector(s);
 const PAL=['#2e9e5b','#f0a35e','#14532d','#6cc78f','#4a8fd4','#a7e3bd'];
 const pad=n=>String(n).padStart(2,'0'),fP=v=>v==null?'–':v.toFixed(1)+'%',fN=v=>Math.round(v).toLocaleString('en-US');
@@ -110,11 +110,11 @@ function pd(o){const s=o.date||o.timestamp||'';let m=s.match(/(\d{4})-(\d{1,2})-
  m=s.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);if(m)return{y:+m[3],m:+m[1]-1,d:+m[2]}; /* MM/DD/YYYY */const t=new Date(s);return isNaN(t)?null:{y:t.getFullYear(),m:t.getMonth(),d:t.getDate()}}
 const dstr=p=>p.y+'-'+pad(p.m+1)+'-'+pad(p.d);
 function ingest(sub,area){
- SKIP={};const sk=(o,why)=>{const k=(o.point||'(point khali)')+' – '+why;SKIP[k]=(SKIP[k]||0)+1;return null};
- SUB=rows(sub).map(o=>{const p=pd(o),sc=parseFloat(String(o.scorepct).replace('%',''));if(!o.point)return sk(o,'point khali');if(!p)return sk(o,'date samajh nahi aayi');if(isNaN(sc))return sk(o,'scorePct khali/galat');
+ SKIP={};const sk=(o,why)=>{const k=(o.point||'(point empty)')+' – '+why;SKIP[k]=(SKIP[k]||0)+1;return null};
+ SUB=rows(sub).map(o=>{const p=pd(o),sc=parseFloat(String(o.scorepct).replace('%',''));if(!o.point)return sk(o,'point empty');if(!p)return sk(o,'date could not be read');if(isNaN(sc))return sk(o,'scorePct empty/invalid');
   return{id:o.submissionid,co:(o.company||'').toUpperCase(),point:o.point,pk:o.point.toLowerCase(),round:o.round||'',sc,y:p.y,m:p.m,day:dstr(p)}}).filter(Boolean);
  AREA=rows(area||'').map(o=>{const p=pd(o);if(!p||!o.point||!o.area)return null;return{co:(o.company||'').toUpperCase(),pk:o.point.toLowerCase(),round:o.round||'',area:o.area,y:p.y,m:p.m,day:dstr(p),yes:+o.yes||0,part:+o.partially||0,no:+o.no||0}}).filter(Boolean);
- if(!SUB.length)throw new Error('Submissions tab mein koi valid row (date, point, scorePct) nahi mili.');
+ if(!SUB.length)throw new Error('No valid rows (date, point, scorePct) found in the Submissions tab.');
  const seen={};SUB.forEach(r=>{if(!seen[r.pk])seen[r.pk]=r.point});
  PTS=Object.keys(seen).sort((a,b)=>{const x=ORDER.indexOf(a),y=ORDER.indexOf(b);return (x<0?99:x)-(y<0?99:y)||a.localeCompare(b)}).map(k=>({k,t:seen[k]}));
  S.y=defY();
@@ -135,7 +135,7 @@ function areaStats(pk,o={}){const s={...S,...o},m={};
  return Object.entries(m).map(([k,a])=>{const t=a.y+a.p+a.n;return{k,v:t?(a.y+a.p*.5)/t*100:null,n:t}}).filter(x=>x.v!=null).sort((x,y)=>x.v-y.v)}
 const pill=v=>v==null?'–':`<span class="pill ${v>=TARGET?'l':'h'}">${fP(v)}</span>`;
 const cls=v=>v==null?'':v>=TARGET?'g':'b';
-const bl=(arr,lim)=>{const A=lim?arr.slice(0,lim):arr;return A.length?A.map(x=>`<div class="bl" title="${esc(x.k)}: ${fP(x.v)}"><span class="bn">${esc(x.k)}</span><div class="bt"><i style="width:${Math.max(2,Math.min(100,x.v))}%;background:${okc(x.v)}"></i></div><b style="color:${okc(x.v)}">${fP(x.v)}</b></div>`).join(''):'<div class="msg" style="padding:14px">Is selection ke liye data nahi hai</div>'};
+const bl=(arr,lim)=>{const A=lim?arr.slice(0,lim):arr;return A.length?A.map(x=>`<div class="bl" title="${esc(x.k)}: ${fP(x.v)}"><span class="bn">${esc(x.k)}</span><div class="bt"><i style="width:${Math.max(2,Math.min(100,x.v))}%;background:${okc(x.v)}"></i></div><b style="color:${okc(x.v)}">${fP(x.v)}</b></div>`).join(''):'<div class="msg" style="padding:14px">No data for this selection</div>'};
 
 /* ---------- planned rounds vs completed ---------- */
 function elapsedDays(){const t=new Date();t.setHours(0,0,0,0);let a,z;
@@ -164,19 +164,19 @@ function render(){
  const b=base(),av=new Set(b.map(r=>r.m));const nm=new Date().getMonth();CUR.cm=S.m=='latest'?(av.has(nm)?nm:av.size?Math.max(...av):nm):S.m=='ytd'?(av.size?Math.max(...av):0):+S.m;months(av);
  if(S.dt!='All'&&S.m!='ytd'&&+S.dt.slice(5,7)-1!=CUR.cm)S.dt='All';$('#fd').value=S.dt=='All'?'':S.dt;
  const per=S.dt!='All'?S.dt:S.m=='ytd'?'Jan–Dec '+S.y:MN[CUR.cm]+' '+S.y,rs=monthRows(b),scope=(S.co=='All'?'All companies':S.co)+(S.rd!='All'?' · '+S.rd:'');CUR.per=per;CUR.scope=scope;
- if(!rs.length){$('#app').innerHTML=`<div class="msg"><b>${per} ke liye abhi koi submission nahi.</b><br>Koi aur month ya date chunein, ya data aane ke baad page reload karein.</div>`;return}
+ if(!rs.length){$('#app').innerHTML=`<div class="msg"><b>No submissions for ${per} yet.</b><br>Choose another month or date, or reload the page once data comes in.</div>`;return}
  const all=stat(rs),ps=PTS.map(p=>{const x=rs.filter(r=>r.pk==p.k);return{...p,st:stat(x),rd:roundStats(p.k,x)}});CUR.ps=ps;
  const rt={planned:ps.reduce((t,p)=>t+p.rd.planned,0),done:ps.reduce((t,p)=>t+p.rd.done,0),nd:ps.reduce((t,p)=>t+p.rd.nd,0)};
- const when=p=>{const m=uniq(base().filter(r=>r.pk==p.k).map(r=>r.m)).map(i=>MN[i]).join(', ');return m?'Data in: '+m:'Is year/filter mein koi row nahi'};
+ const when=p=>{const m=uniq(base().filter(r=>r.pk==p.k).map(r=>r.m)).map(i=>MN[i]).join(', ');return m?'Data in: '+m:'No rows for this year/filter'};
  const kp=[`<div class="k hero ${all.a>=TARGET?'':'bd2'}" style="--i:0"><i class="ic">${I('target')}</i><div class="l">Overall achieved SLA</div><div class="v">${fP(all.a)}</div><div class="d">Target ${TARGET}% · ${all.a>=TARGET?'▲ '+(all.a-TARGET).toFixed(1)+' pts above':'▼ '+(TARGET-all.a).toFixed(1)+' pts below'}</div></div>`]
   .concat(ps.map((p,i)=>`<div class="k cl" data-d="${i}" style="--i:${i+1}"><i class="ic">${I(pIc(p.k))}</i><div class="l">${esc(p.t)} SLA</div><div class="v ${cls(p.st.a)}">${fP(p.st.a)}</div><div class="d">${p.rd.done}/${p.rd.planned} rounds · ${p.rd.nd} not completed</div></div>`))
   .concat([`<div class="k" style="--i:${ps.length+1}"><i class="ic">${I('doc')}</i><div class="l">Submissions</div><div class="v">${fN(all.n)}</div><div class="d">${all.dn} day${all.dn==1?'':'s'} with data</div></div>`,
-  `<div class="k" title="Planned = ${rt.planned&&ps.length?fN(ps.reduce((t,p)=>t+p.rd.per,0)):0} rounds/din: ${PERSONS} inspectors × ${S.rd=='All'?ROUNDS:1} round × ${ps.length} points${OFF_SUNDAYS?' · Sunday off':''}" style="--i:${ps.length+2}"><i class="ic">${I('cal')}</i><div class="l">Rounds completed / planned</div><div class="v ${rt.nd?'b':'g'}">${fN(rt.done)} / ${fN(rt.planned)}</div><div class="d">${fN(rt.nd)} not completed · ${rt.planned?fP((rt.planned-rt.nd)/rt.planned*100):'–'}</div></div>`]).join('');
+  `<div class="k" title="Planned = ${rt.planned&&ps.length?fN(ps.reduce((t,p)=>t+p.rd.per,0)):0} rounds/day: ${PERSONS} inspectors × ${S.rd=='All'?ROUNDS:1} round × ${ps.length} points${OFF_SUNDAYS?' · Sunday off':''}" style="--i:${ps.length+2}"><i class="ic">${I('cal')}</i><div class="l">Rounds completed / planned</div><div class="v ${rt.nd?'b':'g'}">${fN(rt.done)} / ${fN(rt.planned)}</div><div class="d">${fN(rt.nd)} not completed · ${rt.planned?fP((rt.planned-rt.nd)/rt.planned*100):'–'}</div></div>`]).join('');
  $('#app').innerHTML=`<h2>Overview <small>${per} · ${scope} · achieved SLA = average of submission scores</small></h2><div class="kg">${kp}</div>
  <h2>Daily SLA trend <small>${per} · <span class="leg"><span><i style="background:#2e9e5b"></i>≥ ${TARGET}% achieved</span><span><i style="background:#d4543a"></i>below ${TARGET}%</span><span>– – target</span></span></small></h2>
  <div class="tg" style="--n:${Math.min(ps.length,3)}">${ps.map((p,i)=>`<div class="c cl" data-d="${i}" style="--i:${i}"><div class="ct"><i class="ic">${I(pIc(p.k))}</i><b>${esc(p.t)}</b>${pill(p.st.a)}<small>${p.st.n?p.rd.done+'/'+p.rd.planned+' rounds · '+p.rd.nd+' not completed · '+p.st.below+' day'+(p.st.below==1?'':'s')+' below':'No data in '+per+' · '+when(p)}</small></div><div class="cv sm"><canvas id="p${i}"></canvas></div><div class="hint">Area detail ›</div></div>`).join('')}</div>
  <h2>Area SLA <small>${per} · lowest areas first · line = ${TARGET}% target</small></h2>
- <div class="g3" style="--n:${Math.min(ps.length,3)}">${ps.map((p,i)=>{const ar=areaStats(p.k);return `<div class="c cl" data-d="${i}" style="--i:${i}"><div class="ct"><i class="ic">${I(pIc(p.k))}</i><b>${esc(p.t)}</b>${pill(p.st.a)}</div>${AREA.length?bl(ar,8):'<div class="msg" style="padding:14px">AreaScores tab load nahi hui</div>'}${ar.length>8?`<div class="hint">All ${ar.length} areas ›</div>`:'<div class="hint">Detail ›</div>'}</div>`}).join('')}</div>`;
+ <div class="g3" style="--n:${Math.min(ps.length,3)}">${ps.map((p,i)=>{const ar=areaStats(p.k);return `<div class="c cl" data-d="${i}" style="--i:${i}"><div class="ct"><i class="ic">${I(pIc(p.k))}</i><b>${esc(p.t)}</b>${pill(p.st.a)}</div>${AREA.length?bl(ar,8):'<div class="msg" style="padding:14px">AreaScores tab could not be loaded</div>'}${ar.length>8?`<div class="hint">All ${ar.length} areas ›</div>`:'<div class="hint">Detail ›</div>'}</div>`}).join('')}</div>`;
  const vs=ps.flatMap(p=>p.st.s.vals.filter(x=>x!=null));CUR.ymin=vs.length?Math.max(0,Math.floor((Math.min(...vs,TARGET)-5)/5)*5):null;
  ps.forEach((p,i)=>mk('p'+i,dailyCfg(p.st,p.t+' daily SLA')));
 }
@@ -197,7 +197,7 @@ function drawDet(){
  <div class="dmain"><div class="dh"><button class="btn" data-nav="-1" aria-label="Previous">◀</button><div><div class="sub">Form ${DI+1} of ${CUR.ps.length} · ${per} · ${scope}</div><h2><i class="ic">${I(pIc(p.k))}</i> ${esc(p.t)}</h2></div><button class="btn" data-nav="1" aria-label="Next">▶</button><span class="sp"></span><button class="btn" id="dx">Close ✕</button></div>
  <div class="sg">${stats.map(x=>`<div><small>${x[0]}</small><b class="${x[2]}">${x[1]}</b></div>`).join('')}</div>
  <div class="c"><div class="cv big"><canvas id="dc"></canvas></div></div>
- <div class="g2b"><div><h3>Area SLA <small class="sub">· ${ar.length} areas, lowest first</small></h3>${AREA.length?bl(ar):'<div class="msg">AreaScores tab load nahi hui</div>'}</div>
+ <div class="g2b"><div><h3>Area SLA <small class="sub">· ${ar.length} areas, lowest first</small></h3>${AREA.length?bl(ar):'<div class="msg">AreaScores tab could not be loaded</div>'}</div>
  <div><h3>By company</h3>${bl(byCo)}<h3>By round</h3>${bl(byRd)}</div></div>
  <h3>Day by day</h3><div class="tw"><table><thead><tr><th>Date</th><th>Done</th><th>Planned</th><th>Not completed</th><th>Daily SLA</th><th>Status</th></tr></thead><tbody>${trs||'<tr><td colspan="6">No data</td></tr>'}</tbody></table></div></div>`;
  $('.dside').scrollTop=sc;mk('dc',dailyCfg(st,p.t+' daily SLA',true));
@@ -223,22 +223,22 @@ const NEED={Submissions:['scorepct','point'],AreaScores:['area','point']};
 const okCSV=(t,name)=>{if(!t||/^\s*<(!DOCTYPE|html)/i.test(t))return false;const h=(parseCSV(t.slice(0,3000))[0]||[]).map(s=>s.trim().toLowerCase().replace(/[^a-z0-9]/g,''));return NEED[name].every(k=>h.includes(k))};
 const fetchText=async u=>{const r=await fetch(u);if(!r.ok)throw new Error('HTTP '+r.status);return r.text()};
 let WB=null;
-function loadXlsx(){return WB||(WB=(async()=>{if(!window.XLSX)await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';s.onload=ok;s.onerror=()=>no(new Error('SheetJS load nahi hua'));document.head.appendChild(s)});
+function loadXlsx(){return WB||(WB=(async()=>{if(!window.XLSX)await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';s.onload=ok;s.onerror=()=>no(new Error('SheetJS failed to load'));document.head.appendChild(s)});
  const r=await fetch(PUB+'?output=xlsx&t='+Date.now());if(!r.ok)throw new Error('xlsx HTTP '+r.status);return XLSX.read(await r.arrayBuffer(),{type:'array',cellDates:true})})())}
 async function get(name,gid){const t=Date.now(),errs=[];
  const tries=[];if(gid)tries.push(()=>fetchText(`${PUB}?gid=${gid}&single=true&output=csv&t=${t}`));
- tries.push(async()=>{const wb=await loadXlsx(),k=name.toLowerCase().slice(0,-1),sn=wb.SheetNames.find(n=>n.toLowerCase().replace(/[^a-z]/g,'').includes(k.replace(/[^a-z]/g,'')));if(!sn)throw new Error('tab "'+name+'" nahi mili (tabs: '+wb.SheetNames.join(', ')+')');return XLSX.utils.sheet_to_csv(wb.Sheets[sn],{dateNF:'yyyy-mm-dd',rawNumbers:false})});
+ tries.push(async()=>{const wb=await loadXlsx(),k=name.toLowerCase().slice(0,-1),sn=wb.SheetNames.find(n=>n.toLowerCase().replace(/[^a-z]/g,'').includes(k.replace(/[^a-z]/g,'')));if(!sn)throw new Error('tab "'+name+'" not found (tabs: '+wb.SheetNames.join(', ')+')');return XLSX.utils.sheet_to_csv(wb.Sheets[sn],{dateNF:'yyyy-mm-dd',rawNumbers:false})});
  tries.push(()=>fetchText(`https://docs.google.com/spreadsheets/d/${DOC}/gviz/tq?tqx=out:csv&sheet=${name}&t=${t}`));
- for(const f of tries){try{const x=await f();if(okCSV(x,name))return x;errs.push('galat tab / columns')}catch(e){errs.push(e.message)}}
- throw new Error(name+': load nahi hua ('+errs.join(' | ')+')')}
+ for(const f of tries){try{const x=await f();if(okCSV(x,name))return x;errs.push('wrong tab / columns')}catch(e){errs.push(e.message)}}
+ throw new Error(name+': failed to load ('+errs.join(' | ')+')')}
 async function load(){$('#st').textContent='Loading data…';$('#er').style.display='none';$('#wn').style.display='none';
- try{const [sub,area]=await Promise.all([get('Submissions',GID.sub),get('AreaScores',GID.area).catch(e=>{$('#wn').style.display='block';$('#wn').textContent='Area scores load nahi huay ('+e.message+'). Daily charts chal rahe hain, area detail khali rahegi.';return ''})]);
+ try{const [sub,area]=await Promise.all([get('Submissions',GID.sub),get('AreaScores',GID.area).catch(e=>{$('#wn').style.display='block';$('#wn').textContent='Area scores could not be loaded ('+e.message+'). Daily charts still work, but area detail will be empty.';return ''})]);
   ingest(sub,area);const cnt={};SUB.forEach(r=>cnt[r.point]=(cnt[r.point]||0)+1);
   $('#st').textContent='Live from Google Sheet · updated '+new Date().toLocaleTimeString()+' · Forms: '+Object.entries(cnt).map(([k,v])=>k+' ('+v+')').join(', ');
-  const sks=Object.entries(SKIP);if(sks.length){const w=$('#wn');w.style.display='block';w.innerHTML='<b>Kuch rows skip hui:</b> '+sks.map(([k,v])=>esc(k)+' × '+v).join(' · ')}
+  const sks=Object.entries(SKIP);if(sks.length){const w=$('#wn');w.style.display='block';w.innerHTML='<b>Some rows were skipped:</b> '+sks.map(([k,v])=>esc(k)+' × '+v).join(' · ')}
   render()}
  catch(e){console.error(e);$('#st').textContent='Could not load live data';const x=$('#er');x.style.display='block';
-  x.innerHTML='Data load nahi hua: <b>'+esc(e.message)+'</b><br>1) Publish to web mein <b>Entire document</b> ke bajaye har tab alag chunein (<code>Submissions</code> aur <code>AreaScores</code>) aur format <b>CSV</b> rakhein, ya Entire document ko <b>Microsoft Excel (.xlsx)</b> mein publish karein.<br>2) Page ko website ya local server se kholein (file:// se fetch block ho sakta hai).'}
+  x.innerHTML='Data failed to load: <b>'+esc(e.message)+'</b><br>1) In Publish to web, instead of <b>Entire document</b>, publish each tab separately (<code>Submissions</code> and <code>AreaScores</code>) as <b>CSV</b>, or publish the Entire document as <b>Microsoft Excel (.xlsx)</b>.<br>2) Open the page from a website or local server (fetch may be blocked on file://).'}
 }
 (function(){const h=document.querySelector('header'),u=()=>document.documentElement.style.setProperty('--hh',h.offsetHeight+'px');u();addEventListener('resize',u);if(window.ResizeObserver)new ResizeObserver(u).observe(h)})();
 load();
