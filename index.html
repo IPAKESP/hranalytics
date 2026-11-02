@@ -134,15 +134,17 @@ img.logo{width:auto;height:36px;max-width:150px;object-fit:contain;background:no
 
 /* Overview KPI boxes: headcount box tall (2 rows), baaki 7 + 7 */
 @media(min-width:1100px){
- .kg{grid-template-columns:1.5fr repeat(7,1fr);gap:8px}
- .k{padding:9px 12px}
+ .kg{grid-template-columns:minmax(170px,.8fr) repeat(7,1fr);gap:8px}
+ .k{padding:8px 11px}
  .k .l{font-size:11.5px}
- .k .v{font-size:20px}
+ .k .v{font-size:19px;margin:3px 0 1px}
  .k .d{font-size:10.5px}
+ .sl{height:14px;margin-top:4px}
  .k.hero{grid-row:span 2;display:flex;flex-direction:column;padding:14px 16px}
- .k.hero .v{font-size:34px;margin:6px 0 2px}
+ .k.hero .l{font-size:12.5px}
+ .k.hero .v{font-size:32px;margin:10px 0 2px}
  .k.hero .d{font-size:12px}
- .k.hero .sl{margin-top:auto;height:22px}
+ .k.hero .sl{margin-top:auto;height:34px}
 }
 @media(min-width:700px) and (max-width:1099px){
  .kg{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
@@ -257,7 +259,7 @@ const fmtFor=k=>KP.find(x=>x.k==k).f;
 function fill(id,vals,cur,all){const e=$(id);e.innerHTML=(all?`<option>All</option>`:'')+vals.map(v=>`<option ${v==cur?'selected':''}>${v}</option>`).join('')}
 
 const spark=(tr,k,f)=>{const pts=tr.map((x,i)=>x?[i,x[k]]:null).filter(Boolean);if(!pts.length)return'';const vs=pts.map(p=>p[1]),mn=Math.min(...vs),mx=Math.max(...vs),r=mx-mn||1,xy=p=>[(p[0]/11*96+2).toFixed(1),(20-(p[1]-mn)/r*16).toFixed(1)];
- const tp=pts.map(p=>MN[p[0]]+': '+f(p[1])).join('&#10;');return pts.length>1?`<svg class="sl" data-tip="${tp}" viewBox="0 0 100 24"><polyline pathLength="1" points="${pts.map(p=>xy(p).join(',')).join(' ')}"/></svg>`:`<svg class="sl" data-tip="${tp}" viewBox="0 0 100 24"><circle cx="${xy(pts[0])[0]}" cy="12" r="3"/></svg>`};
+ const tp=pts.map(p=>MN[p[0]]+': '+f(p[1])).join('&#10;');return pts.length>1?`<svg class="sl" data-tip="${tp}" viewBox="0 0 100 24" preserveAspectRatio="none"><polyline pathLength="1" points="${pts.map(p=>xy(p).join(',')).join(' ')}"/></svg>`:`<svg class="sl" data-tip="${tp}" viewBox="0 0 100 24"><circle cx="${xy(pts[0])[0]}" cy="12" r="3"/></svg>`};
 const mtip=(tr,i)=>tr[i]?`${MN[i]} ${S.y}&#10;Headcount: ${fN(tr[i].cur)}&#10;OT cost: ${fN(tr[i].otc)}&#10;Absenteeism: ${fP(tr[i].abs)}`:`${MN[i]} ${S.y}: no data yet`;
 const LV={};
 function countUp(){const rm=matchMedia('(prefers-reduced-motion:reduce)').matches;document.querySelectorAll('.v[data-ck]').forEach(e=>{const k=e.dataset.ck,to=+e.dataset.cv,from=LV[k]??0,f=KP.find(x=>x.k==k).f;LV[k]=to;if(rm||from===to){e.textContent=f(to);return}const t0=performance.now();(function st(t){const p=Math.min(1,(t-t0)/700),z=1-Math.pow(1-p,3);e.textContent=f(from+(to-from)*z);if(p<1)requestAnimationFrame(st)})(t0)})}
