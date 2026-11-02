@@ -91,6 +91,18 @@ h2{margin:20px 0 10px}
 .k .ic{top:6px;right:6px;width:18px;height:18px;border-radius:6px}.k .ic svg{width:11px;height:11px}
 .sl{height:9px;margin-top:2px}
 
+/* 15 KPI boxes in 2 rows: 8 columns, headcount spans 2 (row 1 = 7 boxes, row 2 = 8 boxes) */
+.kg{grid-template-columns:repeat(8,minmax(0,1fr));gap:10px}
+.k.hero{grid-column:span 2}
+.k{padding:11px 13px;border-radius:13px}
+.k .l{font-size:12px;padding-right:28px}
+.k .v{font-size:22px;margin:4px 0 2px}
+.k .d{font-size:11px}
+.k .ic{top:10px;right:10px;width:24px;height:24px;border-radius:8px}.k .ic svg{width:14px;height:14px}
+.sl{height:12px;margin-top:4px}
+@media(max-width:1200px){.kg{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:600px){.kg{grid-template-columns:repeat(2,minmax(0,1fr))}.k.hero{grid-column:span 2}}
+
 #tip{position:fixed;z-index:100;pointer-events:none;display:none;background:#14532d;color:#fff;padding:7px 11px;border-radius:9px;font:600 12px/1.45 Figtree,sans-serif;box-shadow:0 8px 22px rgba(0,0,0,.28);max-width:300px;white-space:pre-line}
 [data-theme=dark] #tip{background:#e3f3e8;color:#0e1a13}
 [data-tip]{cursor:default}.k[data-tip],.bl.ck[data-tip],.mp[data-tip],tr[data-tip]{cursor:pointer}
