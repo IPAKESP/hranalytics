@@ -350,12 +350,11 @@ function render(){
  const prev=S.m=='ytd'?null:tr.slice(0,cm).reverse().find(Boolean);
  const kp=KP.filter(x=>x.k!='cur').map((x,i)=>{let d='',c='';if(false&&prev&&x.u!==undefined){const df=a[x.k]-prev[x.k];if(Math.abs(df)>1e-9){d=(df>0?'▲ ':'▼ ')+x.f(Math.abs(df))+' vs prev month';c=x.u?((df>0)==(x.u>0)?'g':'b'):''}}
   const ex=x.f===fC?fN(a[x.k]):x.f===fP?a[x.k].toFixed(2)+'%':fN(a[x.k]),tp=x.l+': '+ex+(x.sub?'&#10;'+x.sub(a):'')+(d?'&#10;'+d:'')+'&#10;Click for full detail';
-  if(x.hero){const h=hcHTML(cm);if(h)return h}
   return `<div class="k ${x.hero?'hero':''}" data-k="${x.k}" data-tip="${tp}" style="--i:${i}"><i class="ic">${I(TR.find(t=>t[0]==x.k)[3])}</i><div class="l">${x.l}</div><div class="v" data-ck="${x.k}" data-cv="${a[x.k]}">${x.f(a[x.k])}</div><div class="d ${c}">${x.sub?x.sub(a):d||'&nbsp;'}</div></div>`}).join('');
  const grp=(by)=>{const m={};rs.forEach(r=>(m[r[by]]??=[]).push(r));return Object.entries(m).map(([k,v])=>({k,a:agg(v)})).filter(x=>has(x.a))};
  const secs=grp('sec'),top=[...secs].sort((x,y)=>y.a.otc+y.a.tpc-x.a.otc-x.a.tpc)[0],ab=[...secs].filter(x=>x.a.cur>0).sort((x,y)=>y.a.abs-x.a.abs)[0],lt=[...secs].filter(x=>x.a.cur>0).sort((x,y)=>y.a.late-x.a.late)[0];
  const lvr=[...secs].sort((x,y)=>y.a.lv-x.a.lv)[0];
- $('#app').innerHTML=`<h2>Overview <small>${per} · ${S.co=='All'?'All companies':S.co}${S.dept!='All'?' · '+S.dept:''}${S.sec!='All'?' · '+S.sec:''}</small></h2><div class="kg">${kp}</div>
+ $('#app').innerHTML=`<h2>Overview <small>${per} · ${S.co=='All'?'All companies':S.co}${S.dept!='All'?' · '+S.dept:''}${S.sec!='All'?' · '+S.sec:''}</small></h2><div class="kg">${hcHTML(cm)||''}${kp}</div>
  <div class="ins">${top?`<div data-i="4">Highest OT spend: ${top.k} (Rs ${fC(top.a.otc+top.a.tpc)})</div>`:''}${ab?`<div data-i="7">Highest absenteeism: ${ab.k} (${fP(ab.a.abs)})</div>`:''}${lt?`<div data-i="9">Most late arrivals: ${lt.k} (${fP(lt.a.late)})</div>`:''}${lvr&&lvr.a.lv>0?`<div data-i="13">Most leavers: ${lvr.k} (${fN(lvr.a.lv)})</div>`:''}</div>
  <h2>Month-wise trends <small>Jan–Dec ${S.y} · selected month highlighted · click any card for full detail</small></h2><div class="tg" id="tg"></div>
  <h2>Breakdown <small>${per}</small></h2><div class="g2"><div class="c"><div class="t">OT cost by department (own vs third party)</div><div class="cv big"><canvas id="c1"></canvas></div></div><div class="c"><div class="t">Allowances &amp; reimbursements</div><div class="cv big"><canvas id="c2"></canvas></div></div></div>
