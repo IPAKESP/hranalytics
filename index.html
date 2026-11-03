@@ -125,7 +125,7 @@ h2{margin:20px 0 10px}
 
 
 /* headcount hero: ONE compact green card (2 cols x 2 rows of the KPI grid) */
-.k.hero.hh{grid-column:span 2;grid-row:span 2;display:flex;flex-direction:column;justify-content:space-between;gap:6px;padding:8px 12px;border-radius:13px}
+.k.hero.hh{grid-column:span 3;grid-row:span 2;display:flex;flex-direction:column;justify-content:space-between;gap:6px;padding:8px 12px;border-radius:13px}
 .k.hero.hh .l{font-size:11px;padding-right:0}
 .k.hero.hh .v{font-size:22px;line-height:1.05;margin:1px 0 0}
 .k.hero.hh .d{font-size:10px;opacity:.92}
@@ -139,6 +139,8 @@ h2{margin:20px 0 10px}
 .hs .hn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hs .hn b{font-size:14px;font-weight:800}
 .hs .ht{display:flex;justify-content:space-between;gap:4px;font-size:9px;font-weight:700;white-space:nowrap;opacity:.95}
+@media(min-width:1201px){.kg{grid-template-columns:repeat(10,minmax(0,1fr))}}
+@media(max-width:1200px){.k.hero.hh{grid-column:span 2}}
 @media(max-width:600px){.k.hero.hh{grid-row:auto}}
 
 #tip{position:fixed;z-index:100;pointer-events:none;display:none;background:#14532d;color:#fff;padding:7px 11px;border-radius:9px;font:600 12px/1.45 Figtree,sans-serif;box-shadow:0 8px 22px rgba(0,0,0,.28);max-width:300px;white-space:pre-line}
@@ -255,14 +257,14 @@ function hcPick(cm){const k=S.y*12+cm;
  const r=HC.find(x=>x.key==k);return r?{r,fb:false}:null}
 function hcHTML(cm){
  const pk=hcPick(cm);if(!pk)return '';
- const d=pk.r.d,g=k=>d[k]||0;
+ const d=pk.r.d,g=k=>d[k]||0,pc=(n,t)=>t?(n/t*100).toFixed(1)+'%':'0.0%';
  const C=[['Karachi','karachi','karachi tp'],['Lahore','lahore','lahore tp'],['Sheikhupura','sheikhupura','sheikhupura tp']];
- const own=C.reduce((a,c)=>a+g(c[1]),0),tp=C.reduce((a,c)=>a+g(c[2]),0),tot=g('total')||own+tp,m=g('male'),f=g('female');
+ const own=C.reduce((a,c)=>a+g(c[1]),0),tp=C.reduce((a,c)=>a+g(c[2]),0),tot=g('total')||own+tp,m=g('male'),f=g('female'),mf=m+f||tot;
  const per=MN[pk.r.m]+' '+pk.r.y+(pk.fb?' · latest':'');
  const sites=C.map(c=>{const o=g(c[1]),t=g(c[2]);
   return `<div class="hs" data-tip="${c[0]} · ${per}&#10;Permanent: ${fN(o)}&#10;Third party (TP): ${fN(t)}&#10;Site total: ${fN(o+t)}"><div class="hn"><span>${c[0]}</span><b>${fN(o)}</b></div><div class="ht"><span>TP ${fN(t)}</span><span>Total ${fN(o+t)}</span></div></div>`}).join('');
- return `<div class="k hero hh" data-k="cur" style="--i:0" data-tip="Total headcount · ${per}&#10;Permanent: ${fN(own)}&#10;Third party: ${fN(tp)}&#10;Male: ${fN(m)} · Female: ${fN(f)}&#10;Click for full detail"><i class="ic">${I('people')}</i>
-  <div class="ht1"><div><div class="l">Total headcount</div><div class="v">${fN(tot)}</div><div class="d">${per}</div></div><div class="pls"><div class="tpl"><span>Permanent ${fN(own)}</span><span>TP ${fN(tp)}</span></div><div class="tpl"><span>Male ${fN(m)}</span><span>Female ${fN(f)}</span></div></div></div>
+ return `<div class="k hero hh" data-k="cur" style="--i:0" data-tip="Total headcount · ${per}&#10;Permanent: ${fN(own)}&#10;Third party: ${fN(tp)}&#10;Male: ${fN(m)} (${pc(m,mf)}) · Female: ${fN(f)} (${pc(f,mf)})&#10;Click for full detail"><i class="ic">${I('people')}</i>
+  <div class="ht1"><div><div class="l">Total headcount</div><div class="v">${fN(tot)}</div><div class="d">${per}</div></div><div class="pls"><div class="tpl"><span>Permanent ${fN(own)}</span><span>TP ${fN(tp)}</span></div><div class="tpl"><span>Male ${pc(m,mf)}</span><span>Female ${pc(f,mf)}</span></div></div></div>
   <div class="hss">${sites}</div>
  </div>`}
 const has=a=>a&&(a.sched>0||a.cur>0||a.otc>0||a.tpc>0);
