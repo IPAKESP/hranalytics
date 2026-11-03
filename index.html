@@ -124,25 +124,21 @@ h2{margin:20px 0 10px}
 @media(max-width:600px){.hc{grid-template-columns:repeat(2,minmax(0,1fr))}.hc .k.w4{grid-column:span 2}}
 
 
-/* headcount hero: ONE green card holding all details (spans 2 cols x 3 rows of the KPI grid) */
-.k.hero.hh{grid-column:span 2;grid-row:span 3;display:flex;flex-direction:column;justify-content:space-between;gap:8px;padding:10px 12px;border-radius:13px}
-.k.hero.hh .l{font-size:11.5px;padding-right:0}
-.k.hero.hh .v{font-size:26px;line-height:1.05;margin:2px 0 1px}
-.k.hero.hh .d{font-size:10.5px;opacity:.92}
-.k.hero.hh .ic{top:9px;right:10px;width:22px;height:22px;border-radius:7px}.k.hero.hh .ic svg{width:13px;height:13px}
-.hh .ht1{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding-right:2px}
-.hh .tpl{display:flex;flex-direction:column;gap:1px;align-items:flex-end;padding:4px 9px;border-radius:9px;background:rgba(255,255,255,.2);color:#fff;font-size:10.5px;font-weight:700;white-space:nowrap}
+/* headcount hero: ONE compact green card (2 cols x 2 rows of the KPI grid) */
+.k.hero.hh{grid-column:span 2;grid-row:span 2;display:flex;flex-direction:column;justify-content:space-between;gap:6px;padding:8px 12px;border-radius:13px}
+.k.hero.hh .l{font-size:11px;padding-right:0}
+.k.hero.hh .v{font-size:22px;line-height:1.05;margin:1px 0 0}
+.k.hero.hh .d{font-size:10px;opacity:.92}
+.k.hero.hh .ic{top:8px;right:10px;width:20px;height:20px;border-radius:6px}.k.hero.hh .ic svg{width:12px;height:12px}
+.hh .ht1{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-right:26px}
+.hh .pls{display:flex;flex-direction:column;gap:3px;align-items:stretch}
+.hh .tpl{display:flex;justify-content:space-between;gap:10px;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,.2);color:#fff;font-size:10px;font-weight:700;white-space:nowrap;margin:0}
 .hss{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-.hs{background:rgba(255,255,255,.16);border-radius:9px;padding:5px 8px;color:#fff;min-width:0}
-.hs .hn{display:flex;justify-content:space-between;align-items:baseline;gap:4px;font-size:10.5px;font-weight:600}
+.hs{background:rgba(255,255,255,.16);border-radius:9px;padding:3px 8px;color:#fff;min-width:0}
+.hs .hn{display:flex;justify-content:space-between;align-items:baseline;gap:4px;font-size:10px;font-weight:600}
 .hs .hn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hs .hn b{font-size:15px;font-weight:800}
-.hs .hd2,.hs .ht{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.92}
-.hs .ht{font-weight:700;opacity:1;margin-top:1px}
-.hb{color:#fff}
-.hbl{display:flex;justify-content:space-between;gap:6px;font-size:10px;font-weight:700;margin-bottom:3px}
-.hbt{height:5px;border-radius:99px;background:rgba(255,255,255,.3);overflow:hidden}
-.hbt i{display:block;height:100%;background:#fff;border-radius:99px}
+.hs .hn b{font-size:14px;font-weight:800}
+.hs .ht{display:flex;justify-content:space-between;gap:4px;font-size:9px;font-weight:700;white-space:nowrap;opacity:.95}
 @media(max-width:600px){.k.hero.hh{grid-row:auto}}
 
 #tip{position:fixed;z-index:100;pointer-events:none;display:none;background:#14532d;color:#fff;padding:7px 11px;border-radius:9px;font:600 12px/1.45 Figtree,sans-serif;box-shadow:0 8px 22px rgba(0,0,0,.28);max-width:300px;white-space:pre-line}
@@ -259,16 +255,15 @@ function hcPick(cm){const k=S.y*12+cm;
  const r=HC.find(x=>x.key==k);return r?{r,fb:false}:null}
 function hcHTML(cm){
  const pk=hcPick(cm);if(!pk)return '';
- const d=pk.r.d,g=k=>d[k]||0,pc=(n,t)=>t?(n/t*100).toFixed(1)+'%':'0.0%',pw=(n,t)=>t?(n/t*100).toFixed(1):0;
+ const d=pk.r.d,g=k=>d[k]||0;
  const C=[['Karachi','karachi','karachi tp'],['Lahore','lahore','lahore tp'],['Sheikhupura','sheikhupura','sheikhupura tp']];
- const own=C.reduce((a,c)=>a+g(c[1]),0),tp=C.reduce((a,c)=>a+g(c[2]),0),tot=g('total')||own+tp,m=g('male'),f=g('female'),mf=m+f||tot;
+ const own=C.reduce((a,c)=>a+g(c[1]),0),tp=C.reduce((a,c)=>a+g(c[2]),0),tot=g('total')||own+tp,m=g('male'),f=g('female');
  const per=MN[pk.r.m]+' '+pk.r.y+(pk.fb?' · latest':'');
- const sites=C.map(c=>{const o=g(c[1]),t=g(c[2]),site=o+t;
-  return `<div class="hs" data-tip="${c[0]} · ${per}&#10;Own: ${fN(o)}&#10;Third party (TP): ${fN(t)} (${pc(t,site)} of this site)&#10;Site total: ${fN(site)} (${pc(site,tot)} of overall headcount)"><div class="hn"><span>${c[0]}</span><b>${fN(o)}</b></div><div class="hd2">${pc(site,tot)} · ${fN(site)} incl. TP</div><div class="ht">TP ${fN(t)} · ${pc(t,site)}</div></div>`}).join('');
- return `<div class="k hero hh" data-k="cur" style="--i:0" data-tip="Total headcount · ${per}&#10;Own: ${fN(own)} (${pc(own,tot)})&#10;Third party: ${fN(tp)} (${pc(tp,tot)})&#10;Male: ${fN(m)} (${pc(m,mf)}) · Female: ${fN(f)} (${pc(f,mf)})&#10;Click for full detail"><i class="ic">${I('people')}</i>
-  <div class="ht1"><div><div class="l">Total headcount</div><div class="v">${fN(tot)}</div><div class="d">${per}</div></div><div class="tpl"><span>Own ${fN(own)} · ${pc(own,tot)}</span><span>TP ${fN(tp)} · ${pc(tp,tot)}</span></div></div>
+ const sites=C.map(c=>{const o=g(c[1]),t=g(c[2]);
+  return `<div class="hs" data-tip="${c[0]} · ${per}&#10;Permanent: ${fN(o)}&#10;Third party (TP): ${fN(t)}&#10;Site total: ${fN(o+t)}"><div class="hn"><span>${c[0]}</span><b>${fN(o)}</b></div><div class="ht"><span>TP ${fN(t)}</span><span>Total ${fN(o+t)}</span></div></div>`}).join('');
+ return `<div class="k hero hh" data-k="cur" style="--i:0" data-tip="Total headcount · ${per}&#10;Permanent: ${fN(own)}&#10;Third party: ${fN(tp)}&#10;Male: ${fN(m)} · Female: ${fN(f)}&#10;Click for full detail"><i class="ic">${I('people')}</i>
+  <div class="ht1"><div><div class="l">Total headcount</div><div class="v">${fN(tot)}</div><div class="d">${per}</div></div><div class="pls"><div class="tpl"><span>Permanent ${fN(own)}</span><span>TP ${fN(tp)}</span></div><div class="tpl"><span>Male ${fN(m)}</span><span>Female ${fN(f)}</span></div></div></div>
   <div class="hss">${sites}</div>
-  <div class="hb" data-tip="Male ${fN(m)} (${pc(m,mf)}) · Female ${fN(f)} (${pc(f,mf)})"><div class="hbl"><span>Male ${fN(m)} · ${pc(m,mf)}</span><span>Female ${fN(f)} · ${pc(f,mf)}</span></div><div class="hbt"><i style="width:${pw(m,mf)}%"></i></div></div>
  </div>`}
 const has=a=>a&&(a.sched>0||a.cur>0||a.otc>0||a.tpc>0);
 const KP=[
