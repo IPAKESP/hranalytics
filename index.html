@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HR Analytics Dashboard</title>
 <link rel="icon" type="image/png" href="logo.png">
@@ -92,7 +92,7 @@ h2{margin:20px 0 10px}
 .sl{height:9px;margin-top:2px}
 
 /* 15 KPI boxes in 2 rows: 8 columns, headcount spans 2 (row 1 = 7 boxes, row 2 = 8 boxes) */
-.kg{grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
+.kg{grid-template-columns:repeat(8,minmax(0,1fr));gap:7px}
 .k.hero{grid-column:span 2}
 .k{padding:7px 10px;border-radius:11px}
 .k .l{font-size:11px;padding-right:22px}
@@ -104,44 +104,6 @@ h2{margin:20px 0 10px}
 #app>h2:first-child{margin-top:12px}
 @media(max-width:1200px){.kg{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:600px){.kg{grid-template-columns:repeat(2,minmax(0,1fr))}.k.hero{grid-column:span 2}}
-
-
-/* headcount section (from Headcount sheet) */
-.hc{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px;margin-bottom:8px}
-.hc .k{padding:10px 13px;border-radius:13px}
-.hc .k .l{font-size:12px;padding-right:32px}
-.hc .k .v{font-size:28px;margin:3px 0 4px}
-.hc .k .d{font-size:11px;white-space:normal;overflow:visible}
-.hc .k .ic{top:10px;right:10px;width:26px;height:26px;border-radius:8px}.hc .k .ic svg{width:16px;height:16px}
-.hc .k.s2{grid-column:span 2}.hc .k.w4{grid-column:span 4}.hc .k.w8{grid-column:1/-1}
-.hc .tpl{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:7px;padding:5px 9px;border-radius:9px;background:var(--pl);color:var(--pd);font-size:11.5px;font-weight:700}
-.hc .k.hero .tpl{background:rgba(255,255,255,.2);color:#fff}
-.hc .pb{height:7px;border-radius:99px;background:var(--pl);overflow:hidden;margin-top:8px}
-.hc .pb i{display:block;height:100%;background:linear-gradient(90deg,#6cc78f,#2e9e5b);border-radius:99px}
-.hc .k.fm .pb i{background:linear-gradient(90deg,#a7e3bd,#4fb67a)}
-.hc .k.w8 .d{margin:0}
-@media(max-width:1200px){.hc{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media(max-width:600px){.hc{grid-template-columns:repeat(2,minmax(0,1fr))}.hc .k.w4{grid-column:span 2}}
-
-
-/* headcount hero: ONE compact green card (2 cols x 2 rows of the KPI grid) */
-.k.hero.hh{grid-column:span 3;grid-row:span 2;display:flex;flex-direction:column;justify-content:space-between;gap:6px;padding:8px 12px;border-radius:13px}
-.k.hero.hh .l{font-size:11px;padding-right:0}
-.k.hero.hh .v{font-size:22px;line-height:1.05;margin:1px 0 0}
-.k.hero.hh .d{font-size:10px;opacity:.92}
-.k.hero.hh .ic{top:8px;right:10px;width:20px;height:20px;border-radius:6px}.k.hero.hh .ic svg{width:12px;height:12px}
-.hh .ht1{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-right:26px}
-.hh .pls{display:flex;flex-direction:column;gap:3px;align-items:stretch}
-.hh .tpl{display:flex;justify-content:space-between;gap:10px;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,.2);color:#fff;font-size:10px;font-weight:700;white-space:nowrap;margin:0}
-.hss{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-.hs{background:rgba(255,255,255,.16);border-radius:9px;padding:3px 8px;color:#fff;min-width:0}
-.hs .hn{display:flex;justify-content:space-between;align-items:baseline;gap:4px;font-size:10px;font-weight:600}
-.hs .hn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hs .hn b{font-size:14px;font-weight:800}
-.hs .ht{display:flex;justify-content:space-between;gap:4px;font-size:9px;font-weight:700;white-space:nowrap;opacity:.95}
-@media(min-width:1201px){.kg{grid-template-columns:repeat(10,minmax(0,1fr))}}
-@media(max-width:1200px){.k.hero.hh{grid-column:span 2}}
-@media(max-width:600px){.k.hero.hh{grid-row:auto}}
 
 #tip{position:fixed;z-index:100;pointer-events:none;display:none;background:#14532d;color:#fff;padding:7px 11px;border-radius:9px;font:600 12px/1.45 Figtree,sans-serif;box-shadow:0 8px 22px rgba(0,0,0,.28);max-width:300px;white-space:pre-line}
 [data-theme=dark] #tip{background:#e3f3e8;color:#0e1a13}
@@ -242,31 +204,6 @@ function agg(rs){if(!rs.length)return null;
  return{sched,act,cur,appr,active:appr?cur/appr*100:0,avs:sched?act/sched*100:0,ot:s('Total OT Hours'),otc:s('OT Cost'),otp:sched?s('Total OT Hours')/sched*100:0,
  tpot:s('TP Total OT Hours'),tpc:s('TP OT Cost'),tpp:sched?s('TP Total OT Hours')/sched*100:0,abs:w('Absenteeism %'),lvp:w('Leaves %'),late:w('Late Arrival %'),early:w('Early Out %'),
  join:s('Joiners'),lv:s('Leavers'),pend:s('Pending Final Settlement')}}
-
-const HCSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vSMBPrqkOVprAn_sLjg2NmzGCimRx13XoDClYB7a4HMcX0j6MjqH9x7u9Z-NlWG2vAEzv16nPaMOIUU/pub?gid=510145571&single=true&output=csv';
-let HC=[],HCERR='';
-async function loadHC(){HCERR='';try{const r=await fetch(HCSV+'&t='+Date.now());if(!r.ok)throw new Error('HTTP '+r.status);
- const t=parseCSV(await r.text()),h=t[0].map(x=>x.trim().toLowerCase());
- HC=t.slice(1).map(r=>{const m=String(r[0]??'').trim().match(/^([A-Za-z]{3})[a-z]*[-\s'\/]*(\d{2,4})$/);if(!m)return null;
-  const mi=MN.findIndex(x=>x.toLowerCase()==m[1].toLowerCase());if(mi<0)return null;let y=+m[2];if(y<100)y+=2000;
-  const d={};h.forEach((k,i)=>{if(k!='month')d[k]=num(r[i])});return{m:mi,y,key:y*12+mi,d}}).filter(Boolean)}
- catch(e){console.error('Headcount sheet',e);HC=[];HCERR=e.message}}
-function hcPick(cm){const k=S.y*12+cm;
- if(S.m=='ytd'){const r=HC.filter(x=>x.y==S.y).sort((a,b)=>b.key-a.key)[0];return r?{r,fb:false}:null}
- if(S.m=='latest'){const r=HC.filter(x=>x.key<=k).sort((a,b)=>b.key-a.key)[0];return r?{r,fb:r.key!=k}:null}
- const r=HC.find(x=>x.key==k);return r?{r,fb:false}:null}
-function hcHTML(cm){
- const pk=hcPick(cm);if(!pk)return '';
- const d=pk.r.d,g=k=>d[k]||0,pc=(n,t)=>t?(n/t*100).toFixed(1)+'%':'0.0%';
- const C=[['Karachi','karachi','karachi tp'],['Lahore','lahore','lahore tp'],['Sheikhupura','sheikhupura','sheikhupura tp']];
- const own=C.reduce((a,c)=>a+g(c[1]),0),tp=C.reduce((a,c)=>a+g(c[2]),0),tot=g('total')||own+tp,m=g('male'),f=g('female'),mf=m+f||tot;
- const per=MN[pk.r.m]+' '+pk.r.y+(pk.fb?' · latest':'');
- const sites=C.map(c=>{const o=g(c[1]),t=g(c[2]);
-  return `<div class="hs" data-tip="${c[0]} · ${per}&#10;Permanent: ${fN(o)}&#10;Third party (TP): ${fN(t)}&#10;Site total: ${fN(o+t)}"><div class="hn"><span>${c[0]}</span><b>${fN(o)}</b></div><div class="ht"><span>TP ${fN(t)}</span><span>Total ${fN(o+t)}</span></div></div>`}).join('');
- return `<div class="k hero hh" data-k="cur" style="--i:0" data-tip="Total headcount · ${per}&#10;Permanent: ${fN(own)}&#10;Third party: ${fN(tp)}&#10;Male: ${fN(m)} (${pc(m,mf)}) · Female: ${fN(f)} (${pc(f,mf)})&#10;Click for full detail"><i class="ic">${I('people')}</i>
-  <div class="ht1"><div><div class="l">Total headcount</div><div class="v">${fN(tot)}</div><div class="d">${per}</div></div><div class="pls"><div class="tpl"><span>Permanent ${fN(own)}</span><span>TP ${fN(tp)}</span></div><div class="tpl"><span>Male ${pc(m,mf)}</span><span>Female ${pc(f,mf)}</span></div></div></div>
-  <div class="hss">${sites}</div>
- </div>`}
 const has=a=>a&&(a.sched>0||a.cur>0||a.otc>0||a.tpc>0);
 const KP=[
 {k:'cur',l:'Current headcount',f:fN,u:1,hero:1,sub:a=>'Approved '+fN(a.appr)},
@@ -299,10 +236,7 @@ work:'M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 
 wallet:'M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z',
 add:'M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
 walk:'M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z',
-doc:'M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z',
-city:'M15 11V5l-3-3-3 3v2H3v14h18V11h-6zm-8 8H5v-2h2v2zm0-4H5v-2h2v2zm0-4H5V9h2v2zm6 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V9h2v2zm0-4h-2V5h2v2zm6 12h-2v-2h2v2zm0-4h-2v-2h2v2z',
-male:'M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM9 7h6a1 1 0 0 1 1 1v6h-1.5v8h-5v-8H8V8a1 1 0 0 1 1-1z',
-female:'M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM10 7h4a1 1 0 0 1 .95.68L18 16h-3v6h-2v-4h-2v4H9v-6H6l3.05-8.32A1 1 0 0 1 10 7z'};
+doc:'M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'};
 const I=n=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
 
 const TR=[['cur','Headcount','b','people'],['active','Active employee %','l','check'],['ot','Total OT hours','b','bolt'],['otp','OT %','l','trend'],['otc','OT cost','b','money'],['tpot','TP OT hours','b','work'],['tpc','TP OT cost','b','wallet'],['abs','Absenteeism %','l','block'],['lvp','Leaves %','l','cal'],['late','Late arrival %','l','clock'],['early','Early out %','l','logout'],['avs','Actual vs std hours %','l','target'],['join','Joiners','b','add'],['lv','Leavers','b','walk'],['pend','Pending final settlement','b','doc']];
@@ -345,13 +279,13 @@ function render(){
  if(!has(a)){$('#app').innerHTML=`<div class="msg"><b>No data for ${per} yet.</b><br>Select another month, or add this month's rows to the Google Sheet and press Refresh data.</div>`;
   $('#app').innerHTML+=`<h2>Jan–Dec trends</h2><div class="tg" id="tg"></div>`;trends(tr,cm);return}
  const prev=S.m=='ytd'?null:tr.slice(0,cm).reverse().find(Boolean);
- const kp=KP.filter(x=>x.k!='cur').map((x,i)=>{let d='',c='';if(false&&prev&&x.u!==undefined){const df=a[x.k]-prev[x.k];if(Math.abs(df)>1e-9){d=(df>0?'▲ ':'▼ ')+x.f(Math.abs(df))+' vs prev month';c=x.u?((df>0)==(x.u>0)?'g':'b'):''}}
+ const kp=KP.map((x,i)=>{let d='',c='';if(false&&prev&&x.u!==undefined){const df=a[x.k]-prev[x.k];if(Math.abs(df)>1e-9){d=(df>0?'▲ ':'▼ ')+x.f(Math.abs(df))+' vs prev month';c=x.u?((df>0)==(x.u>0)?'g':'b'):''}}
   const ex=x.f===fC?fN(a[x.k]):x.f===fP?a[x.k].toFixed(2)+'%':fN(a[x.k]),tp=x.l+': '+ex+(x.sub?'&#10;'+x.sub(a):'')+(d?'&#10;'+d:'')+'&#10;Click for full detail';
   return `<div class="k ${x.hero?'hero':''}" data-k="${x.k}" data-tip="${tp}" style="--i:${i}"><i class="ic">${I(TR.find(t=>t[0]==x.k)[3])}</i><div class="l">${x.l}</div><div class="v" data-ck="${x.k}" data-cv="${a[x.k]}">${x.f(a[x.k])}</div><div class="d ${c}">${x.sub?x.sub(a):d||'&nbsp;'}</div></div>`}).join('');
  const grp=(by)=>{const m={};rs.forEach(r=>(m[r[by]]??=[]).push(r));return Object.entries(m).map(([k,v])=>({k,a:agg(v)})).filter(x=>has(x.a))};
  const secs=grp('sec'),top=[...secs].sort((x,y)=>y.a.otc+y.a.tpc-x.a.otc-x.a.tpc)[0],ab=[...secs].filter(x=>x.a.cur>0).sort((x,y)=>y.a.abs-x.a.abs)[0],lt=[...secs].filter(x=>x.a.cur>0).sort((x,y)=>y.a.late-x.a.late)[0];
  const lvr=[...secs].sort((x,y)=>y.a.lv-x.a.lv)[0];
- $('#app').innerHTML=`<h2>Overview <small>${per} · ${S.co=='All'?'All companies':S.co}${S.dept!='All'?' · '+S.dept:''}${S.sec!='All'?' · '+S.sec:''}</small></h2><div class="kg">${hcHTML(cm)||''}${kp}</div>
+ $('#app').innerHTML=`<h2>Overview <small>${per} · ${S.co=='All'?'All companies':S.co}${S.dept!='All'?' · '+S.dept:''}${S.sec!='All'?' · '+S.sec:''}</small></h2><div class="kg">${kp}</div>
  <div class="ins">${top?`<div data-i="4">Highest OT spend: ${top.k} (Rs ${fC(top.a.otc+top.a.tpc)})</div>`:''}${ab?`<div data-i="7">Highest absenteeism: ${ab.k} (${fP(ab.a.abs)})</div>`:''}${lt?`<div data-i="9">Most late arrivals: ${lt.k} (${fP(lt.a.late)})</div>`:''}${lvr&&lvr.a.lv>0?`<div data-i="13">Most leavers: ${lvr.k} (${fN(lvr.a.lv)})</div>`:''}</div>
  <h2>Month-wise trends <small>Jan–Dec ${S.y} · selected month highlighted · click any card for full detail</small></h2><div class="tg" id="tg"></div>
  <h2>Breakdown <small>${per}</small></h2><div class="g2"><div class="c"><div class="t">OT cost by department (own vs third party)</div><div class="cv big"><canvas id="c1"></canvas></div></div><div class="c"><div class="t">Allowances &amp; reimbursements</div><div class="cv big"><canvas id="c2"></canvas></div></div></div>
@@ -383,7 +317,7 @@ function table(rs){const m={};rs.forEach(r=>(m[r.co+'|'+r.dept+'|'+r.sec]??=[]).
  const mo=$('#mo');if(mo)mo.onclick=()=>{S.all=!S.all;table(rs)}}
 const pill=(v,a,b)=>`<span class="pill ${v>=b?'h':v>=a?'m':'l'}">${fP(v)}</span>`;
 async function load(){$('#st').textContent='Loading data…';$('#er').style.display='none';
- try{const r=await fetch(CSV+'&t='+Date.now());if(!r.ok)throw new Error('HTTP '+r.status);ingest(await r.text());await loadHC();$('#st').textContent='Live from Google Sheet · updated '+new Date().toLocaleTimeString();try{render()}catch(e){console.error(e);$('#er').style.display='block';$('#er').textContent='Dashboard error: '+e.message;return}}
+ try{const r=await fetch(CSV+'&t='+Date.now());if(!r.ok)throw new Error('HTTP '+r.status);ingest(await r.text());$('#st').textContent='Live from Google Sheet · updated '+new Date().toLocaleTimeString();try{render()}catch(e){console.error(e);$('#er').style.display='block';$('#er').textContent='Dashboard error: '+e.message;return}}
  catch(e){$('#st').textContent='Could not load live data';const x=$('#er');x.style.display='block';x.innerHTML='Could not reach the Google Sheet ('+e.message+'). Open this file from your website or a local server.'}}
 $('#fc').onchange=e=>{S.co=e.target.value;S.dept='All';S.sec='All';render()};$('#fy').onchange=e=>{S.y=+e.target.value;render()};
 $('#fd').onchange=e=>{S.dept=e.target.value;S.sec='All';render()};$('#fs').onchange=e=>{S.sec=e.target.value;render()};
