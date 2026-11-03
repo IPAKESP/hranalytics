@@ -279,7 +279,7 @@ function render(){
  if(!has(a)){$('#app').innerHTML=`<div class="msg"><b>No data for ${per} yet.</b><br>Select another month, or add this month's rows to the Google Sheet and press Refresh data.</div>`;
   $('#app').innerHTML+=`<h2>Jan–Dec trends</h2><div class="tg" id="tg"></div>`;trends(tr,cm);return}
  const prev=S.m=='ytd'?null:tr.slice(0,cm).reverse().find(Boolean);
- const kp=KP.map((x,i)=>{let d='',c='';if(prev&&x.u!==undefined){const df=a[x.k]-prev[x.k];if(Math.abs(df)>1e-9){d=(df>0?'▲ ':'▼ ')+x.f(Math.abs(df))+' vs prev month';c=x.u?((df>0)==(x.u>0)?'g':'b'):''}}
+ const kp=KP.map((x,i)=>{let d='',c='';if(false&&prev&&x.u!==undefined){const df=a[x.k]-prev[x.k];if(Math.abs(df)>1e-9){d=(df>0?'▲ ':'▼ ')+x.f(Math.abs(df))+' vs prev month';c=x.u?((df>0)==(x.u>0)?'g':'b'):''}}
   const ex=x.f===fC?fN(a[x.k]):x.f===fP?a[x.k].toFixed(2)+'%':fN(a[x.k]),tp=x.l+': '+ex+(x.sub?'&#10;'+x.sub(a):'')+(d?'&#10;'+d:'')+'&#10;Click for full detail';
   return `<div class="k ${x.hero?'hero':''}" data-k="${x.k}" data-tip="${tp}" style="--i:${i}"><i class="ic">${I(TR.find(t=>t[0]==x.k)[3])}</i><div class="l">${x.l}</div><div class="v" data-ck="${x.k}" data-cv="${a[x.k]}">${x.f(a[x.k])}</div><div class="d ${c}">${x.sub?x.sub(a):d||'&nbsp;'}</div></div>`}).join('');
  const grp=(by)=>{const m={};rs.forEach(r=>(m[r[by]]??=[]).push(r));return Object.entries(m).map(([k,v])=>({k,a:agg(v)})).filter(x=>has(x.a))};
@@ -357,8 +357,8 @@ function drawDet(){
  <h3>Top sections · ${per}</h3>${bl(gb('sec'),'sec',12)}</div>`;
  $('.dside').scrollTop=ss;
  const mu=getComputedStyle(document.body).getPropertyValue('--mu'),sel=S.m=='ytd'?-1:cm,ds=[{type:DT,label:l,data:vals.map(v=>v===null?null:+v.toFixed(2)),borderColor:'#2e9e5b',borderWidth:3,tension:.35,pointRadius:vals.map((_,j)=>j==sel?7:4),pointBackgroundColor:'#2e9e5b',fill:DT=='line',backgroundColor:DT=='bar'?vals.map((_,j)=>j==sel?'#14532d':'#7fd4a0'):'rgba(46,158,91,.14)',borderRadius:8,order:2}];
- if(ok.length>1)ds.push({type:'line',label:'Average',data:vals.map(v=>v===null?null:+av.toFixed(2)),borderColor:'#f0a35e',borderDash:[6,4],borderWidth:2,pointRadius:0,order:1});
- mk('dc',{type:'bar',data:{labels:MN,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:mu,boxWidth:12}},tooltip:{callbacks:{title:i=>i[0].label+' '+S.y,label:c=>c.dataset.label+': '+f(c.parsed.y)}}},scales:{x:{ticks:{color:mu,maxRotation:0,minRotation:0,autoSkip:false},grid:{display:false}},y:{beginAtZero:true,ticks:{color:mu,callback:v=>f(v)},grid:{color:'rgba(120,160,135,.15)'}}}}});
+ if(false&&ok.length>1)ds.push({type:'line',label:'Average',data:vals.map(v=>v===null?null:+av.toFixed(2)),borderColor:'#f0a35e',borderDash:[6,4],borderWidth:2,pointRadius:0,order:1});
+ mk('dc',{type:'bar',data:{labels:MN,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>i[0].label+' '+S.y,label:c=>c.dataset.label+': '+f(c.parsed.y)}}},scales:{x:{ticks:{color:mu,maxRotation:0,minRotation:0,autoSkip:false},grid:{display:false}},y:{beginAtZero:true,ticks:{color:mu,callback:v=>f(v)},grid:{color:'rgba(120,160,135,.15)'}}}}});
 }
 $('#dv').onclick=e=>{const T=e.target,q=s=>T.closest(s);let x;
  if(q('#dx'))return closeDet();
