@@ -80,7 +80,7 @@ function render(){
  if(!a){$('#app').innerHTML=`<div class="msg"><b>${per} ka data abhi nahi hai.</b><br>Koi aur month chunein.</div>`;return}
  const prev=ytd?null:tr.slice(0,cm).reverse().find(Boolean);
  const kp=KP.map(([k,l,f,u,ic,g],i)=>{let d=g?'Group-wide':cn;if(prev&&Math.abs(a[k]-prev[k])>1e-9){const df=a[k]-prev[k];d=`<span class="${u?((df>0)==(u>0)?'g':'b'):''}">${df>0?'▲':'▼'} ${f(Math.abs(df))} vs prev</span>`}
-  return`<div class="k" data-k="${i}" title="Click for full detail"><span class="ic">${I(ic)}</span><div class="l">${l}</div><div class="v">${k=='gs'||u!==0&&f===fC?'Rs ':''}${f(a[k])}</div><div class="d">${d}</div>${spark(tr,k)}</div>`}).join('');
+  return`<div class="k" data-k="${i}" title="Click for full detail"><span class="ic">${I(ic)}</span><div class="l">${l}</div><div class="v">${k=='gs'||u!==0&&f===fC?'Rs ':''}${f(a[k])}</div><div class="d">${d}</div></div>`}).join('');
  const cc=COS.map(c=>[c,agg(rs,c)]).filter(x=>x[1]).sort((x,y)=>y[1].gs-x[1].gs),hi=tr.reduce((p,x,i)=>x&&(p<0||x.gs>tr[p].gs)?i:p,-1);
  const ins=[cc[0]&&`Highest store spend: ${cc[0][0]} (Rs ${fC(cc[0][1].gs)})`,hi>=0&&`Peak store spend month: ${MN[hi]} (Rs ${fC(tr[hi].gs)})`,prev&&`Net cost per meal: Rs ${fN(a.ncpm)} (${a.ncpm>prev.ncpm?'▲':'▼'} from Rs ${fN(prev.ncpm)})`,`Headcount (latest): ${fN(a.hc)}`].filter(Boolean).map(t=>`<div>${t}</div>`).join('');
  $('#app').innerHTML=`<h2>Overview<small>${per} · ${cn}</small></h2><div class="kg">${kp}</div><div class="ins">${ins}</div>
