@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cost Analysis Dashboard</title>
+<link rel="icon" type="image/png" href="logo.png"><link rel="apple-touch-icon" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#eef8f0;--sf:#fff;--sf2:#f5fbf6;--bd:#d5ebda;--tx:#133524;--mu:#5b7a66;--pr:#2e9e5b;--pd:#14532d;--pl:#cdeed8;--bad:#d4543a;--ok:#1f8a4c;--sh:0 1px 2px rgba(20,83,45,.06),0 6px 20px rgba(20,83,45,.05)}
+*{box-sizing:border-box;margin:0}body{font-family:Figtree,system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:14px}
+header{position:sticky;top:0;z-index:20;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;padding:8px 20px;flex-wrap:wrap}
+img.logo{height:36px;max-width:150px;object-fit:contain}.logo.t{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#2e9e5b,#86e0a6);display:grid;place-items:center;color:#fff;font-weight:800}
+h1{font-size:16px;font-weight:800}.sub{color:var(--mu);font-size:12px}.sp{flex:1}
+.nav{display:flex;gap:6px;flex-wrap:wrap}.nl{text-decoration:none;color:var(--tx);border:1px solid var(--bd);background:var(--sf2);padding:7px 15px;border-radius:99px;font:600 13px Figtree}.nl:hover{border-color:var(--pr)}.nl.on{background:var(--pr);border-color:var(--pr);color:#fff}
+.btn,.mp{border:1px solid var(--bd);background:var(--sf2);color:var(--tx);padding:6px 11px;border-radius:10px;font:600 12.5px Figtree;cursor:pointer;transition:transform .15s}.btn:hover,.mp:hover{border-color:var(--pr);transform:translateY(-1px)}.btn.p,.mp.on,.btn.on{background:var(--pr);border-color:var(--pr);color:#fff}.mp{border-radius:99px;padding:3px 10px;flex:none}.mp.no{opacity:.45}.mp.no.on{opacity:1}
+main{max-width:1500px;margin:0 auto;padding:12px 24px 60px}
+.bar{position:sticky;top:60px;z-index:15;background:rgba(255,255,255,.6);backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(20,83,45,.1);border-radius:12px;padding:8px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.f{display:flex;align-items:center;gap:5px}.f label,.mlab{font-size:11px;color:var(--mu);font-weight:600}
+select{border:1px solid var(--bd);background:var(--sf2);color:var(--tx);padding:5px 8px;border-radius:8px;font:500 12.5px Figtree}
+#mm{display:flex;gap:6px;overflow-x:auto;flex:1;min-width:260px;border-left:1px solid var(--bd);padding-left:10px;scrollbar-width:none;align-items:center}
+h2{font-size:16px;font-weight:800;margin:20px 0 10px}h2 small{font-weight:500;color:var(--mu);font-size:12px;margin-left:6px}
+.kg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.k,.c{background:var(--sf);border:1px solid var(--bd);border-radius:12px;box-shadow:var(--sh);transition:transform .15s,box-shadow .2s}
+.k{position:relative;padding:8px 11px;cursor:pointer}.k:hover,.tc:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(46,158,91,.22)}
+.k .l{color:var(--mu);font-size:11px;font-weight:600;padding-right:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.k .v{font-size:19px;font-weight:800;margin:2px 0}.k .d{font-size:10.5px;font-weight:600;color:var(--mu)}
+.ic{position:absolute;top:7px;right:8px;color:var(--pr);display:grid;place-items:center}.ic svg{width:15px;height:15px;fill:currentColor}.dh h2 svg{width:22px;height:22px;fill:var(--pr);vertical-align:-3px}
+.sl{display:block;width:100%;height:12px;margin-top:3px;color:var(--pr)}.sl polyline{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.g{color:var(--ok)!important}.b{color:var(--bad)!important}
+.ins{display:flex;gap:7px;overflow-x:auto;margin-top:8px;scrollbar-width:none}.ins div{background:var(--pl);border-radius:10px;padding:5px 11px;font-size:11.5px;color:var(--pd);font-weight:600;white-space:nowrap;flex:none}
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}.c{padding:14px}.tc{cursor:pointer}
+.c .t{display:flex;justify-content:space-between;margin-bottom:8px;font-weight:700;font-size:13px}.c .t span+span{color:var(--pr);font-weight:800}
+.cv{position:relative;height:130px;min-width:0}.cv.big{height:300px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.g2>.c{min-width:0}
+.tw{overflow:auto;max-height:420px;border:1px solid var(--bd);border-radius:12px;background:var(--sf)}
+table{border-collapse:collapse;width:100%;font-size:12.5px}th{position:sticky;top:0;background:var(--pl);color:var(--pd);padding:8px 10px;text-align:right;white-space:nowrap}td{padding:7px 10px;border-top:1px solid var(--bd);text-align:right;font-variant-numeric:tabular-nums}th:first-child,td:first-child{text-align:left}tr.mr{cursor:pointer}tr.mr:hover td,tr.sel td{background:var(--sf2)}tr.tot td{font-weight:800;background:var(--pl)}
+.msg{padding:40px;text-align:center;color:var(--mu)}.err{background:#fde3dc;color:#8b2a16;padding:12px 16px;border-radius:12px;margin-top:12px;display:none}
+.dv{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;overflow:auto;padding:20px 26px 60px}.dv.on{display:block}.dh{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.dh h2{margin:0;font-size:22px}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}.sg div{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:10px 13px}.sg small{display:block;color:var(--mu);font-size:11.5px;font-weight:600}.sg b{font-size:17px}
+.bl{display:grid;grid-template-columns:90px 1fr 80px;gap:10px;align-items:center;padding:5px 0;font-size:12.5px}.bt{background:var(--pl);border-radius:99px;height:10px}.bt i{display:block;height:100%;background:linear-gradient(90deg,#6cc78f,#2e9e5b);border-radius:99px}.bl b{text-align:right}
+@media(max-width:900px){.g2{grid-template-columns:1fr}main{padding:10px}.bar{position:static}#mm{flex-basis:100%;border:0;padding:0}}
+</style></head><body>
+<header><img class="logo" src="logo.png" alt="Logo" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo t',textContent:'HR'}))"><div><h1>Cost Analysis Dashboard</h1><div class="sub" id="st">Loading data…</div></div><div class="sp"></div>
+<nav class="nav"><a class="nl" href="index.html">Home</a><a class="nl" href="hrbp.html">HRBP</a><a class="nl" href="employeeservices.html">Employee Services</a><a class="nl" href="admin.html">Admin Service</a><a class="nl on" href="cost-analysis.html">Cost Analysis</a></nav></header>
+<main><div class="err" id="er"></div>
+<div class="bar"><div class="f"><label>Company</label><select id="fc"></select></div><div class="f"><label>Year</label><select id="fy"></select></div><button class="btn" id="rs">Reset</button><div id="mm"></div></div>
+<div id="app"><div class="msg">Loading…</div></div></main>
+<div class="dv" id="dv"></div>
+<script>
+const CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vT_jdnrTyXUQU1JJ7fBhU5EKZtENrVaMAZF7HdWvN3ArHRPAS1yXOcwdryY8TysO3afJnB94gLvvsiN/pub?output=csv';
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],COS=['IPAK','GPAK','PETPAK'],$=s=>document.querySelector(s);
+const num=v=>{const n=parseFloat(String(v??'').replace(/[,\s%]/g,''));return isFinite(n)?n:0};
+const fN=v=>Math.round(v||0).toLocaleString('en-US'),fP=v=>(v||0).toFixed(1)+'%',fC=v=>{const a=Math.abs(v||0);return a>=1e6?(v/1e6).toFixed(2)+'M':a>=1e4?(v/1e3).toFixed(1)+'K':fN(v)};
+function parseCSV(t){const r=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}else if(c=='"')q=true;else if(c==','){row.push(f);f=''}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;row.push(f);r.push(row);row=[];f=''}else f+=c}if(f!==''||row.length){row.push(f);r.push(row)}return r}
+let RAW=[],S={co:'All',y:0,m:'latest'},CH={},CUR={};
+function ingest(text){const t=parseCSV(text),h=t[0].map(s=>s.trim());
+ RAW=t.slice(1).map(r=>{const m=String(r[0]).trim().match(/^(\d{1,2})\/\d{1,2}\/(\d{4})$/);if(!m)return null;const d={};h.forEach((k,i)=>{if(i>0)d[k]=num(r[i])});return{m:+m[1]-1,y:+m[2],key:+m[2]*12+ +m[1],d}}).filter(Boolean);
+ if(!RAW.length)throw new Error('Koi valid Month row (e.g. 7/1/2024) nahi mili.');S.y=Math.max(...RAW.map(r=>r.y))}
+/* Sheet ke computed columns (Group totals, Total cost, Per meal) khali/placeholder hain, isliye yahan raw columns se calculate hota hai */
+function R(r,co){const d=r.d,cs=co=='All'?COS:[co],o={gs:0,groc:0,gh:0,ref:0,kar:0,veg:0,meat:0,wat:0},sh=d.MC_Water_Mess_Share;
+ cs.forEach(c=>{o.gs+=d['GS_'+c+'_Actual_Expense'];o.groc+=d['GS_'+c+'_Mess_Grocery'];o.gh+=d['GS_'+c+'_Guest_House'];o.ref+=d['GS_'+c+'_Refreshment_Office_Supplies'];o.kar+=d['GS_'+c+'_Karachi_Office_Supply'];o.veg+=d['MC_'+c+'_Vegetables_Fruits'];o.meat+=d['MC_'+c+'_Meat'];o.wat+=d['MC_'+c+'_Water_Overall']*sh});
+ o.mat=o.groc+o.veg+o.meat+o.wat;let G=0;COS.forEach(c=>G+=d['GS_'+c+'_Mess_Grocery']+d['MC_'+c+'_Vegetables_Fruits']+d['MC_'+c+'_Meat']+d['MC_'+c+'_Water_Overall']*sh);
+ o.pay=d.MC_COMPANY_Payroll_Mess_Staff;o.tm=G+o.pay;o.rec=d.MC_COMPANY_Deduction_Permanent+d.MC_COMPANY_Deduction_Third_Party+d.MC_COMPANY_Cash_Payment_Against_Meals+d.MC_COMPANY_Charged_To_Contractor;o.net=o.tm-o.rec;
+ o.mP=d.MC_MEALS_Permanent_Employees;o.mT=d.MC_MEALS_Third_Party_Employees;o.mO=d.MC_MEALS_Guests_Vendors+d.MC_MEALS_On_Cash_Meals+d.MC_MEALS_Bill_To_Contractor;o.meals=o.mP+o.mT+o.mO;return o}
+const IC={doc:'M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z',cart:'M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z',home:'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z',cup:'M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.9 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z',box:'M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2zm5-7H4V4h16v3z',dish:'M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z',leaf:'M6.05 8.05c-2.73 2.73-2.73 7.15-.02 9.88 1.47-3.4 4.09-6.24 7.36-7.93-2.77 2.34-4.71 5.61-5.39 9.32 2.6 1.23 5.8.78 7.95-1.37C19.43 14.47 20 4 20 4S9.53 3.43 6.05 8.05z',meat:'M16.5 3a4.5 4.5 0 00-3.9 6.7L4 18.3 5.7 20l8.6-8.6A4.5 4.5 0 1016.5 3z',drop:'M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z',people:'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z',money:'M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z',undo:'M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z',build:'M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10z',target:'M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z',trend:'M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z',wallet:'M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'};
+const I=n=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
+const KP=[['gs','General store expense',fC,-1,'doc'],['groc','Mess grocery',fC,-1,'cart'],['gh','Guest house',fC,-1,'home'],['ref','Refreshment & office',fC,-1,'cup'],['kar','Karachi office supply',fC,-1,'box'],['mat','Mess material cost',fC,-1,'dish'],['veg','Vegetables & fruits',fC,-1,'leaf'],['meat','Meat',fC,-1,'meat'],['wat','Water (mess share)',fC,-1,'drop'],['pay','Mess staff payroll',fC,-1,'people',1],['tm','Total mess cost',fC,-1,'money',1],['rec','Recovered cost',fC,1,'undo',1],['net','Net cost to company',fC,-1,'build',1],['meals','Total meals',fN,0,'dish',1],['cpm','Cost per meal (Rs)',fN,-1,'trend',1],['ncpm','Net cost per meal (Rs)',fN,-1,'wallet',1],['rp','Recovery %',fP,1,'target',1]];
+const LINE=['cpm','ncpm','rp'],AK=['gs','groc','gh','ref','kar','mat','veg','meat','wat','pay','tm','rec','net','meals','mP','mT','mO'],SUMK=AK.slice(0,14);
+function agg(rs,co){if(!rs.length)return null;const o={};AK.forEach(k=>o[k]=0);let lk=-1;
+ rs.forEach(r=>{const x=R(r,co);AK.forEach(k=>o[k]+=x[k]);if(r.key>lk){lk=r.key;o.hc=r.d.MC_COUNT_Permanent_Headcount+r.d.MC_COUNT_Third_Party_Headcount}});
+ o.cpm=o.meals?o.tm/o.meals:0;o.ncpm=o.meals?o.net/o.meals:0;o.rp=o.tm?o.rec/o.tm*100:0;return o.gs>0||o.tm>0?o:null}
+const tipsOff={animation:{duration:600}};
+function mk(id,cfg){if(CH[id])CH[id].destroy();const e=document.getElementById(id);if(!e)return;cfg.options={responsive:true,maintainAspectRatio:false,...cfg.options};CH[id]=new Chart(e,cfg)}
+function curM(tr){if(S.m=='latest'||S.m=='ytd'){for(let i=11;i>=0;i--)if(tr[i])return i;return 0}return +S.m}
+const opt=(id,vals,cur,all)=>{$(id).innerHTML=(all?'<option>All</option>':'')+vals.map(v=>`<option ${v==cur?'selected':''}>${v}</option>`).join('')};
+const spark=(tr,k)=>{const p=tr.map((x,i)=>x?[i,x[k]]:null).filter(Boolean);if(p.length<2)return'';const v=p.map(a=>a[1]),mn=Math.min(...v),r=Math.max(...v)-mn||1;return`<svg class="sl" viewBox="0 0 100 24" preserveAspectRatio="none"><polyline points="${p.map(a=>(a[0]/11*96+2).toFixed(1)+','+(20-(a[1]-mn)/r*16).toFixed(1)).join(' ')}"/></svg>`};
+function render(){
+ Object.values(CH).forEach(c=>c.destroy());CH={};
+ opt('#fc',COS,S.co,1);opt('#fy',[...new Set(RAW.map(r=>r.y))].sort(),S.y);
+ const b=RAW.filter(r=>r.y==S.y),tr=MN.map((_,i)=>agg(b.filter(r=>r.m==i),S.co)),trG=MN.map((_,i)=>agg(b.filter(r=>r.m==i),'All')),cm=curM(tr),ytd=S.m=='ytd';
+ $('#mm').innerHTML='<span class="mlab">Month</span>'+MN.map((m,i)=>`<button class="mp ${tr[i]?'':'no'} ${!ytd&&i==cm?'on':''}" data-m="${i}">${m}</button>`).join('')+`<button class="mp ${ytd?'on':''}" data-m="ytd">Full year</button>`;
+ const rs=ytd?b:b.filter(r=>r.m==cm),a=agg(rs,S.co),per=ytd?'Jan–Dec '+S.y:MN[cm]+' '+S.y,cn=S.co=='All'?'All companies':S.co;CUR={tr,cm,rs,per,cn};
+ if(!a){$('#app').innerHTML=`<div class="msg"><b>${per} ka data abhi nahi hai.</b><br>Koi aur month chunein.</div>`;return}
+ const prev=ytd?null:tr.slice(0,cm).reverse().find(Boolean);
+ const kp=KP.map(([k,l,f,u,ic,g],i)=>{let d=g?'Group-wide':cn;if(prev&&Math.abs(a[k]-prev[k])>1e-9){const df=a[k]-prev[k];d=`<span class="${u?((df>0)==(u>0)?'g':'b'):''}">${df>0?'▲':'▼'} ${f(Math.abs(df))} vs prev</span>`}
+  return`<div class="k" data-k="${i}" title="Click for full detail"><span class="ic">${I(ic)}</span><div class="l">${l}</div><div class="v">${k=='gs'||u!==0&&f===fC?'Rs ':''}${f(a[k])}</div><div class="d">${d}</div>${spark(tr,k)}</div>`}).join('');
+ const cc=COS.map(c=>[c,agg(rs,c)]).filter(x=>x[1]).sort((x,y)=>y[1].gs-x[1].gs),hi=tr.reduce((p,x,i)=>x&&(p<0||x.gs>tr[p].gs)?i:p,-1);
+ const ins=[cc[0]&&`Highest store spend: ${cc[0][0]} (Rs ${fC(cc[0][1].gs)})`,hi>=0&&`Peak store spend month: ${MN[hi]} (Rs ${fC(tr[hi].gs)})`,prev&&`Net cost per meal: Rs ${fN(a.ncpm)} (${a.ncpm>prev.ncpm?'▲':'▼'} from Rs ${fN(prev.ncpm)})`,`Headcount (latest): ${fN(a.hc)}`].filter(Boolean).map(t=>`<div>${t}</div>`).join('');
+ $('#app').innerHTML=`<h2>Overview<small>${per} · ${cn}</small></h2><div class="kg">${kp}</div><div class="ins">${ins}</div>
+ <h2>Month-wise trends<small>Jan–Dec ${S.y} · click any card for full detail</small></h2><div class="tg">${KP.map(([k,l,f],i)=>`<div class="c tc" data-i="${i}"><div class="t"><span>${l}</span><span>${tr[cm]?f(tr[cm][k]):'–'}</span></div><div class="cv"><canvas id="t${i}"></canvas></div></div>`).join('')}</div>
+ <h2>Breakdown<small>${per}</small></h2>
+ <div class="g2"><div class="c"><div class="t"><span>General store expense by company</span></div><div class="cv big"><canvas id="c1"></canvas></div></div><div class="c"><div class="t"><span>Mess cost composition (group)</span></div><div class="cv big"><canvas id="c2"></canvas></div></div></div>
+ <div class="g2"><div class="c"><div class="t"><span>Total vs recovered vs net mess cost (group)</span></div><div class="cv big"><canvas id="c3"></canvas></div></div><div class="c"><div class="t"><span>Meals mix (group)</span></div><div class="cv big"><canvas id="c4"></canvas></div></div></div>
+ <h2>Company comparison<small>${per}</small></h2><div class="tw" id="tc"></div>
+ <h2>Month by month<small>${cn} · click a row to select month</small></h2><div class="tw" id="tm"></div>`;
+ const mu='#5b7a66',gr='rgba(120,160,135,.15)',ax={ticks:{color:mu},grid:{color:gr}};
+ KP.forEach(([k,l,f],i)=>{const d=tr.map(x=>x?+x[k].toFixed(2):null),ln=LINE.includes(k);mk('t'+i,{type:ln?'line':'bar',data:{labels:MN,datasets:[{data:d,borderColor:'#2e9e5b',borderWidth:2.5,tension:.35,pointRadius:3,fill:ln,backgroundColor:ln?'rgba(46,158,91,.12)':d.map((_,j)=>!ytd&&j==cm?'#14532d':'#7fd4a0'),borderRadius:4}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>l+': '+f(c.parsed.y)}}},scales:{x:{ticks:{color:mu,font:{size:9},maxRotation:0,autoSkip:false},grid:{display:false}},y:{beginAtZero:true,ticks:{color:mu,font:{size:10},maxTicksLimit:4},grid:{color:gr}}}}})});
+ const ca=COS.map(c=>agg(rs,c)||{groc:0,gh:0,ref:0,kar:0}),P=['#14532d','#2e9e5b','#6cc78f','#c9f0d6'];
+ mk('c1',{type:'bar',data:{labels:COS,datasets:[['Mess grocery','groc'],['Guest house','gh'],['Refreshment & office','ref'],['Karachi office','kar']].map(([n,k],i)=>({label:n,data:ca.map(x=>x[k]),backgroundColor:P[i],borderRadius:3}))},options:{scales:{x:{...ax,stacked:true},y:{...ax,stacked:true,ticks:{color:mu,callback:v=>fC(v)}}},plugins:{legend:{labels:{color:mu,boxWidth:12}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fN(c.parsed.y)}}}}});
+ const ga=agg(rs,'All'),cp=[['Grocery','groc'],['Veg & fruits','veg'],['Meat','meat'],['Water (mess)','wat'],['Staff payroll','pay']];
+ mk('c2',{type:'doughnut',data:{labels:cp.map(x=>x[0]),datasets:[{data:cp.map(x=>ga[x[1]]),backgroundColor:['#2e9e5b','#6cc78f','#14532d','#a7e3bd','#1f7a45'],borderWidth:0}]},options:{cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:mu,boxWidth:10}},tooltip:{callbacks:{label:c=>{const t=c.dataset.data.reduce((p,z)=>p+z,0);return c.label+': '+fN(c.parsed)+' ('+(c.parsed/t*100).toFixed(1)+'%)'}}}}}});
+ const gv=k=>trG.map(x=>x?Math.round(x[k]):null);
+ mk('c3',{data:{labels:MN,datasets:[{type:'bar',label:'Total mess cost',data:gv('tm'),backgroundColor:'#a7e3bd',borderRadius:4},{type:'line',label:'Recovered',data:gv('rec'),borderColor:'#f0a35e',tension:.35},{type:'line',label:'Net to company',data:gv('net'),borderColor:'#14532d',tension:.35}]},options:{interaction:{mode:'index',intersect:false},scales:{x:{...ax,grid:{display:false}},y:{...ax,beginAtZero:true,ticks:{color:mu,callback:v=>fC(v)}}},plugins:{legend:{labels:{color:mu,boxWidth:12}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fN(c.parsed.y)}}}}});
+ mk('c4',{type:'bar',data:{labels:MN,datasets:[['Permanent','mP','#14532d'],['Third party','mT','#2e9e5b'],['Guests / cash / contractor','mO','#a7e3bd']].map(([n,k,c])=>({label:n,data:trG.map(x=>x?x[k]:null),backgroundColor:c}))},options:{interaction:{mode:'index',intersect:false},scales:{x:{...ax,stacked:true,grid:{display:false}},y:{...ax,stacked:true,ticks:{color:mu,callback:v=>fC(v)}}},plugins:{legend:{labels:{color:mu,boxWidth:12}}}}});
+ const C1=[['gs','Store exp.'],['groc','Grocery'],['gh','Guest house'],['ref','Refresh./office'],['kar','Karachi'],['veg','Veg & fruits'],['meat','Meat'],['wat','Water'],['mat','Mess material']],th=a=>a.map(x=>`<th>${x[1]}</th>`).join('');
+ const cr=COS.map(c=>[c,agg(rs,c)]).filter(x=>x[1]);
+ $('#tc').innerHTML=`<table><thead><tr><th>Company</th>${th(C1)}</tr></thead><tbody>${cr.map(x=>`<tr><td>${x[0]}</td>${C1.map(c=>`<td>${fN(x[1][c[0]])}</td>`).join('')}</tr>`).join('')}<tr class="tot"><td>TOTAL</td>${C1.map(c=>`<td>${fN(ga[c[0]])}</td>`).join('')}</tr></tbody></table>`;
+ const C2=[['gs','Store exp.'],['mat','Mess material'],['pay','Payroll'],['tm','Total mess'],['rec','Recovered'],['net','Net cost'],['meals','Meals'],['cpm','Cost/meal'],['ncpm','Net/meal']];
+ $('#tm').innerHTML=`<table><thead><tr><th>Month</th>${th(C2)}</tr></thead><tbody>${MN.map((m,i)=>tr[i]?`<tr class="mr ${!ytd&&i==cm?'sel':''}" data-mm="${i}"><td>${m} ${S.y}</td>${C2.map(c=>`<td>${fN(tr[i][c[0]])}</td>`).join('')}</tr>`:'').join('')}</tbody></table>`}
+/* detail view */
+let DI=0,DT='bar';
+function det(){const [k,l,f,u,ic,g]=KP[DI],{tr,cm,rs,per,cn}=CUR,vals=tr.map(x=>x?x[k]:null),ok=vals.map((v,i)=>v===null?-1:i).filter(i=>i>=0);
+ const av=ok.reduce((s,i)=>s+vals[i],0)/(ok.length||1),mx=ok.reduce((p,i)=>vals[i]>vals[p]?i:p,ok[0]),mn=ok.reduce((p,i)=>vals[i]<vals[p]?i:p,ok[0]),pi=ok.filter(i=>i<cm).pop(),dl=vals[cm]!=null&&pi!=null?vals[cm]-vals[pi]:null;
+ const dc=d=>d==null||!u||Math.abs(d)<1e-9?'':((d>0)==(u>0)?'g':'b'),dt=d=>d==null?'–':Math.abs(d)<1e-9?'No change':(d>0?'▲ ':'▼ ')+f(Math.abs(d));
+ const st=[[MN[cm]+' '+S.y,vals[cm]!=null?f(vals[cm]):'–',''],['Change vs previous month',dt(dl),dc(dl)],['Monthly average',f(av),''],['Highest',f(vals[mx])+' · '+MN[mx],''],['Lowest',f(vals[mn])+' · '+MN[mn],'']];
+ if(SUMK.includes(k))st.push(['Year total',f(ok.reduce((s,i)=>s+vals[i],0)),'']);
+ const sp=g?[]:COS.map(c=>[c,(agg(rs,c)||{})[k]||0]),m=Math.max(...sp.map(x=>x[1]),1);
+ $('#dv').innerHTML=`<div class="dh"><button class="btn" data-n="-1">◀</button><div><div class="sub">${DI+1} of ${KP.length} · ${cn}${g?' (group-wide metric)':''}</div><h2>${I(ic)} ${l}</h2></div><button class="btn" data-n="1">▶</button><span class="sp"></span><button class="btn ${DT=='bar'?'on':''}" data-t="bar">Bars</button><button class="btn ${DT=='line'?'on':''}" data-t="line">Line</button><button class="btn p" id="dx">Close ✕</button></div>
+ <div class="sg">${st.map(x=>`<div><small>${x[0]}</small><b class="${x[2]}">${x[1]}</b></div>`).join('')}</div><div class="c"><div class="cv big"><canvas id="dc"></canvas></div></div>
+ <div class="g2"><div><h2>Month by month</h2><div class="tw"><table><thead><tr><th>Month</th><th>${l}</th><th>Change</th></tr></thead><tbody>${MN.map((mm,i)=>{const p=ok.filter(j=>j<i).pop(),d=vals[i]!=null&&p!=null?vals[i]-vals[p]:null;return`<tr><td>${mm}</td><td>${vals[i]!=null?f(vals[i]):'–'}</td><td class="${dc(d)}">${dt(d)}</td></tr>`}).join('')}</tbody></table></div></div>
+ <div>${g?'':`<h2>By company · ${per}</h2>${sp.map(x=>`<div class="bl"><span>${x[0]}</span><div class="bt"><i style="width:${Math.max(2,x[1]/m*100)}%"></i></div><b>${f(x[1])}</b></div>`).join('')}`}</div></div>`;
+ const mu='#5b7a66';mk('dc',{type:DT,data:{labels:MN,datasets:[{label:l,data:vals.map(v=>v===null?null:+v.toFixed(2)),borderColor:'#2e9e5b',borderWidth:3,tension:.35,pointRadius:4,fill:DT=='line',backgroundColor:DT=='bar'?vals.map((_,j)=>j==cm?'#14532d':'#7fd4a0'):'rgba(46,158,91,.14)',borderRadius:8}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>l+': '+f(c.parsed.y)}}},scales:{x:{ticks:{color:mu},grid:{display:false}},y:{beginAtZero:true,ticks:{color:mu,callback:v=>f(v)},grid:{color:'rgba(120,160,135,.15)'}}}}})}
+function openDet(i){DI=(i+KP.length)%KP.length;$('#dv').classList.add('on');document.body.style.overflow='hidden';det()}
+function closeDet(){$('#dv').classList.remove('on');document.body.style.overflow='';if(CH.dc){CH.dc.destroy();delete CH.dc}}
+$('#dv').onclick=e=>{const T=e.target;if(T.closest('#dx'))return closeDet();const n=T.closest('[data-n]'),t=T.closest('[data-t]');if(n)DI=(DI+ +n.dataset.n+KP.length)%KP.length;else if(t)DT=t.dataset.t;else return;det()};
+document.addEventListener('keydown',e=>{if(!$('#dv').classList.contains('on'))return;if(e.key=='Escape')closeDet();else if(e.key=='ArrowRight'){DI=(DI+1)%KP.length;det()}else if(e.key=='ArrowLeft'){DI=(DI-1+KP.length)%KP.length;det()}});
+$('#app').onclick=e=>{const c=e.target.closest('[data-k],[data-i]'),r=e.target.closest('[data-mm]');if(r){S.m=+r.dataset.mm;render()}else if(c)openDet(+(c.dataset.k??c.dataset.i))};
+$('#mm').onclick=e=>{const m=e.target.dataset.m;if(m!==undefined){S.m=m=='ytd'?'ytd':+m;render()}};
+$('#fc').onchange=e=>{S.co=e.target.value;render()};$('#fy').onchange=e=>{S.y=+e.target.value;render()};
+$('#rs').onclick=()=>{S.co='All';S.m='latest';S.y=Math.max(...RAW.map(r=>r.y));render()};
+async function load(){try{const r=await fetch(CSV+'&t='+Date.now());if(!r.ok)throw new Error('HTTP '+r.status);ingest(await r.text());$('#st').textContent='Live from Google Sheet · updated '+new Date().toLocaleTimeString();render()}
+ catch(e){console.error(e);$('#st').textContent='Could not load live data';const x=$('#er');x.style.display='block';x.textContent='Dashboard error: '+e.message+'. Page ko apni website ya local server se kholein.'}}
+Chart.defaults.font.family='Figtree';load();
+</script></body></html>
