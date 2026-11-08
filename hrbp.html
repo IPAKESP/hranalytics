@@ -86,6 +86,12 @@ table.pr th,table.pr td{text-align:left}table.pr tbody tr{cursor:default}.tools 
    If a tab is not detected, put its gid (number after #gid= in the sheet URL) in GID below. */
 const WB='https://docs.google.com/spreadsheets/d/e/2PACX-1vSDAjZD5Q57ouFx-CIFM1isOIFA8szdXCsNUzxEdFfx0D60nT6MJdCEl7YJJL7lrUE01bGU-lDQs7CH/pub';
 const GID={POSITIONS:'',MASTER:'',RECRUIT:'',EXITS:''};
+/* PRIMARY source: the same sheet, read tab-by-tab BY NAME (no gid needed).
+   Sheet must be shared "Anyone with the link - Viewer". If this fails, the code falls back to the published-to-web link above. */
+const SHEET_ID='1kLfH9HnMJ7Ul1txLCfGGw4aCwuSR93oZW8hZU5ygENU';
+const NAMES={POSITIONS:'Positions',MASTER:'Mastersheet',RECRUIT:'Recruitment',EXITS:'Exits'};
+const GV=k=>'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent(NAMES[k]);
+const SIGS={POSITIONS:h=>h.has('positiontitle')||h.has('positionstatus'),MASTER:h=>h.has('leavers')||h.has('currentheadcount'),RECRUIT:h=>h.has('offerstatus')||h.has('joindate')||h.has('opendate'),EXITS:h=>h.has('exitdate')||h.has('exitreason')};
 /* tab-name patterns used for auto-detect */
 const TAB={POSITIONS:/position|org\s*chart|hcm/i,MASTER:/master|headcount/i,RECRUIT:/recruit|hiring|requisition/i,EXITS:/exit|leaver|attrition/i};
 const wb=g=>g!==''&&g!=null?WB+'?gid='+g+'&single=true&output=csv':'';
@@ -157,9 +163,12 @@ async function get(u){const res=await fetch(csvUrl(u),{cache:'no-store'});if(!re
 const ids={fc:'co',fg:'geo',fd:'dept',fs:'sec',fy:'y'};
 const syncSel=()=>Object.keys(ids).forEach(id=>{$('#'+id).value=S[ids[id]]});
 async function init(){const er=[];await discover();
- async function load(name,url,norm){if(!url){MISS.push(name);return[]}try{const t=norm(table(await get(url)));if(!t.length){EMPTY.push(name);return[]}return t}catch(e){if(/Cannot read|undefined|no usable/i.test(e.message)){EMPTY.push(name);return[]}er.push(name+': '+e.message);return[]}}
+ async function load(name,url,norm){let txt=null;
+  if(SHEET_ID){try{const x=await get(GV(name));const f=parseCSV(x).find(r=>r.some(c=>String(c).trim()!==''));if(f&&SIGS[name](new Set(f.map(nk))))txt=x}catch(e){txt=null}}
+  if(txt==null){if(!url){MISS.push(name);return[]}try{txt=await get(url)}catch(e){er.push(name+': '+e.message);return[]}}
+  try{const t=norm(table(txt));if(!t.length){EMPTY.push(name);return[]}return t}catch(e){if(/Cannot read|undefined|no usable/i.test(e.message)){EMPTY.push(name);return[]}er.push(name+': '+e.message);return[]}}
  [P,M,R,X]=await Promise.all([load('POSITIONS',CONFIG.POSITIONS,normPos),load('MASTER',CONFIG.MASTER,normMaster),load('RECRUIT',CONFIG.RECRUIT,normRecruit),load('EXITS',CONFIG.EXITS,normExit)]);
- if(er.length){const e=$('#er');e.style.display='block';e.textContent='Could not read: '+er.join('  |  ')+'. Check the sheet is published to the web.'}
+ if(er.length){const e=$('#er');e.style.display='block';e.textContent='Could not read: '+er.join('  |  ')+'. Check the sheet is shared (Anyone with the link: Viewer) and published to the web.'}
  if(MISS.length||EMPTY.length){const d=$('#dm');d.style.display='block';d.textContent=(EMPTY.length?'Tab found but no data rows yet: '+EMPTY.join(', ')+'. Add rows from row 2 (headers in row 1). ':'')+(MISS.length?'Not linked yet: '+MISS.join(', ')+'. '+(DISC.ok?'These tab names were not found in the sheet (found: '+DISC.tabs.map(x=>x.n).join(', ')+'). Rename the tab or add its gid in GID.':'Tab list could not be read automatically, so add each tab\'s gid in GID (top of the script).')+' Related cards stay empty until then.':'')}
  YS=[...new Set([...M.map(r=>r.y),...R.filter(r=>r.join).map(r=>r.join.getFullYear()),...X.filter(r=>r.d).map(r=>r.d.getFullYear())])].sort((a,b)=>b-a);
  if(!YS.length)YS=[new Date().getFullYear()];S.y=YS[0];
