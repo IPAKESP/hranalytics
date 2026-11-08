@@ -80,23 +80,28 @@ table.pr th,table.pr td{text-align:left}table.pr tbody tr{cursor:default}.tools 
 <div id="app"><div class="sk"></div><div class="sk" style="height:220px"></div><div class="sk" style="height:220px"></div></div>
 </main>
 <script>
-/* ============ CONFIG: all data comes from these published Google Sheet links ============
-   Use a CSV link, or a .../pubhtml?gid=XXXX link (gid picks the tab).
-   RECRUIT and EXITS come from the "HRBP Dashboard - Data Entry Workbook".
-   Put each tab's gid in GID below (the number after #gid= in the sheet URL). Empty gid = not linked yet. */
+/* ============ CONFIG: ALL data comes from ONE published Google Sheet (HRBP 2026 Dashboard) ============
+   The dashboard reads the tab list of the sheet and picks tabs by name:
+   Positions / Mastersheet / Recruitment / Exits.
+   If a tab is not detected, put its gid (number after #gid= in the sheet URL) in GID below. */
 const WB='https://docs.google.com/spreadsheets/d/e/2PACX-1vSDAjZD5Q57ouFx-CIFM1isOIFA8szdXCsNUzxEdFfx0D60nT6MJdCEl7YJJL7lrUE01bGU-lDQs7CH/pub';
-const GID={RECRUIT:'',EXITS:''};
-const wb=g=>g?WB+'?gid='+g+'&single=true&output=csv':'';
-const CONFIG={
- /* Positions: Department, Section, Position Title, Geo, Company (As per HCM), Employment Status, Employee ID, Employee Name, Grade, Designation, Position Status */
- POSITIONS:'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGyvSiihXPqbSRez8tNIxNEem49IDkeaqKHnOOGFQ-Su5pxvL2CamvqeQq15Xo3xUvvaUgtA25QHLM/pubhtml',
- /* Mastersheet 2026: Month, Company, Department, Current Headcount, Approved Headcount, Leavers (used for turnover) */
- MASTER:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSMBPrqkOVprAn_sLjg2NmzGCimRx13XoDClYB7a4HMcX0j6MjqH9x7u9Z-NlWG2vAEzv16nPaMOIUU/pub?gid=1670338970&single=true&output=csv',
- /* Recruitment tab, one row per requisition: Company, Geo, Department, Position, Open Date, Offer Date, Offer Status, Join Date, Quality of Hire */
- RECRUIT:wb(GID.RECRUIT),
- /* Exits tab, one row per leaver: Company, Geo, Department, Exit Date, Exit Reason */
- EXITS:wb(GID.EXITS)
-};
+const GID={POSITIONS:'',MASTER:'',RECRUIT:'',EXITS:''};
+/* tab-name patterns used for auto-detect */
+const TAB={POSITIONS:/position|org\s*chart|hcm/i,MASTER:/master|headcount/i,RECRUIT:/recruit|hiring|requisition/i,EXITS:/exit|leaver|attrition/i};
+const wb=g=>g!==''&&g!=null?WB+'?gid='+g+'&single=true&output=csv':'';
+/* Positions: Department, Section, Position Title, Geo, Company (As per HCM), Employment Status, Employee ID, Employee Name, Grade, Designation, Position Status
+   Master: Month, Company, Department, Current Headcount, Approved Headcount, Leavers
+   Recruit: Company, Geo, Department, Section, Position, Open Date, Offer Date, Offer Status, Join Date, Quality of Hire
+   Exits: Company, Geo, Department, Section, Exit Date, Exit Reason */
+const CONFIG={POSITIONS:'',MASTER:'',RECRUIT:'',EXITS:''};
+let DISC={ok:false,tabs:[]};
+async function discover(){
+ try{const t=await(await fetch(WB+'html',{cache:'no-store'})).text();const tabs=[];let m;
+  const r1=/\{name:\s*"((?:[^"\\]|\\.)*)"[^}]*?gid:\s*"(\d+)"/g;while(m=r1.exec(t))tabs.push({n:m[1],g:m[2]});
+  if(!tabs.length){const r2=/sheet-button-(\d+)[^>]*>\s*<a[^>]*>([^<]+)<\/a>/g;while(m=r2.exec(t))tabs.push({n:m[2],g:m[1]})}
+  DISC={ok:tabs.length>0,tabs};
+ }catch(e){DISC={ok:false,tabs:[]}}
+ Object.keys(CONFIG).forEach(k=>{let g=GID[k];if(g===''||g==null){const f=DISC.tabs.find(x=>TAB[k].test(x.n));if(f)g=f.g}CONFIG[k]=wb(g)})}
 /* KPI targets (edit freely). tov = annual turnover %. */
 const TG={fill:95,ttf:45,oar:80,qoh:75,tov:15};
 const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],$=s=>document.querySelector(s);
@@ -143,11 +148,11 @@ const csvUrl=u=>{const m=String(u).match(/^(.*?\/pub)html(?:\?(.*))?$/);if(!m)re
 async function get(u){const res=await fetch(csvUrl(u),{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);return res.text()}
 const ids={fc:'co',fg:'geo',fd:'dept',fs:'sec',fy:'y'};
 const syncSel=()=>Object.keys(ids).forEach(id=>{$('#'+id).value=S[ids[id]]});
-async function init(){const er=[];
+async function init(){const er=[];await discover();
  async function load(name,url,norm){if(!url){MISS.push(name);return[]}try{const t=norm(table(await get(url)));if(!t.length)throw new Error('no usable rows');return t}catch(e){er.push(name+': '+e.message);return[]}}
  [P,M,R,X]=await Promise.all([load('POSITIONS',CONFIG.POSITIONS,normPos),load('MASTER',CONFIG.MASTER,normMaster),load('RECRUIT',CONFIG.RECRUIT,normRecruit),load('EXITS',CONFIG.EXITS,normExit)]);
  if(er.length){const e=$('#er');e.style.display='block';e.textContent='Could not read: '+er.join('  |  ')+'. Check the sheet is published to the web.'}
- if(MISS.length){const d=$('#dm');d.style.display='block';d.textContent='Not linked yet: '+MISS.join(', ')+'. Add that tab\'s gid in GID (top of the script); related cards stay empty until then.'}
+ if(MISS.length){const d=$('#dm');d.style.display='block';d.textContent='Not linked yet: '+MISS.join(', ')+'. '+(DISC.ok?'These tab names were not found in the sheet (found: '+DISC.tabs.map(x=>x.n).join(', ')+'). Rename the tab or add its gid in GID.':'Tab list could not be read automatically, so add each tab\'s gid in GID (top of the script).')+' Related cards stay empty until then.'}
  YS=[...new Set([...M.map(r=>r.y),...R.filter(r=>r.join).map(r=>r.join.getFullYear()),...X.filter(r=>r.d).map(r=>r.d.getFullYear())])].sort((a,b)=>b-a);
  if(!YS.length)YS=[new Date().getFullYear()];S.y=YS[0];
  const u=k=>[...new Set([...P,...M,...R,...X].map(r=>r[k]).filter(Boolean))].sort();
