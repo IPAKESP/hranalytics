@@ -81,16 +81,21 @@ table.pr th,table.pr td{text-align:left}table.pr tbody tr{cursor:default}.tools 
 </main>
 <script>
 /* ============ CONFIG: all data comes from these published Google Sheet links ============
-   Use a CSV link, or a .../pubhtml?gid=XXXX link (gid picks the tab). */
+   Use a CSV link, or a .../pubhtml?gid=XXXX link (gid picks the tab).
+   RECRUIT and EXITS come from the "HRBP Dashboard - Data Entry Workbook".
+   Put each tab's gid in GID below (the number after #gid= in the sheet URL). Empty gid = not linked yet. */
+const WB='https://docs.google.com/spreadsheets/d/e/2PACX-1vSDAjZD5Q57ouFx-CIFM1isOIFA8szdXCsNUzxEdFfx0D60nT6MJdCEl7YJJL7lrUE01bGU-lDQs7CH/pub';
+const GID={RECRUIT:'',EXITS:''};
+const wb=g=>g?WB+'?gid='+g+'&single=true&output=csv':'';
 const CONFIG={
  /* Positions: Department, Section, Position Title, Geo, Company (As per HCM), Employment Status, Employee ID, Employee Name, Grade, Designation, Position Status */
  POSITIONS:'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGyvSiihXPqbSRez8tNIxNEem49IDkeaqKHnOOGFQ-Su5pxvL2CamvqeQq15Xo3xUvvaUgtA25QHLM/pubhtml',
  /* Mastersheet 2026: Month, Company, Department, Current Headcount, Approved Headcount, Leavers (used for turnover) */
  MASTER:'https://docs.google.com/spreadsheets/d/e/2PACX-1vSMBPrqkOVprAn_sLjg2NmzGCimRx13XoDClYB7a4HMcX0j6MjqH9x7u9Z-NlWG2vAEzv16nPaMOIUU/pub?gid=1670338970&single=true&output=csv',
  /* Recruitment tab, one row per requisition: Company, Geo, Department, Position, Open Date, Offer Date, Offer Status, Join Date, Quality of Hire */
- RECRUIT:'',
+ RECRUIT:wb(GID.RECRUIT),
  /* Exits tab, one row per leaver: Company, Geo, Department, Exit Date, Exit Reason */
- EXITS:''
+ EXITS:wb(GID.EXITS)
 };
 /* KPI targets (edit freely). tov = annual turnover %. */
 const TG={fill:95,ttf:45,oar:80,qoh:75,tov:15};
@@ -142,7 +147,7 @@ async function init(){const er=[];
  async function load(name,url,norm){if(!url){MISS.push(name);return[]}try{const t=norm(table(await get(url)));if(!t.length)throw new Error('no usable rows');return t}catch(e){er.push(name+': '+e.message);return[]}}
  [P,M,R,X]=await Promise.all([load('POSITIONS',CONFIG.POSITIONS,normPos),load('MASTER',CONFIG.MASTER,normMaster),load('RECRUIT',CONFIG.RECRUIT,normRecruit),load('EXITS',CONFIG.EXITS,normExit)]);
  if(er.length){const e=$('#er');e.style.display='block';e.textContent='Could not read: '+er.join('  |  ')+'. Check the sheet is published to the web.'}
- if(MISS.length){const d=$('#dm');d.style.display='block';d.textContent='Not linked yet: '+MISS.join(', ')+'. Paste the published link of that tab in CONFIG (top of the script); related cards stay empty until then.'}
+ if(MISS.length){const d=$('#dm');d.style.display='block';d.textContent='Not linked yet: '+MISS.join(', ')+'. Add that tab\'s gid in GID (top of the script); related cards stay empty until then.'}
  YS=[...new Set([...M.map(r=>r.y),...R.filter(r=>r.join).map(r=>r.join.getFullYear()),...X.filter(r=>r.d).map(r=>r.d.getFullYear())])].sort((a,b)=>b-a);
  if(!YS.length)YS=[new Date().getFullYear()];S.y=YS[0];
  const u=k=>[...new Set([...P,...M,...R,...X].map(r=>r[k]).filter(Boolean))].sort();
@@ -216,7 +221,7 @@ const card=(t,v,body,cls,ic)=>`<div class="c ${cls||''}" style="--i:${card.n++}"
 const kpi=(k,l,v,d,o)=>{o=o||{};if(o.f)KF[k]=o.f;return `<div class="k${o.hero?' hero':''}" data-tip="${esc(o.tip||l+': '+String(v).replace(/<[^>]*>/g,''))}" style="--i:${kpi.n++}"><i class="ic">${I(o.ic||'check')}</i><div class="l">${l}</div><div class="v"${o.f?` data-ck="${k}" data-cv="${o.raw}"`:''}>${v}</div><div class="d ${o.c||''}">${d||'&nbsp;'}</div>${o.sp||''}</div>`};
 const cv=id=>`<div class="cv"><canvas id="${id}"></canvas></div>`;
 /* chart body, or a clear message when a source is not linked / has no rows */
-const nd=(src,has,body)=>has?body:`<div class="msg">${MISS.includes(src)?'Link the '+(src=='RECRUIT'?'Recruitment':src=='EXITS'?'Exits':src.toLowerCase())+' tab in CONFIG to see this.':'No data for this selection.'}</div>`;
+const nd=(src,has,body)=>has?body:`<div class="msg">${MISS.includes(src)?'Link the '+(src=='RECRUIT'?'Recruitment':src=='EXITS'?'Exits':src.toLowerCase())+' tab (add its gid in GID) to see this.':'No data for this selection.'}</div>`;
 function pills(mr,rr){const xs=X.filter(r=>okR(r));
  $('#mm').innerHTML='<span class="mlab">Month</span>'+MN.map((m,i)=>{const hc=mr.filter(r=>r.m==i),hi=rr.filter(r=>r.join&&r.join.getFullYear()==S.y&&r.join.getMonth()==i).length,ex=xs.filter(r=>r.d&&r.d.getFullYear()==S.y&&r.d.getMonth()==i).length,has=hc.length||hi||ex;
   const t=has?`${m} ${S.y}&#10;Headcount: ${fN(sum(hc,r=>r.cur))}&#10;Hires: ${hi}&#10;Exits: ${ex}`:`${m} ${S.y}: no data yet`;return `<button class="mp ${has?'':'no'} ${S.m==i?'on':''}" data-m="${i}" data-tip="${t}">${m}</button>`}).join('')+`<button class="mp ${S.m<0?'on':''}" data-m="-1" data-tip="All months of ${S.y} combined">Full year</button>`}
