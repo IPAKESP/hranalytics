@@ -101,7 +101,15 @@ async function discover(){
   if(!tabs.length){const r2=/sheet-button-(\d+)[^>]*>\s*<a[^>]*>([^<]+)<\/a>/g;while(m=r2.exec(t))tabs.push({n:m[2],g:m[1]})}
   DISC={ok:tabs.length>0,tabs};
  }catch(e){DISC={ok:false,tabs:[]}}
- Object.keys(CONFIG).forEach(k=>{let g=GID[k];if(g===''||g==null){const f=DISC.tabs.find(x=>TAB[k].test(x.n));if(f)g=f.g}CONFIG[k]=wb(g)})}
+ const G={};Object.keys(CONFIG).forEach(k=>{let g=GID[k];if(g===''||g==null){const f=DISC.tabs.find(x=>TAB[k].test(x.n));if(f)g=f.g}G[k]=g});
+ /* tab name not recognised? look at the column headers of the other tabs and match by content */
+ const SIG={POSITIONS:h=>h.has('positiontitle')||h.has('positionstatus'),MASTER:h=>h.has('leavers')||h.has('currentheadcount'),RECRUIT:h=>h.has('offerstatus')||h.has('joindate')||h.has('opendate'),EXITS:h=>h.has('exitdate')||h.has('exitreason')||h.has('lastworkingdate')};
+ const miss=Object.keys(CONFIG).filter(k=>!G[k]&&G[k]!==0);
+ if(miss.length&&DISC.tabs.length){const used=new Set(Object.values(G).filter(Boolean));
+  await Promise.all(DISC.tabs.filter(x=>!used.has(x.g)).map(async x=>{try{const rows=parseCSV(await get(wb(x.g))).filter(r=>r.some(c=>String(c).trim()!==''));
+   let hit=null;for(const r of rows.slice(0,15)){const h=new Set(r.map(nk));const k=miss.find(k=>!G[k]&&SIG[k](h));if(k){hit=k;break}}
+   if(hit&&!G[hit])G[hit]=x.g}catch(e){}}))}
+ Object.keys(CONFIG).forEach(k=>CONFIG[k]=wb(G[k]))}
 /* KPI targets (edit freely). tov = annual turnover %. */
 const TG={fill:95,ttf:45,oar:80,qoh:75,tov:15};
 const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],$=s=>document.querySelector(s);
@@ -112,7 +120,7 @@ const num=v=>{const t=String(v??'').replace(/[,\s%]/g,'');return t===''||t==='-'
 const fN=v=>Math.round(v).toLocaleString('en-US'),fP=v=>(v||0).toFixed(1)+'%',fD=v=>(v||0).toFixed(0)+' days';
 const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
 const sum=(a,f)=>a.reduce((x,r)=>x+f(r),0);
-let S={co:'All',geo:'All',sec:'All',dept:'All',y:0,m:-1},P=[],M=[],R=[],X=[],MISS=[],CH={},YS=[],LOADED=false,SC={k:'d',dir:1},SCQ='',SCROWS=[],SCT={},PS='All',PQ='',PK={k:'dept',dir:1},PREG=[],PROWS=[];
+let S={co:'All',geo:'All',sec:'All',dept:'All',y:0,m:-1},P=[],M=[],R=[],X=[],MISS=[],EMPTY=[],CH={},YS=[],LOADED=false,SC={k:'d',dir:1},SCQ='',SCROWS=[],SCT={},PS='All',PQ='',PK={k:'dept',dir:1},PREG=[],PROWS=[];
 
 /* ---------- CSV + helpers ---------- */
 function parseCSV(t){const r=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}else if(c=='"')q=true;else if(c==','){row.push(f);f=''}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;row.push(f);r.push(row);row=[];f=''}else f+=c}if(f!==''||row.length){row.push(f);r.push(row)}return r}
@@ -149,10 +157,10 @@ async function get(u){const res=await fetch(csvUrl(u),{cache:'no-store'});if(!re
 const ids={fc:'co',fg:'geo',fd:'dept',fs:'sec',fy:'y'};
 const syncSel=()=>Object.keys(ids).forEach(id=>{$('#'+id).value=S[ids[id]]});
 async function init(){const er=[];await discover();
- async function load(name,url,norm){if(!url){MISS.push(name);return[]}try{const t=norm(table(await get(url)));if(!t.length)throw new Error('no usable rows');return t}catch(e){er.push(name+': '+e.message);return[]}}
+ async function load(name,url,norm){if(!url){MISS.push(name);return[]}try{const t=norm(table(await get(url)));if(!t.length){EMPTY.push(name);return[]}return t}catch(e){if(/Cannot read|undefined|no usable/i.test(e.message)){EMPTY.push(name);return[]}er.push(name+': '+e.message);return[]}}
  [P,M,R,X]=await Promise.all([load('POSITIONS',CONFIG.POSITIONS,normPos),load('MASTER',CONFIG.MASTER,normMaster),load('RECRUIT',CONFIG.RECRUIT,normRecruit),load('EXITS',CONFIG.EXITS,normExit)]);
  if(er.length){const e=$('#er');e.style.display='block';e.textContent='Could not read: '+er.join('  |  ')+'. Check the sheet is published to the web.'}
- if(MISS.length){const d=$('#dm');d.style.display='block';d.textContent='Not linked yet: '+MISS.join(', ')+'. '+(DISC.ok?'These tab names were not found in the sheet (found: '+DISC.tabs.map(x=>x.n).join(', ')+'). Rename the tab or add its gid in GID.':'Tab list could not be read automatically, so add each tab\'s gid in GID (top of the script).')+' Related cards stay empty until then.'}
+ if(MISS.length||EMPTY.length){const d=$('#dm');d.style.display='block';d.textContent=(EMPTY.length?'Tab found but no data rows yet: '+EMPTY.join(', ')+'. Add rows from row 2 (headers in row 1). ':'')+(MISS.length?'Not linked yet: '+MISS.join(', ')+'. '+(DISC.ok?'These tab names were not found in the sheet (found: '+DISC.tabs.map(x=>x.n).join(', ')+'). Rename the tab or add its gid in GID.':'Tab list could not be read automatically, so add each tab\'s gid in GID (top of the script).')+' Related cards stay empty until then.':'')}
  YS=[...new Set([...M.map(r=>r.y),...R.filter(r=>r.join).map(r=>r.join.getFullYear()),...X.filter(r=>r.d).map(r=>r.d.getFullYear())])].sort((a,b)=>b-a);
  if(!YS.length)YS=[new Date().getFullYear()];S.y=YS[0];
  const u=k=>[...new Set([...P,...M,...R,...X].map(r=>r[k]).filter(Boolean))].sort();
@@ -226,7 +234,7 @@ const card=(t,v,body,cls,ic)=>`<div class="c ${cls||''}" style="--i:${card.n++}"
 const kpi=(k,l,v,d,o)=>{o=o||{};if(o.f)KF[k]=o.f;return `<div class="k${o.hero?' hero':''}" data-tip="${esc(o.tip||l+': '+String(v).replace(/<[^>]*>/g,''))}" style="--i:${kpi.n++}"><i class="ic">${I(o.ic||'check')}</i><div class="l">${l}</div><div class="v"${o.f?` data-ck="${k}" data-cv="${o.raw}"`:''}>${v}</div><div class="d ${o.c||''}">${d||'&nbsp;'}</div>${o.sp||''}</div>`};
 const cv=id=>`<div class="cv"><canvas id="${id}"></canvas></div>`;
 /* chart body, or a clear message when a source is not linked / has no rows */
-const nd=(src,has,body)=>has?body:`<div class="msg">${MISS.includes(src)?'Link the '+(src=='RECRUIT'?'Recruitment':src=='EXITS'?'Exits':src.toLowerCase())+' tab (add its gid in GID) to see this.':'No data for this selection.'}</div>`;
+const nd=(src,has,body)=>has?body:`<div class="msg">${EMPTY.includes(src)?'This tab has no data rows yet.':MISS.includes(src)?'Link the '+(src=='RECRUIT'?'Recruitment':src=='EXITS'?'Exits':src.toLowerCase())+' tab (add its gid in GID) to see this.':'No data for this selection.'}</div>`;
 function pills(mr,rr){const xs=X.filter(r=>okR(r));
  $('#mm').innerHTML='<span class="mlab">Month</span>'+MN.map((m,i)=>{const hc=mr.filter(r=>r.m==i),hi=rr.filter(r=>r.join&&r.join.getFullYear()==S.y&&r.join.getMonth()==i).length,ex=xs.filter(r=>r.d&&r.d.getFullYear()==S.y&&r.d.getMonth()==i).length,has=hc.length||hi||ex;
   const t=has?`${m} ${S.y}&#10;Headcount: ${fN(sum(hc,r=>r.cur))}&#10;Hires: ${hi}&#10;Exits: ${ex}`:`${m} ${S.y}: no data yet`;return `<button class="mp ${has?'':'no'} ${S.m==i?'on':''}" data-m="${i}" data-tip="${t}">${m}</button>`}).join('')+`<button class="mp ${S.m<0?'on':''}" data-m="-1" data-tip="All months of ${S.y} combined">Full year</button>`}
