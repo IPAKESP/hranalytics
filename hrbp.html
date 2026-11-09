@@ -66,6 +66,7 @@ table.sc{font-size:12.5px}.sc th{cursor:pointer;user-select:none;padding:7px 10p
 .st{display:inline-block;padding:1px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap}
 .st.f{background:var(--pl);color:var(--pd)}.st.v{background:rgba(240,163,94,.28);color:#b45309}[data-theme=dark] .st.v{color:#f0a35e}.st.o{background:var(--sf2);color:var(--mu);border:1px solid var(--bd)}
 table.pr th,table.pr td{text-align:left}table.pr tbody tr{cursor:default}.tools .seg2{display:flex;gap:6px;flex-wrap:wrap}.tools .grow{flex:1}
+.scv{max-height:260px;overflow:auto;padding-right:4px}.scv>div{position:relative}
 @media(max-width:900px){.c.w2{grid-column:auto}.g{grid-template-columns:1fr}main{padding:10px 14px}header{padding:8px 14px}.bar{position:static}#mm{flex-basis:100%;border-left:0;padding-left:0;margin:6px 0 0}}
 @media(max-width:600px){.bl{grid-template-columns:100px 1fr 60px}}
 @media(prefers-reduced-motion:no-preference){.k,.c{animation:up .45s backwards;animation-delay:calc(var(--i,0)*35ms)}@keyframes up{from{opacity:0;transform:translateY(12px)}}.sl polyline{animation:dr 1s .25s backwards ease-out}@keyframes dr{from{stroke-dashoffset:1}}}
@@ -98,7 +99,8 @@ const wb=g=>g!==''&&g!=null?WB+'?gid='+g+'&single=true&output=csv':'';
 /* Positions: Department, Section, Position Title, Geo, Company (As per HCM), Employment Status, Employee ID, Employee Name, Grade, Designation, Position Status
    Master: Month, Company, Department, Current Headcount, Approved Headcount, Leavers
    Recruit: Company, Geo, Department, Section, Position, Open Date, Offer Date, Offer Status, Join Date, Quality of Hire
-   Exits: Company, Geo, Department, Section, Exit Date, Exit Reason */
+   Exits: Company, Geo, Department, Section, Exit Date, Exit Reason, (optional) Exit Type = Voluntary / Involuntary
+   If there is no Exit Type column, voluntary vs involuntary is worked out from the Exit Reason text (terminated, dismissed, retrenched, end of contract, death, retirement... = involuntary). */
 const CONFIG={POSITIONS:'',MASTER:'',RECRUIT:'',EXITS:''};
 let DISC={ok:false,tabs:[]};
 async function discover(){
@@ -154,8 +156,12 @@ function normRecruit(rows){return rows.map(o=>{
  let ttf=num(pick(o,['timetofill','daystofill','ttf']));if(isNaN(ttf)&&open&&join)ttf=Math.round((join-open)/864e5);
  let q=num(pick(o,['qualityofhire','qoh','qohscore','probationscore','performancescore']));if(!isNaN(q)&&q<=5)q=q*20;
  return{co:pick(o,A.co),geo:pick(o,['geo','location','city']),dept:pick(o,A.dept),sec:pick(o,A.sec),offer,join,ttf:isNaN(ttf)||ttf<0?null:ttf,q:isNaN(q)?null:q,off:/accept/.test(st)?'a':/declin|reject/.test(st)?'d':'p'}}).filter(r=>r.dept||r.co)}
-function normExit(rows){return rows.map(o=>({co:pick(o,A.co),geo:pick(o,['geo','location','city']),dept:pick(o,A.dept),sec:pick(o,A.sec),d:pDate(pick(o,['exitdate','lastworkingdate','lwd','resignationdate','date'])),
- why:pick(o,['exitreason','reason','reasonforleaving','reasonofleaving','reasonforexit'])||'Not specified'})).filter(r=>r.dept||r.co)}
+const INVOL=/terminat|dismiss|retrench|redundan|lay\s*off|layoff|end of contract|contract end|contract expir|abscond|death|deceased|retire|misconduct|disciplin|involuntar|not confirmed|probation fail|performance|mutual|downsiz/i;
+function normExit(rows){return rows.map(o=>{
+ const why=pick(o,['exitreason','reason','reasonforleaving','reasonofleaving','reasonforexit'])||'Not specified',
+  ty=pick(o,['exittype','separationtype','typeofexit','typeofseparation','resignationtype','voluntaryinvoluntary','voluntary','category','turnovertype']).toLowerCase();
+ let vol;if(ty)vol=/invol|terminat|dismiss|retrench|redundan|lay\s*off|end of|contract|absc|death|retire|^(no|n)$/.test(ty)?false:/vol|resign|^(yes|y)$/.test(ty);else vol=!INVOL.test(why);
+ return{co:pick(o,A.co),geo:pick(o,['geo','location','city']),dept:pick(o,A.dept),sec:pick(o,A.sec),d:pDate(pick(o,['exitdate','lastworkingdate','lwd','resignationdate','date'])),why,vol}}).filter(r=>r.dept||r.co)}
 
 /* ---------- loading (Google Sheets only, no sample data) ---------- */
 const csvUrl=u=>{const m=String(u).match(/^(.*?\/pub)html(?:\?(.*))?$/);if(!m)return u;const g=(m[2]||'').match(/gid=(\d+)/);return m[1]+'?'+(g?'gid='+g[1]+'&single=true&':'')+'output=csv'};
@@ -242,6 +248,8 @@ const blist=(items,fmt,warn,fk)=>{const mx=Math.max(1e-9,...items.map(x=>x[1]));
 const card=(t,v,body,cls,ic)=>`<div class="c ${cls||''}" style="--i:${card.n++}"><div class="t"><i class="tl">${ic?`<i class="ic s">${I(ic)}</i>`:''}${t}</i><span>${v||''}</span></div>${body}</div>`;
 const kpi=(k,l,v,d,o)=>{o=o||{};if(o.f)KF[k]=o.f;return `<div class="k${o.hero?' hero':''}" data-tip="${esc(o.tip||l+': '+String(v).replace(/<[^>]*>/g,''))}" style="--i:${kpi.n++}"><i class="ic">${I(o.ic||'check')}</i><div class="l">${l}</div><div class="v"${o.f?` data-ck="${k}" data-cv="${o.raw}"`:''}>${v}</div><div class="d ${o.c||''}">${d||'&nbsp;'}</div>${o.sp||''}</div>`};
 const cv=id=>`<div class="cv"><canvas id="${id}"></canvas></div>`;
+/* scrollable chart whose height grows with the number of bars (n) */
+const cvH=(id,n)=>`<div class="scv"><div style="height:${Math.max(150,n*(id=='ah'?40:24)+30)}px"><canvas id="${id}"></canvas></div></div>`;
 /* chart body, or a clear message when a source is not linked / has no rows */
 const nd=(src,has,body)=>has?body:`<div class="msg">${EMPTY.includes(src)?'This tab has no data rows yet.':MISS.includes(src)?'Link the '+(src=='RECRUIT'?'Recruitment':src=='EXITS'?'Exits':src.toLowerCase())+' tab (add its gid in GID) to see this.':'No data for this selection.'}</div>`;
 function pills(mr,rr){const xs=X.filter(r=>okR(r));
@@ -270,10 +278,14 @@ function render(){if(!LOADED)return;card.n=0;kpi.n=0;saveHash();
  const mr=M.filter(r=>okM(r)&&r.y==S.y),lm=mr.length?Math.max(...mr.filter(r=>S.m<0||r.m<=S.m).map(r=>r.m)):null,ms=[...new Set(mr.filter(r=>S.m<0||r.m==S.m).map(r=>r.m))];
  const rr=R.filter(okR),jp=rr.filter(r=>inP(r.join)),op=rr.filter(r=>inP(r.offer)),xp=X.filter(r=>okR(r)&&inP(r.d));
  const ttf=ttfOf(jp),oar=oarOf(op),qoh=qohOf(jp),tov=turnover(mr,ms),tTov=TG.tov*Math.max(1,ms.length)/12;
+ /* voluntary turnover = voluntary exits ÷ average headcount (same denominator as overall turnover) */
+ const hcAvg=ms.length?avg(ms.map(m=>hcAt(mr,m))):null,xv=xp.filter(r=>r.vol).length,xi=xp.length-xv,vtov=hcAvg?xv/hcAvg*100:null;
  const rc={};xp.forEach(r=>rc[r.why]=(rc[r.why]||0)+1);const rs=Object.entries(rc).sort((a,b)=>b[1]-a[1]);
- const per=S.m<0?'Jan–'+(lm!=null?MN[lm]:'')+' '+S.y:MN[S.m]+' '+S.y;
+ const per=S.m<0?'Jan–'+(lm!=null&&isFinite(lm)?MN[lm]:'')+' '+S.y:MN[S.m]+' '+S.y;
  const yr=f=>MN.map((_,i)=>f(i));
- const sT=yr(i=>ttfOf(rr.filter(r=>r.join&&r.join.getFullYear()==S.y&&r.join.getMonth()==i))),sO=yr(i=>oarOf(rr.filter(r=>r.offer&&r.offer.getFullYear()==S.y&&r.offer.getMonth()==i))),sQ=yr(i=>qohOf(rr.filter(r=>r.join&&r.join.getFullYear()==S.y&&r.join.getMonth()==i))),sV=yr(i=>{const c=hcAt(mr,i);return c?sum(mr.filter(r=>r.m==i),r=>r.lv)/c*100:null});
+ const xy=X.filter(r=>okR(r)&&r.d&&r.d.getFullYear()==S.y);
+ const sT=yr(i=>ttfOf(rr.filter(r=>r.join&&r.join.getFullYear()==S.y&&r.join.getMonth()==i))),sO=yr(i=>oarOf(rr.filter(r=>r.offer&&r.offer.getFullYear()==S.y&&r.offer.getMonth()==i))),sQ=yr(i=>qohOf(rr.filter(r=>r.join&&r.join.getFullYear()==S.y&&r.join.getMonth()==i))),sV=yr(i=>{const c=hcAt(mr,i);return c?sum(mr.filter(r=>r.m==i),r=>r.lv)/c*100:null}),
+  sVV=yr(i=>{const c=hcAt(mr,i);return c?xy.filter(r=>r.vol&&r.d.getMonth()==i).length/c*100:null});
  const dFill=byDept(pr,a=>({f:a.filter(r=>r.st=='f').length,v:a.filter(r=>r.st=='v').length})),nD=dFill.length;
  const dRate=dFill.filter(x=>x[1].f+x[1].v>0).map(x=>[x[0],x[1].f/(x[1].f+x[1].v)*100]).sort((a,b)=>a[1]-b[1]);
  const sites=[...new Set(pr.map(r=>r.geo).filter(Boolean))].sort(),dp=[...new Set(pr.map(r=>r.dept).filter(Boolean))].sort(),vm={};vc.forEach(r=>{const k=r.dept+'|'+r.geo;vm[k]=(vm[k]||0)+1});
@@ -281,10 +293,14 @@ function render(){if(!LOADED)return;card.n=0;kpi.n=0;saveHash();
  const mx=Math.max(1,...Object.values(vm)),top=rs[0],ratio=perm+tp?Math.round(perm/(perm+tp)*100)+' : '+Math.round(tp/(perm+tp)*100):'–';
  const dt=byDept(mr.filter(r=>ms.includes(r.m)),a=>turnover(a,ms)).filter(x=>x[1]!=null).sort((a,b)=>b[1]-a[1]);
  const tdp=byDept(jp,ttfOf).filter(x=>x[1]!=null);
- const hasJ=jp.length>0,hasO=op.length>0,hasX=xp.length>0,hasM=ms.length>0;
+ /* actual vs approved by department (positions) and department-wise headcount (Mastersheet latest month, else filled positions) */
+ const dAH=dFill.map(x=>({d:x[0],ap:x[1].f+x[1].v,f:x[1].f})).filter(x=>x.ap>0).sort((a,b)=>b.ap-a.ap);
+ const dhcM=lm!=null&&isFinite(lm)?byDept(mr.filter(r=>r.m==lm),a=>sum(a,r=>r.cur)).filter(x=>x[1]>0):[];
+ const dhcSrc=dhcM.length?'Mastersheet · '+MN[lm]+' '+S.y:'Filled positions',dhc=(dhcM.length?dhcM:dFill.map(x=>[x[0],x[1].f])).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+ const hasJ=jp.length>0,hasO=op.length>0,hasX=xp.length>0,hasM=ms.length>0,hasXY=xy.length>0||hasM;
 
- let h=`<div class="kg">${kpi('hc','Actual headcount',fN(fl.length),'Approved '+fN(ap),{hero:1,ic:'people',f:fN,raw:fl.length,tip:'Actual headcount: '+fN(fl.length)+'\nApproved: '+fN(ap)+'\nVacant: '+fN(vc.length)})}${kpi('vac','Vacant positions',fN(vc.length),ap?fP(vc.length/ap*100)+' of approved':'',{ic:'add',f:fN,raw:vc.length,c:vc.length?'b':'g'})}${kpi('org','Org chart fill rate',org==null?'–':fP(org),'Target ≥'+TG.fill+'%',{ic:'target',f:fP,raw:org||0,c:gd(org==null?null:org>=TG.fill),tip:'Filled ÷ approved\nTarget ≥'+TG.fill+'%'})}${kpi('pt','Perm : 3rd party',ratio,fN(perm)+' · '+fN(tp),{ic:'work',tip:'Permanent: '+fN(perm)+'\n3rd party: '+fN(tp)})}${kpi('tov','Employee turnover',tov==null?'–':fP(tov),'Target ≤'+tTov.toFixed(1)+'%',{ic:'walk',f:fP,raw:tov||0,sp:spark(sV,fP),c:gd(tov==null?null:tov<=tTov),tip:'Employee turnover · '+per+'\nTarget ≤'+tTov.toFixed(1)+'%'})}${kpi('ttf','Time to fill',ttf==null?'–':fD(ttf),'Target ≤'+TG.ttf+' days',{ic:'clock',f:fD,raw:ttf||0,sp:spark(sT,fD),c:gd(ttf==null?null:ttf<=TG.ttf),tip:'Time to fill · '+per})}${kpi('oar','Offer acceptance',oar==null?'–':fP(oar),'Target ≥'+TG.oar+'%',{ic:'check',f:fP,raw:oar||0,sp:spark(sO,fP),c:gd(oar==null?null:oar>=TG.oar),tip:'Offer acceptance · '+per})}${kpi('qoh','Quality of hire',qoh==null?'–':fP(qoh),'Target ≥'+TG.qoh+'%',{ic:'trend',f:fP,raw:qoh||0,sp:spark(sQ,fP),c:gd(qoh==null?null:qoh>=TG.qoh),tip:'Quality of hire · '+per})}${kpi('xr','Top exit reason',top?esc(top[0]):'–',top?Math.round(top[1]/xp.length*100)+'% of '+xp.length+' exits':'No exits',{ic:'doc'})}</div>`;
- const ins=[];if(S.dept!='All')ins.push('Filtered: '+S.dept+' (click Reset to clear)');if(org!=null)ins.push('Org chart '+fP(org)+' filled · '+fN(vc.length)+' vacant');if(dRate[0]&&dRate[0][1]<100)ins.push('Lowest fill: '+dRate[0][0]+' ('+fP(dRate[0][1])+')');if(ttf!=null)ins.push('Avg time to fill: '+fD(ttf));if(top)ins.push('Most exits: '+top[0]);if(tov!=null)ins.push('Turnover '+fP(tov));
+ let h=`<div class="kg">${kpi('hc','Actual headcount',fN(fl.length),'Approved '+fN(ap),{hero:1,ic:'people',f:fN,raw:fl.length,tip:'Actual headcount: '+fN(fl.length)+'\nApproved: '+fN(ap)+'\nVacant: '+fN(vc.length)})}${kpi('vac','Vacant positions',fN(vc.length),ap?fP(vc.length/ap*100)+' of approved':'',{ic:'add',f:fN,raw:vc.length,c:vc.length?'b':'g'})}${kpi('org','Org chart fill rate',org==null?'–':fP(org),'Target ≥'+TG.fill+'%',{ic:'target',f:fP,raw:org||0,c:gd(org==null?null:org>=TG.fill),tip:'Filled ÷ approved\nTarget ≥'+TG.fill+'%'})}${kpi('pt','Perm : 3rd party',ratio,fN(perm)+' · '+fN(tp),{ic:'work',tip:'Permanent: '+fN(perm)+'\n3rd party: '+fN(tp)})}${kpi('tov','Overall turnover',tov==null?'–':fP(tov),'Target ≤'+tTov.toFixed(1)+'%',{ic:'walk',f:fP,raw:tov||0,sp:spark(sV,fP),c:gd(tov==null?null:tov<=tTov),tip:'Overall turnover · '+per+'\nTarget ≤'+tTov.toFixed(1)+'%'})}${kpi('vtov','Voluntary turnover',vtov==null?'–':fP(vtov),hasX?fN(xv)+' vol · '+fN(xi)+' invol':'No exits',{ic:'walk',f:fP,raw:vtov||0,sp:spark(sVV,fP),tip:'Voluntary turnover · '+per+'\nVoluntary exits: '+fN(xv)+'\nInvoluntary exits: '+fN(xi)})}${kpi('ttf','Time to fill',ttf==null?'–':fD(ttf),'Target ≤'+TG.ttf+' days',{ic:'clock',f:fD,raw:ttf||0,sp:spark(sT,fD),c:gd(ttf==null?null:ttf<=TG.ttf),tip:'Time to fill · '+per})}${kpi('oar','Offer acceptance',oar==null?'–':fP(oar),'Target ≥'+TG.oar+'%',{ic:'check',f:fP,raw:oar||0,sp:spark(sO,fP),c:gd(oar==null?null:oar>=TG.oar),tip:'Offer acceptance · '+per})}${kpi('qoh','Quality of hire',qoh==null?'–':fP(qoh),'Target ≥'+TG.qoh+'%',{ic:'trend',f:fP,raw:qoh||0,sp:spark(sQ,fP),c:gd(qoh==null?null:qoh>=TG.qoh),tip:'Quality of hire · '+per})}${kpi('xr','Top exit reason',top?esc(top[0]):'–',top?Math.round(top[1]/xp.length*100)+'% of '+xp.length+' exits':'No exits',{ic:'doc'})}</div>`;
+ const ins=[];if(S.dept!='All')ins.push('Filtered: '+S.dept+' (click Reset to clear)');if(org!=null)ins.push('Org chart '+fP(org)+' filled · '+fN(vc.length)+' vacant');if(dRate[0]&&dRate[0][1]<100)ins.push('Lowest fill: '+dRate[0][0]+' ('+fP(dRate[0][1])+')');if(ttf!=null)ins.push('Avg time to fill: '+fD(ttf));if(top)ins.push('Most exits: '+top[0]);if(tov!=null)ins.push('Turnover '+fP(tov)+(vtov!=null?' (voluntary '+fP(vtov)+')':''));
  h+=`<div class="ins">${ins.map(i=>`<div>${esc(i)}</div>`).join('')}</div>`;
 
  /* department scorecard data (ignores the department filter so you can switch rows) */
@@ -293,7 +309,13 @@ function render(){if(!LOADED)return;card.n=0;kpi.n=0;saveHash();
  {const ap=sum(SCROWS,r=>r.ap),f=sum(SCROWS,r=>r.f);SCT={ap,f,v:sum(SCROWS,r=>r.v),fill:ap?f/ap*100:null,perm:sum(SCROWS,r=>r.perm),tp:sum(SCROWS,r=>r.tp),tov:turnover(mA,msA),ttf:ttfOf(jA)}}
 
  h+=`<h2>Monthly trends <small>${per} · dashed line = target</small></h2><div class="g">`;
- h+=card('Time to fill',ttf==null?'':fD(ttf),nd('RECRUIT',hasJ,cv('h1')),'','clock')+card('Offer acceptance',oar==null?'':fP(oar),nd('RECRUIT',rr.length>0,cv('h2')),'','check')+card('Quality of hire',qoh==null?'':fP(qoh),nd('RECRUIT',hasJ,cv('h3')),'','trend')+card('Employee turnover',tov==null?'':fP(tov),nd('MASTER',hasM,cv('a1')),'','walk')+'</div>';
+ h+=card('Time to fill',ttf==null?'':fD(ttf),nd('RECRUIT',hasJ,cv('h1')),'','clock')+card('Offer acceptance',oar==null?'':fP(oar),nd('RECRUIT',rr.length>0,cv('h2')),'','check')+card('Quality of hire',qoh==null?'':fP(qoh),nd('RECRUIT',hasJ,cv('h3')),'','trend')+card('Overall turnover',tov==null?'':fP(tov),nd('MASTER',hasM,cv('a1')),'','walk')+'</div>';
+
+ h+=`<h2>Headcount &amp; turnover <small>click a department bar to filter</small></h2><div class="g">`;
+ h+=card('Actual vs approved headcount',dAH.length?fN(sum(dAH,x=>x.f))+' / '+fN(sum(dAH,x=>x.ap)):'',nd('POSITIONS',dAH.length>0,cvH('ah',dAH.length)),'w2','people')
+  +card('Department wise headcount <small>('+esc(dhcSrc)+')</small>',dhc.length?fN(sum(dhc,x=>x[1])):'',nd('POSITIONS',dhc.length>0,cvH('dh',dhc.length)),'','people')
+  +card('Overall vs voluntary turnover',tov==null&&vtov==null?'':(tov==null?'–':fP(tov))+' / '+(vtov==null?'–':fP(vtov)),nd('MASTER',hasXY,cv('ov')),'w2','walk')
+  +card('Department wise turnover',tov==null?'':fP(tov),nd('MASTER',dt.length>0,cvH('dt',dt.length)),'','walk')+'</div>';
 
  h+=`<h2>Vacancies, workforce mix &amp; exits</h2><div class="g">`;
  h+=card('Vacant by site <small>(click to filter)</small>',fN(vc.length),nd('POSITIONS',siteV.length>0,'<div class="sc1">'+blist(siteV,fN,1,'geo')+'</div>'),'','add')+card('Permanent vs 3rd party',ratio=='–'?'':ratio,nd('POSITIONS',perm+tp>0,cv('p3')),'','work')+card('Top exit reasons',xp.length?xp.length+' exits':'',nd('EXITS',hasX,'<div class="sc1">'+blist(rs.slice(0,8),fN)+'</div>'),'','doc')+card('Vacant: department × site',fN(vc.length),'<div class="tw" id="hm" style="max-height:150px"></div>','w2','block')+'</div>';
@@ -307,6 +329,15 @@ function render(){if(!LOADED)return;card.n=0;kpi.n=0;saveHash();
  if(rr.length)line('h2',sO,fP,TG.oar);
  if(hasM)line('a1',sV,fP,TG.tov/12);
  if(perm+tp)mk('p3',{type:'doughnut',data:{labels:['Permanent','3rd party'],datasets:[{data:[perm,tp],backgroundColor:[DK,WN],borderColor:'transparent'}]},options:{cutout:'62%',plugins:{legend:{display:true,position:'right',labels:{color:css('--mu'),boxWidth:10}}}}});
+ /* actual vs approved (grouped horizontal bars) */
+ if(dAH.length)mk('ah',{type:'bar',data:{labels:dAH.map(x=>x.d),datasets:[{label:'Approved',data:dAH.map(x=>x.ap),backgroundColor:LT,borderRadius:5},{label:'Actual',data:dAH.map(x=>x.f),backgroundColor:PR,borderRadius:5}]},options:{indexAxis:'y',onClick:drill,onHover:hov,plugins:{legend:legendOn(),tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+fN(c.parsed.x)}}},scales:{y:{ticks:{autoSkip:false}}}}});
+ if(dhc.length)hbar('dh',dhc.map(x=>x[0]),dhc.map(x=>x[1]),PR,fN,true);
+ /* overall vs voluntary turnover, monthly */
+ if(hasXY)mk('ov',{type:'line',data:{labels:MN,datasets:[
+  {label:'Overall',data:sV,borderColor:PR,backgroundColor:'rgba(37,99,235,.12)',borderWidth:2.5,tension:.35,pointRadius:3,pointBackgroundColor:PR,fill:true,spanGaps:false},
+  {label:'Voluntary',data:sVV,borderColor:WN,backgroundColor:'rgba(240,163,94,.15)',borderWidth:2.5,tension:.35,pointRadius:3,pointBackgroundColor:WN,fill:true,spanGaps:false}]},
+  options:{plugins:{legend:legendOn(),tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y==null?'–':fP(c.parsed.y))}}}}});
+ if(dt.length)hbar('dt',dt.map(x=>x[0]),dt.map(x=>x[1]),'#d4543a',fP,true);
  $('#hm').innerHTML=`<table><thead><tr><th>Department</th>${sites.map(s=>`<th>${esc(s)}</th>`).join('')}<th>Total</th></tr></thead><tbody>${dp.map(d=>{let t=0;const cells=sites.map(s=>{const v=vm[d+'|'+s]||0;t+=v;return `<td class="hm" style="${v?`background:rgba(var(--warm),${(.15+.6*v/mx).toFixed(2)})`:''}">${v||'–'}</td>`}).join('');return `<tr><td>${esc(d)}</td>${cells}<td class="hm">${t||'–'}</td></tr>`}).join('')||'<tr><td colspan="9" class="msg">No positions</td></tr>'}</tbody></table>`}
 document.addEventListener('click',e=>{const T=e.target.closest&&e.target.closest('[data-m],[data-sk],[data-dp],[data-fk],[data-ps],[data-pk],[data-ex]');if(!T)return;const d=T.dataset;
  if(d.m!==undefined)S.m=+d.m;
