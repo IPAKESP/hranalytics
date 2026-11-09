@@ -102,7 +102,13 @@ const wb=g=>g!==''&&g!=null?WB+'?gid='+g+'&single=true&output=csv':'';
    Exits: Company, Geo, Department, Section, Exit Date, Exit Reason, (optional) Exit Type = Voluntary / Involuntary
    If there is no Exit Type column, voluntary vs involuntary is worked out from the Exit Reason text (terminated, dismissed, retrenched, end of contract, death, retirement... = involuntary). */
 const CONFIG={POSITIONS:'',MASTER:'',RECRUIT:'',EXITS:''};
-let DISC={ok:false,tabs:[]},DIAG=[];
+let DISC={ok:false,tabs:[]},DIAG=[],LST={co:[],geo:[],dept:[],sec:[]};
+/* Lists tab (Company / Geo / Department) and DeptSections tab (Department / Section) - give the full filter lists even before data exists */
+const LGID={LISTS:'1744802688',DEPTSEC:'744123722'};
+const GVg=g=>'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&headers=1&gid='+g;
+async function loadLists(){const add=(k,v)=>{v=String(v||'').trim();if(v&&!LST[k].includes(v))LST[k].push(v)};
+ try{table(await get(GVg(LGID.LISTS))).forEach(o=>{add('co',o.company);add('geo',o.geo);add('dept',o.department)})}catch(e){DIAG.push('Lists tab nahi khula: '+e.message)}
+ try{table(await get(GVg(LGID.DEPTSEC))).forEach(o=>{add('dept',o.department);add('sec',o.section)})}catch(e){DIAG.push('DeptSections tab nahi khula: '+e.message)}}
 async function discover(){
  try{if(Object.values(GID).every(Boolean))throw 0;const t=await(await fetch(WB+'html',{cache:'no-store'})).text();const tabs=[];let m;
   const r1=/\{name:\s*"((?:[^"\\]|\\.)*)"[^}]*?gid:\s*"(\d+)"/g;while(m=r1.exec(t))tabs.push({n:m[1],g:m[2]});
@@ -171,7 +177,7 @@ const csvUrl=u=>{const m=String(u).match(/^(.*?\/pub)html(?:\?(.*))?$/);if(!m)re
 async function get(u){const res=await fetch(csvUrl(u),{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);return res.text()}
 const ids={fc:'co',fg:'geo',fd:'dept',fs:'sec',fy:'y'};
 const syncSel=()=>Object.keys(ids).forEach(id=>{$('#'+id).value=S[ids[id]]});
-async function init(){const er=[];await discover();
+async function init(){const er=[];await discover();await loadLists();
  async function load(name,url,norm){let txt=null,why='';
   if(SHEET_ID){try{const x=await get(GV(name));const rows=parseCSV(x).filter(r=>r.some(c=>String(c).trim()!==''));if(rows.slice(0,15).some(r=>SIGS[name](new Set(r.map(nk)))))txt=x;else why='tab "'+NAMES[name]+'" mila lekin columns match nahi hue (pehli row: '+(rows[0]?rows[0].slice(0,6).join(' | '):'khali - tab mein koi data/header nahi')+')'}catch(e){txt=null;why='tab "'+NAMES[name]+'" nahi khula ('+e.message+') - sheet ko "Anyone with the link: Viewer" share karein'}}
   if(txt==null){if(!url){MISS.push(name);DIAG.push(name+': '+why+'; published link ka gid bhi set nahi hai');return[]}try{txt=await get(url)}catch(e){er.push(name+': '+e.message+(why?' ('+why+')':''));return[]}}
@@ -181,9 +187,9 @@ async function init(){const er=[];await discover();
  if(MISS.length||EMPTY.length){const d=$('#dm');d.style.display='block';d.style.whiteSpace='pre-line';d.textContent=(DIAG.length?'Diagnosis:\n- '+DIAG.join('\n- ')+'\n\n':'')+(EMPTY.length?'Tab found but no data rows yet: '+EMPTY.join(', ')+'. Add rows from row 2 (headers in row 1). ':'')+(MISS.length?'Not linked yet: '+MISS.join(', ')+'. '+(DISC.ok?'These tab names were not found in the sheet (found: '+DISC.tabs.map(x=>x.n).join(', ')+'). Rename the tab or add its gid in GID.':'Tab list could not be read automatically, so add each tab\'s gid in GID (top of the script).')+' Related cards stay empty until then.':'')}
  YS=[...new Set([...M.map(r=>r.y),...R.filter(r=>r.join).map(r=>r.join.getFullYear()),...X.filter(r=>r.d).map(r=>r.d.getFullYear())])].sort((a,b)=>b-a);
  if(!YS.length)YS=[new Date().getFullYear()];S.y=YS[0];
- const u=k=>[...new Set([...P,...M,...R,...X].map(r=>r[k]).filter(Boolean))].sort();
+ const u=k=>[...new Set([...P,...M,...R,...X].map(r=>r[k]).filter(Boolean).concat(LST[k]||[]))].sort();
  const fill=(id,a,all)=>{$(id).innerHTML=all.concat(a).map(([v,l])=>`<option value="${esc(v)}">${esc(l)}</option>`).join('')};
- const all=[['All','All']];fill('#fc',u('co').map(c=>[c,c]),all);fill('#fg',[...new Set([...P,...R,...X].map(r=>r.geo).filter(Boolean))].sort().map(c=>[c,c]),all);fill('#fd',u('dept').map(c=>[c,c]),all);fill('#fs',u('sec').map(c=>[c,c]),all);
+ const all=[['All','All']];fill('#fc',u('co').map(c=>[c,c]),all);fill('#fg',[...new Set([...P,...R,...X].map(r=>r.geo).filter(Boolean).concat(LST.geo))].sort().map(c=>[c,c]),all);fill('#fd',u('dept').map(c=>[c,c]),all);fill('#fs',u('sec').map(c=>[c,c]),all);
  fill('#fy',YS.map(y=>[y,y]),[]);
  /* filters from URL hash, e.g. #co=KHI&dept=HR&y=2026&m=3 */
  const H=new URLSearchParams(location.hash.slice(1));['co','geo','dept','sec'].forEach(k=>{if(H.get(k))S[k]=H.get(k)});
@@ -308,7 +314,7 @@ function render(){if(!LOADED)return;card.n=0;kpi.n=0;saveHash();
 
  /* department scorecard data (ignores the department filter so you can switch rows) */
  const A0=P.filter(r=>eq(S.co,r.co)&&eq(S.geo,r.geo)&&eq(S.sec,r.sec)),mA=M.filter(r=>ln(S.co,r.co)&&ln(S.sec,r.sec)&&r.y==S.y),msA=[...new Set(mA.filter(r=>S.m<0||r.m==S.m).map(r=>r.m))],jA=R.filter(r=>ln(S.co,r.co)&&ln(S.geo,r.geo)&&ln(S.sec,r.sec)&&inP(r.join));
- SCROWS=[...new Set([...A0.map(r=>r.dept),...mA.map(r=>r.dept)].filter(Boolean))].sort().map(d=>{const p=A0.filter(r=>r.dept==d),f=p.filter(r=>r.st=='f'),v=p.filter(r=>r.st=='v'),a=f.length+v.length;return{d,ap:a,f:f.length,v:v.length,fill:a?f.length/a*100:null,perm:f.filter(r=>!r.tp).length,tp:f.filter(r=>r.tp).length,tov:turnover(mA.filter(r=>r.dept==d),msA),ttf:ttfOf(jA.filter(r=>r.dept==d))}});
+ SCROWS=[...new Set([...A0.map(r=>r.dept),...mA.map(r=>r.dept),...LST.dept].filter(Boolean))].sort().map(d=>{const p=A0.filter(r=>r.dept==d),f=p.filter(r=>r.st=='f'),v=p.filter(r=>r.st=='v'),a=f.length+v.length;return{d,ap:a,f:f.length,v:v.length,fill:a?f.length/a*100:null,perm:f.filter(r=>!r.tp).length,tp:f.filter(r=>r.tp).length,tov:turnover(mA.filter(r=>r.dept==d),msA),ttf:ttfOf(jA.filter(r=>r.dept==d))}});
  {const ap=sum(SCROWS,r=>r.ap),f=sum(SCROWS,r=>r.f);SCT={ap,f,v:sum(SCROWS,r=>r.v),fill:ap?f/ap*100:null,perm:sum(SCROWS,r=>r.perm),tp:sum(SCROWS,r=>r.tp),tov:turnover(mA,msA),ttf:ttfOf(jA)}}
 
  h+=`<h2>Monthly trends <small>${per} · dashed line = target</small></h2><div class="g">`;
